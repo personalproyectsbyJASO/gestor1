@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>C&C Dental Group - Drive</title>
+    <title>C&C Dental Group</title>
     <script src="https://accounts.google.com/gsi/client"></script>
     <script src="https://apis.google.com/js/api.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -47,21 +47,26 @@
     <div id="configPanel" class="card hidden">
         <h3>Configuración inicial</h3>
         <div class="alert-warning">
-            <strong>⚙️ Configuración única (5 minutos)</strong><br><br>
-            1. Ve a <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color:#2DD4BF;">Google Cloud Console</a><br>
+            <strong>⚙️ Configuración única</strong><br><br>
+            1. Ve a <a href="https://console.cloud.google.com/apis/credentials" target="_blank">Google Cloud Console</a><br>
             2. Crea proyecto → Habilita "Google Drive API"<br>
-            3. Credenciales → Crear ID cliente OAuth → Aplicación web<br>
+            3. Credenciales → ID cliente OAuth → Aplicación web<br>
             4. Orígenes autorizados: agrega tu dominio de GitHub Pages<br>
             5. Copia el Client ID y pégalo aquí
         </div>
-        <input type="text" id="clientIdInput" placeholder="Pega tu Client ID" style="width: 100%;">
+        <input type="text" id="clientIdInput" placeholder="Pega tu Client ID">
         <button onclick="guardarClientId()">Guardar y Conectar</button>
-        <button onclick="cerrarConfig()" style="background: #EF4444;">Cancelar</button>
+        <button onclick="cerrarConfig()" style="background:#EF4444;">Cancelar</button>
     </div>
 
     <div class="grid">
         <div class="modulo" onclick="mostrarPanel('expedientes')"><i class="fas fa-folder-open"></i><h3>Expedientes</h3></div>
         <div class="modulo" onclick="mostrarPanel('receta')"><i class="fas fa-prescription-bottle"></i><h3>Receta</h3></div>
+        <div class="modulo" onclick="mostrarPanel('presupuestos')"><i class="fas fa-file-invoice-dollar"></i><h3>Presupuestos</h3></div>
+        <div class="modulo" onclick="mostrarPanel('agenda')"><i class="fas fa-calendar-alt"></i><h3>Agenda</h3></div>
+        <div class="modulo" onclick="mostrarPanel('servicios')"><i class="fas fa-tooth"></i><h3>Servicios</h3></div>
+        <div class="modulo" onclick="mostrarPanel('medicamentos')"><i class="fas fa-capsules"></i><h3>Medicamentos</h3></div>
+        <div class="modulo" onclick="mostrarPanel('consentimiento')"><i class="fas fa-file-signature"></i><h3>Consentimiento</h3></div>
         <div class="modulo" onclick="mostrarPanel('certificado')"><i class="fas fa-certificate"></i><h3>Certificado</h3></div>
     </div>
 
@@ -87,6 +92,46 @@
         <button onclick="generarRecetaPDF()">Generar PDF</button>
     </div>
 
+    <div id="panel_presupuestos" class="card hidden">
+        <h2>💰 Presupuesto</h2>
+        <input type="text" id="presNombre" placeholder="Paciente">
+        <input type="text" id="presServicio" placeholder="Servicio">
+        <input type="number" id="presMonto" placeholder="Monto">
+        <button onclick="generarPresupuestoPDF()">Generar PDF</button>
+    </div>
+
+    <div id="panel_agenda" class="card hidden">
+        <h2>📅 Agenda de Citas</h2>
+        <input type="text" id="citaPaciente" placeholder="Paciente">
+        <input type="date" id="citaFecha">
+        <input type="time" id="citaHora">
+        <button onclick="agendarCita()">Agendar</button>
+        <hr><div id="listaCitas"></div>
+    </div>
+
+    <div id="panel_servicios" class="card hidden">
+        <h2>🦷 Servicios</h2>
+        <input type="text" id="servNombre" placeholder="Nombre">
+        <input type="number" id="servCosto" placeholder="Costo">
+        <button onclick="agregarServicio()">+ Registrar</button>
+        <hr><div id="listaServicios"></div>
+    </div>
+
+    <div id="panel_medicamentos" class="card hidden">
+        <h2>💊 Medicamentos</h2>
+        <input type="text" id="medNombre" placeholder="Nombre">
+        <input type="text" id="medCategoria" placeholder="Categoría">
+        <button onclick="agregarMedicamento()">+ Registrar</button>
+        <hr><div id="listaMedicamentos"></div>
+    </div>
+
+    <div id="panel_consentimiento" class="card hidden">
+        <h2>📝 Consentimiento Informado</h2>
+        <input type="text" id="consentPaciente" placeholder="Paciente">
+        <input type="text" id="consentProcedimiento" placeholder="Procedimiento">
+        <button onclick="generarConsentimientoPDF()">Generar PDF</button>
+    </div>
+
     <div id="panel_certificado" class="card hidden">
         <h2>📜 Certificado Médico</h2>
         <input type="text" id="certPaciente" placeholder="Paciente">
@@ -98,81 +143,55 @@
 
 <script>
     let accessToken = null, tokenClient = null, folderId = null;
-    let expedientes = [];
+    let expedientes = [], servicios = [], medicamentos = [], citas = [];
 
-    // Cargar expedientes guardados
-    function cargarExpedientes() { 
-        const g = localStorage.getItem('expedientes'); 
-        if(g) expedientes = JSON.parse(g); 
-        mostrarLista(); 
+    function cargarDatos() {
+        const e = localStorage.getItem('expedientes'); if(e) expedientes = JSON.parse(e);
+        const s = localStorage.getItem('servicios'); if(s) servicios = JSON.parse(s); else servicios = [{nombre:"Extracción",costo:900},{nombre:"Endodoncia",costo:3500}];
+        const m = localStorage.getItem('medicamentos'); if(m) medicamentos = JSON.parse(m);
+        const c = localStorage.getItem('citas'); if(c) citas = JSON.parse(c);
+        mostrarListaExpedientes(); mostrarListaServicios(); mostrarListaMedicamentos(); mostrarListaCitas();
     }
+
+    function mostrarListaExpedientes() { const c = document.getElementById('listaExpedientes'); if(!c) return; if(expedientes.length===0) { c.innerHTML='<p>No hay expedientes</p>'; return; } c.innerHTML = expedientes.map((e,i)=>`<div class="exp-item"><span><strong>${e.nombre}</strong> - ${e.edad} años</span><button onclick="eliminarExpediente(${i})">X</button></div>`).join(''); }
+    function eliminarExpediente(i){ expedientes.splice(i,1); localStorage.setItem('expedientes',JSON.stringify(expedientes)); mostrarListaExpedientes(); mostrarToast('Eliminado'); }
     
-    function mostrarLista() { 
-        const c = document.getElementById('listaExpedientes'); 
-        if(!c) return; 
-        if(expedientes.length===0) { 
-            c.innerHTML='<p style="color:#94A3B8;">No hay expedientes</p>'; 
-            return; 
-        } 
-        c.innerHTML = expedientes.map((e,i)=>`<div class="exp-item"><span><strong>${e.nombre}</strong> - ${e.edad} años</span><button onclick="eliminarExpediente(${i})" style="background:#EF4444;">X</button></div>`).join(''); 
-    }
+    function mostrarListaServicios() { const c = document.getElementById('listaServicios'); if(!c) return; c.innerHTML = servicios.map((s,i)=>`<div class="exp-item"><span>${s.nombre} - $${s.costo}</span><button onclick="eliminarServicio(${i})">X</button></div>`).join(''); localStorage.setItem('servicios',JSON.stringify(servicios)); }
+    function agregarServicio() { const n = document.getElementById('servNombre').value, c = parseFloat(document.getElementById('servCosto').value); if(n && !isNaN(c)) { servicios.push({nombre:n,costo:c}); mostrarListaServicios(); document.getElementById('servNombre').value=''; document.getElementById('servCosto').value=''; mostrarToast('Agregado'); } }
+    function eliminarServicio(i){ servicios.splice(i,1); mostrarListaServicios(); }
     
-    function eliminarExpediente(i){ 
-        expedientes.splice(i,1); 
-        localStorage.setItem('expedientes',JSON.stringify(expedientes)); 
-        mostrarLista(); 
-        mostrarToast('Eliminado'); 
-    }
+    function mostrarListaMedicamentos() { const c = document.getElementById('listaMedicamentos'); if(!c) return; c.innerHTML = medicamentos.map((m,i)=>`<div class="exp-item"><span>${m.nombre}</span><button onclick="eliminarMedicamento(${i})">X</button></div>`).join(''); localStorage.setItem('medicamentos',JSON.stringify(medicamentos)); }
+    function agregarMedicamento() { const n = document.getElementById('medNombre').value; if(n) { medicamentos.push({nombre:n,categoria:document.getElementById('medCategoria').value}); mostrarListaMedicamentos(); document.getElementById('medNombre').value=''; document.getElementById('medCategoria').value=''; mostrarToast('Agregado'); } }
+    function eliminarMedicamento(i){ medicamentos.splice(i,1); mostrarListaMedicamentos(); }
     
-    // ========== GOOGLE DRIVE CON SESIÓN PERSISTENTE ==========
-    
-    async function conectarGoogle() { 
-        const id = localStorage.getItem('googleClientId'); 
-        if(id) iniciarAuth(id); 
-        else document.getElementById('configPanel').classList.remove('hidden'); 
-    }
-    
-    function guardarClientId() { 
-        const id = document.getElementById('clientIdInput').value.trim(); 
-        if(id) { 
-            localStorage.setItem('googleClientId',id); 
-            document.getElementById('configPanel').classList.add('hidden'); 
-            iniciarAuth(id); 
-        } else mostrarToast('Ingresa Client ID','error'); 
-    }
-    
-    function cerrarConfig() { 
-        document.getElementById('configPanel').classList.add('hidden'); 
-    }
+    function mostrarListaCitas() { const c = document.getElementById('listaCitas'); if(!c) return; c.innerHTML = citas.map((cita,i)=>`<div class="exp-item">📅 ${cita.fecha} ${cita.hora} - ${cita.paciente}<button onclick="eliminarCita(${i})">X</button></div>`).join(''); localStorage.setItem('citas',JSON.stringify(citas)); }
+    function agendarCita() { const p = document.getElementById('citaPaciente').value, f = document.getElementById('citaFecha').value, h = document.getElementById('citaHora').value; if(p && f && h) { citas.push({paciente:p,fecha:f,hora:h}); mostrarListaCitas(); document.getElementById('citaPaciente').value=''; document.getElementById('citaFecha').value=''; document.getElementById('citaHora').value=''; mostrarToast('Cita agendada'); } }
+    function eliminarCita(i){ citas.splice(i,1); mostrarListaCitas(); }
+
+    // Google Drive
+    async function conectarGoogle() { const id = localStorage.getItem('googleClientId'); if(id) iniciarAuth(id); else document.getElementById('configPanel').classList.remove('hidden'); }
+    function guardarClientId() { const id = document.getElementById('clientIdInput').value.trim(); if(id) { localStorage.setItem('googleClientId',id); document.getElementById('configPanel').classList.add('hidden'); iniciarAuth(id); } else mostrarToast('Ingresa Client ID','error'); }
+    function cerrarConfig() { document.getElementById('configPanel').classList.add('hidden'); }
     
     async function iniciarAuth(clientId) {
         tokenClient = google.accounts.oauth2.initTokenClient({
-            client_id: clientId, 
-            scope: 'https://www.googleapis.com/auth/drive.file',
+            client_id: clientId, scope: 'https://www.googleapis.com/auth/drive.file',
             callback: async (resp) => {
                 if(resp.access_token) {
                     accessToken = resp.access_token;
-                    // Guardar el token y su expiración
-                    const expiresIn = resp.expires_in || 3600;
-                    const expiryTime = Date.now() + (expiresIn * 1000);
                     localStorage.setItem('driveToken', accessToken);
-                    localStorage.setItem('driveTokenExpiry', expiryTime);
-                    
+                    localStorage.setItem('driveTokenExpiry', Date.now() + (resp.expires_in * 1000));
                     document.getElementById('googleBtn').classList.add('connected');
                     document.getElementById('googleText').innerHTML = '✅ Drive Conectado';
                     document.getElementById('driveMsg').classList.remove('hidden');
-                    mostrarToast('✅ Conectado a Google Drive');
+                    mostrarToast('✅ Conectado');
                     await crearCarpetaDrive();
-                } else mostrarToast('❌ Error al conectar','error');
+                }
             }
         });
-        
-        // Verificar si ya hay un token guardado y no expiró
         const savedToken = localStorage.getItem('driveToken');
         const savedExpiry = localStorage.getItem('driveTokenExpiry');
-        
         if(savedToken && savedExpiry && Date.now() < parseInt(savedExpiry)) {
-            // Token guardado y aún válido
             accessToken = savedToken;
             document.getElementById('googleBtn').classList.add('connected');
             document.getElementById('googleText').innerHTML = '✅ Drive Conectado';
@@ -180,146 +199,38 @@
             mostrarToast('✅ Sesión restaurada');
             await crearCarpetaDrive();
         } else {
-            // Pedir nuevo token
             tokenClient.requestAccessToken({ prompt: 'consent' });
         }
     }
     
-    async function refrescarToken() { 
-        // Verificar si el token guardado sigue siendo válido
+    async function refrescarToken() {
         const savedToken = localStorage.getItem('driveToken');
         const savedExpiry = localStorage.getItem('driveTokenExpiry');
-        
         if(savedToken && savedExpiry && Date.now() < parseInt(savedExpiry)) {
             accessToken = savedToken;
             return accessToken;
         }
-        
-        if(!tokenClient) return null; 
-        return new Promise(r=>{ 
-            tokenClient.callback = resp => {
-                if(resp.access_token) {
-                    accessToken = resp.access_token;
-                    localStorage.setItem('driveToken', accessToken);
-                    localStorage.setItem('driveTokenExpiry', Date.now() + (resp.expires_in * 1000));
-                    r(accessToken);
-                } else r(null);
-            }; 
-            tokenClient.requestAccessToken({prompt: ''}); 
-        }); 
+        if(!tokenClient) return null;
+        return new Promise(r=>{ tokenClient.callback = resp => { if(resp.access_token) { accessToken = resp.access_token; localStorage.setItem('driveToken', accessToken); localStorage.setItem('driveTokenExpiry', Date.now() + (resp.expires_in * 1000)); r(accessToken); } else r(null); }; tokenClient.requestAccessToken({prompt: ''}); });
     }
     
-    async function crearCarpetaDrive() {
-        const token = await refrescarToken(); 
-        if(!token) return;
-        const nombre = 'C&C Dental Group';
-        try {
-            const buscar = await fetch(`https://www.googleapis.com/drive/v3/files?q=name='${nombre}' and mimeType='application/vnd.google-apps.folder' and trashed=false`,{headers:{'Authorization':`Bearer ${token}`}});
-            const res = await buscar.json();
-            if(res.files && res.files.length>0) folderId = res.files[0].id;
-            else {
-                const crear = await fetch('https://www.googleapis.com/drive/v3/files',{method:'POST',headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({name:nombre,mimeType:'application/vnd.google-apps.folder'})});
-                const nueva = await crear.json();
-                if(nueva.id) folderId = nueva.id;
-            }
-        } catch(e) { console.error(e); }
-    }
+    async function crearCarpetaDrive() { const token = await refrescarToken(); if(!token) return; const nombre = 'C&C Dental Group'; try { const buscar = await fetch(`https://www.googleapis.com/drive/v3/files?q=name='${nombre}' and mimeType='application/vnd.google-apps.folder' and trashed=false`,{headers:{'Authorization':`Bearer ${token}`}}); const res = await buscar.json(); if(res.files && res.files.length>0) folderId = res.files[0].id; else { const crear = await fetch('https://www.googleapis.com/drive/v3/files',{method:'POST',headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({name:nombre,mimeType:'application/vnd.google-apps.folder'})}); const nueva = await crear.json(); if(nueva.id) folderId = nueva.id; } } catch(e) { console.error(e); } }
     
-    async function guardarEnDrive(nombreArchivo, contenido) {
-        const token = await refrescarToken(); 
-        if(!token) { 
-            mostrarToast('❌ No conectado a Drive. Reconecta.','error'); 
-            return false; 
-        }
-        if(!folderId) await crearCarpetaDrive();
-        const metadata = { name: nombreArchivo, mimeType: 'application/json', parents: folderId ? [folderId] : ['root'] };
-        const form = new FormData();
-        form.append('metadata', new Blob([JSON.stringify(metadata)],{type:'application/json'}));
-        form.append('file', new Blob([contenido],{type:'application/json'}));
-        try {
-            const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',{method:'POST',headers:{'Authorization':`Bearer ${token}`},body:form});
-            if(response.ok) { 
-                mostrarToast(`✅ Guardado en Drive: ${nombreArchivo}`); 
-                return true; 
-            }
-            return false;
-        } catch(e) { 
-            mostrarToast('❌ Error de red','error'); 
-            return false; 
-        }
-    }
+    async function guardarEnDrive(nombreArchivo, contenido) { const token = await refrescarToken(); if(!token) { mostrarToast('❌ No conectado a Drive','error'); return false; } if(!folderId) await crearCarpetaDrive(); const metadata = { name: nombreArchivo, mimeType: 'application/json', parents: folderId ? [folderId] : ['root'] }; const form = new FormData(); form.append('metadata', new Blob([JSON.stringify(metadata)],{type:'application/json'})); form.append('file', new Blob([contenido],{type:'application/json'})); try { const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',{method:'POST',headers:{'Authorization':`Bearer ${token}`},body:form}); if(response.ok) { mostrarToast(`✅ Guardado en Drive`); return true; } return false; } catch(e) { mostrarToast('❌ Error de red','error'); return false; } }
     
-    async function guardarExpediente() {
-        const nombre = document.getElementById('expNombre').value;
-        if(!nombre) { mostrarToast('Ingrese nombre','error'); return; }
-        const exp = { 
-            nombre, 
-            edad: document.getElementById('expEdad').value, 
-            telefono: document.getElementById('expTelefono').value, 
-            diagnostico: document.getElementById('expDiagnostico').value, 
-            tratamiento: document.getElementById('expTratamiento').value, 
-            fecha: new Date().toLocaleString(), 
-            medico: 'Dr. Alejandro Coronado' 
-        };
-        expedientes.unshift(exp); 
-        localStorage.setItem('expedientes',JSON.stringify(expedientes)); 
-        mostrarLista();
-        await guardarEnDrive(`expediente_${nombre.replace(/ /g,'_')}_${Date.now()}.json`, JSON.stringify(exp,null,2));
-        document.getElementById('expNombre').value = ''; 
-        document.getElementById('expEdad').value = ''; 
-        document.getElementById('expTelefono').value = ''; 
-        document.getElementById('expDiagnostico').value = ''; 
-        document.getElementById('expTratamiento').value = '';
-        mostrarToast(`Expediente guardado`);
-    }
+    async function guardarExpediente() { const nombre = document.getElementById('expNombre').value; if(!nombre) { mostrarToast('Ingrese nombre','error'); return; } const exp = { nombre, edad: document.getElementById('expEdad').value, telefono: document.getElementById('expTelefono').value, diagnostico: document.getElementById('expDiagnostico').value, tratamiento: document.getElementById('expTratamiento').value, fecha: new Date().toLocaleString(), medico: 'Dr. Alejandro Coronado' }; expedientes.unshift(exp); localStorage.setItem('expedientes',JSON.stringify(expedientes)); mostrarListaExpedientes(); await guardarEnDrive(`expediente_${nombre.replace(/ /g,'_')}_${Date.now()}.json`, JSON.stringify(exp,null,2)); document.getElementById('expNombre').value = ''; document.getElementById('expEdad').value = ''; document.getElementById('expTelefono').value = ''; document.getElementById('expDiagnostico').value = ''; document.getElementById('expTratamiento').value = ''; mostrarToast(`Expediente guardado`); }
     
-    function generarRecetaPDF() { 
-        const {jsPDF}=window.jspdf; 
-        const d=new jsPDF(); 
-        d.text("Receta Médica - C&C Dental Group",20,20);
-        d.text(`Paciente: ${document.getElementById('recNombre').value}`,20,40);
-        d.text(`Diagnóstico: ${document.getElementById('recDiagnostico').value}`,20,55);
-        d.text("Medicamentos:",20,70);
-        d.text(document.getElementById('recMedicamentos').value,20,80);
-        d.save('receta.pdf'); 
-        mostrarToast('PDF generado'); 
-    }
+    function generarRecetaPDF() { const {jsPDF}=window.jspdf; const d=new jsPDF(); d.text("Receta Médica",20,20); d.text(`Paciente: ${document.getElementById('recNombre').value}`,20,40); d.text(`Diagnóstico: ${document.getElementById('recDiagnostico').value}`,20,55); d.save('receta.pdf'); mostrarToast('PDF generado'); }
+    function generarPresupuestoPDF() { const {jsPDF}=window.jspdf; const d=new jsPDF(); d.text("Presupuesto",20,20); d.text(`Paciente: ${document.getElementById('presNombre').value}`,20,40); d.text(`Servicio: ${document.getElementById('presServicio').value}`,20,55); d.text(`Monto: $${document.getElementById('presMonto').value}`,20,70); d.save('presupuesto.pdf'); mostrarToast('PDF generado'); }
+    function generarCertificadoPDF() { const {jsPDF}=window.jspdf; const d=new jsPDF(); d.text("Certificado Médico",20,20); d.text(`Paciente: ${document.getElementById('certPaciente').value}`,20,40); d.text(`Diagnóstico: ${document.getElementById('certDiagnostico').value}`,20,55); d.text(`Reposo: ${document.getElementById('certDias').value} días`,20,70); d.save('certificado.pdf'); mostrarToast('PDF generado'); }
+    function generarConsentimientoPDF() { const {jsPDF}=window.jspdf; const d=new jsPDF(); d.text("Consentimiento Informado",20,20); d.text(`Paciente: ${document.getElementById('consentPaciente').value}`,20,40); d.save('consentimiento.pdf'); mostrarToast('PDF generado'); }
     
-    function generarCertificadoPDF() { 
-        const {jsPDF}=window.jspdf; 
-        const d=new jsPDF(); 
-        d.text("Certificado Médico - C&C Dental Group",20,20);
-        d.text(`Paciente: ${document.getElementById('certPaciente').value}`,20,40);
-        d.text(`Diagnóstico: ${document.getElementById('certDiagnostico').value}`,20,55);
-        d.text(`Reposo: ${document.getElementById('certDias').value} días`,20,70);
-        d.save('certificado.pdf'); 
-        mostrarToast('PDF generado'); 
-    }
+    function mostrarToast(m) { const toast=document.createElement('div'); toast.className='toast'; toast.textContent=m; document.body.appendChild(toast); setTimeout(()=>toast.remove(),3000); }
+    function mostrarPanel(p) { document.querySelectorAll('[id^="panel_"]').forEach(el=>el.classList.add('hidden')); document.getElementById(`panel_${p}`).classList.remove('hidden'); }
     
-    function mostrarToast(m,t='success') { 
-        const toast=document.createElement('div'); 
-        toast.className='toast'; 
-        toast.style.background=t==='error'?'#EF4444':'#2DD4BF'; 
-        toast.textContent=m; 
-        document.body.appendChild(toast); 
-        setTimeout(()=>toast.remove(),3000); 
-    }
-    
-    function mostrarPanel(p) { 
-        document.querySelectorAll('[id^="panel_"]').forEach(el=>el.classList.add('hidden')); 
-        document.getElementById(`panel_${p}`).classList.remove('hidden'); 
-    }
-    
-    // Inicializar
-    cargarExpedientes();
-    
-    // Intentar restaurar sesión al cargar la página
+    cargarDatos();
     const idGuardado = localStorage.getItem('googleClientId');
-    if(idGuardado) {
-        setTimeout(() => { 
-            if(!accessToken) iniciarAuth(idGuardado); 
-        }, 500);
-    }
+    if(idGuardado) setTimeout(() => { if(!accessToken) iniciarAuth(idGuardado); }, 500);
 </script>
 </body>
 </html>
