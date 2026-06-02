@@ -18,16 +18,18 @@
         .btn-google.connected { border-left-color: #10B981; }
         .card { background: #1E293B; border-radius: 16px; padding: 20px; margin-bottom: 20px; border: 1px solid #334155; }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .modulo { background: #1E293B; border-radius: 12px; padding: 15px; text-align: center; cursor: pointer; border: 1px solid #334155; }
-        .modulo:hover { border-color: #2DD4BF; }
+        .modulo { background: #1E293B; border-radius: 12px; padding: 15px; text-align: center; cursor: pointer; border: 1px solid #334155; transition: 0.2s; }
+        .modulo:hover { border-color: #2DD4BF; transform: translateY(-3px); }
         .modulo i { font-size: 2rem; color: #2DD4BF; margin-bottom: 8px; }
         input, textarea { width: 100%; padding: 10px; background: #0F172A; border: 1px solid #334155; border-radius: 8px; color: white; margin-bottom: 10px; }
         button { background: #2DD4BF; color: #0F172A; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
         button:hover { background: #14B8A6; }
         .hidden { display: none; }
-        .toast { position: fixed; bottom: 20px; right: 20px; background: #2DD4BF; color: #0F172A; padding: 12px 20px; border-radius: 8px; z-index: 1000; }
-        .exp-item { background: #0F172A; padding: 10px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; }
+        .toast { position: fixed; bottom: 20px; right: 20px; background: #2DD4BF; color: #0F172A; padding: 12px 20px; border-radius: 8px; z-index: 1000; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .exp-item, .serv-item, .med-item, .cita-item { background: #0F172A; padding: 10px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         .alert-warning { background: rgba(245,158,11,0.1); border: 1px solid #F59E0B; color: #F59E0B; padding: 15px; border-radius: 12px; margin-bottom: 20px; }
+        hr { margin: 15px 0; border-color: #334155; }
     </style>
 </head>
 <body>
@@ -48,13 +50,13 @@
         <h3>Configuración inicial</h3>
         <div class="alert-warning">
             <strong>⚙️ Configuración única</strong><br><br>
-            1. Ve a <a href="https://console.cloud.google.com/apis/credentials" target="_blank">Google Cloud Console</a><br>
+            1. Ve a <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color:#2DD4BF;">Google Cloud Console</a><br>
             2. Crea proyecto → Habilita "Google Drive API"<br>
             3. Credenciales → ID cliente OAuth → Aplicación web<br>
             4. Orígenes autorizados: agrega tu dominio de GitHub Pages<br>
             5. Copia el Client ID y pégalo aquí
         </div>
-        <input type="text" id="clientIdInput" placeholder="Pega tu Client ID">
+        <input type="text" id="clientIdInput" placeholder="Pega tu Client ID" style="width:100%;">
         <button onclick="guardarClientId()">Guardar y Conectar</button>
         <button onclick="cerrarConfig()" style="background:#EF4444;">Cancelar</button>
     </div>
@@ -70,20 +72,22 @@
         <div class="modulo" onclick="mostrarPanel('certificado')"><i class="fas fa-certificate"></i><h3>Certificado</h3></div>
     </div>
 
+    <!-- Panel Expedientes -->
     <div id="panel_expedientes" class="card hidden">
         <h2>📋 Expediente Clínico</h2>
-        <div id="driveMsg" class="hidden" style="background:#10B98120; padding:10px; border-radius:8px; margin-bottom:15px;">✅ Google Drive conectado</div>
+        <div id="driveMsg" class="hidden" style="background:#10B98120; padding:10px; border-radius:8px; margin-bottom:15px;">✅ Google Drive conectado - Carpeta "C&C Dental Group"</div>
         <input type="text" id="expNombre" placeholder="Nombre completo">
         <input type="number" id="expEdad" placeholder="Edad">
         <input type="text" id="expTelefono" placeholder="Teléfono">
         <input type="text" id="expDiagnostico" placeholder="Diagnóstico">
         <textarea id="expTratamiento" rows="3" placeholder="Tratamiento"></textarea>
         <button onclick="guardarExpediente()"><i class="fas fa-save"></i> Guardar en Drive</button>
-        <hr style="margin:15px 0;">
+        <hr>
         <h3>Expedientes guardados</h3>
         <div id="listaExpedientes"></div>
     </div>
 
+    <!-- Panel Receta -->
     <div id="panel_receta" class="card hidden">
         <h2>📄 Receta Médica</h2>
         <input type="text" id="recNombre" placeholder="Paciente">
@@ -92,6 +96,7 @@
         <button onclick="generarRecetaPDF()">Generar PDF</button>
     </div>
 
+    <!-- Panel Presupuestos -->
     <div id="panel_presupuestos" class="card hidden">
         <h2>💰 Presupuesto</h2>
         <input type="text" id="presNombre" placeholder="Paciente">
@@ -100,31 +105,38 @@
         <button onclick="generarPresupuestoPDF()">Generar PDF</button>
     </div>
 
+    <!-- Panel Agenda -->
     <div id="panel_agenda" class="card hidden">
         <h2>📅 Agenda de Citas</h2>
         <input type="text" id="citaPaciente" placeholder="Paciente">
         <input type="date" id="citaFecha">
         <input type="time" id="citaHora">
         <button onclick="agendarCita()">Agendar</button>
-        <hr><div id="listaCitas"></div>
+        <hr>
+        <div id="listaCitas"></div>
     </div>
 
+    <!-- Panel Servicios -->
     <div id="panel_servicios" class="card hidden">
         <h2>🦷 Servicios</h2>
         <input type="text" id="servNombre" placeholder="Nombre">
         <input type="number" id="servCosto" placeholder="Costo">
         <button onclick="agregarServicio()">+ Registrar</button>
-        <hr><div id="listaServicios"></div>
+        <hr>
+        <div id="listaServicios"></div>
     </div>
 
+    <!-- Panel Medicamentos -->
     <div id="panel_medicamentos" class="card hidden">
         <h2>💊 Medicamentos</h2>
         <input type="text" id="medNombre" placeholder="Nombre">
         <input type="text" id="medCategoria" placeholder="Categoría">
         <button onclick="agregarMedicamento()">+ Registrar</button>
-        <hr><div id="listaMedicamentos"></div>
+        <hr>
+        <div id="listaMedicamentos"></div>
     </div>
 
+    <!-- Panel Consentimiento -->
     <div id="panel_consentimiento" class="card hidden">
         <h2>📝 Consentimiento Informado</h2>
         <input type="text" id="consentPaciente" placeholder="Paciente">
@@ -132,6 +144,7 @@
         <button onclick="generarConsentimientoPDF()">Generar PDF</button>
     </div>
 
+    <!-- Panel Certificado -->
     <div id="panel_certificado" class="card hidden">
         <h2>📜 Certificado Médico</h2>
         <input type="text" id="certPaciente" placeholder="Paciente">
@@ -142,33 +155,36 @@
 </div>
 
 <script>
+    // ========== VARIABLES ==========
     let accessToken = null, tokenClient = null, folderId = null;
     let expedientes = [], servicios = [], medicamentos = [], citas = [];
+    const CARPETA_DRIVE = 'C&C Dental Group'; // Nombre de la carpeta en Drive
 
+    // ========== CARGAR DATOS LOCALES ==========
     function cargarDatos() {
         const e = localStorage.getItem('expedientes'); if(e) expedientes = JSON.parse(e);
-        const s = localStorage.getItem('servicios'); if(s) servicios = JSON.parse(s); else servicios = [{nombre:"Extracción",costo:900},{nombre:"Endodoncia",costo:3500}];
+        const s = localStorage.getItem('servicios'); if(s) servicios = JSON.parse(s); else servicios = [{nombre:"Extracción simple",costo:900},{nombre:"Endodoncia",costo:3500},{nombre:"Limpieza dental",costo:600}];
         const m = localStorage.getItem('medicamentos'); if(m) medicamentos = JSON.parse(m);
         const c = localStorage.getItem('citas'); if(c) citas = JSON.parse(c);
         mostrarListaExpedientes(); mostrarListaServicios(); mostrarListaMedicamentos(); mostrarListaCitas();
     }
 
-    function mostrarListaExpedientes() { const c = document.getElementById('listaExpedientes'); if(!c) return; if(expedientes.length===0) { c.innerHTML='<p>No hay expedientes</p>'; return; } c.innerHTML = expedientes.map((e,i)=>`<div class="exp-item"><span><strong>${e.nombre}</strong> - ${e.edad} años</span><button onclick="eliminarExpediente(${i})">X</button></div>`).join(''); }
-    function eliminarExpediente(i){ expedientes.splice(i,1); localStorage.setItem('expedientes',JSON.stringify(expedientes)); mostrarListaExpedientes(); mostrarToast('Eliminado'); }
+    function mostrarListaExpedientes() { const c = document.getElementById('listaExpedientes'); if(!c) return; if(expedientes.length===0) { c.innerHTML='<p style="color:#94A3B8;">No hay expedientes</p>'; return; } c.innerHTML = expedientes.map((e,i)=>`<div class="exp-item"><span><strong>${e.nombre}</strong> - ${e.edad} años<br><small>${e.diagnostico || ''}</small></span><button onclick="eliminarExpediente(${i})" style="background:#EF4444;">X</button></div>`).join(''); }
+    function eliminarExpediente(i){ expedientes.splice(i,1); localStorage.setItem('expedientes',JSON.stringify(expedientes)); mostrarListaExpedientes(); mostrarToast('Expediente eliminado'); }
     
-    function mostrarListaServicios() { const c = document.getElementById('listaServicios'); if(!c) return; c.innerHTML = servicios.map((s,i)=>`<div class="exp-item"><span>${s.nombre} - $${s.costo}</span><button onclick="eliminarServicio(${i})">X</button></div>`).join(''); localStorage.setItem('servicios',JSON.stringify(servicios)); }
-    function agregarServicio() { const n = document.getElementById('servNombre').value, c = parseFloat(document.getElementById('servCosto').value); if(n && !isNaN(c)) { servicios.push({nombre:n,costo:c}); mostrarListaServicios(); document.getElementById('servNombre').value=''; document.getElementById('servCosto').value=''; mostrarToast('Agregado'); } }
+    function mostrarListaServicios() { const c = document.getElementById('listaServicios'); if(!c) return; c.innerHTML = servicios.map((s,i)=>`<div class="serv-item"><span>${s.nombre} - $${s.costo}</span><button onclick="eliminarServicio(${i})" style="background:#EF4444;">X</button></div>`).join(''); localStorage.setItem('servicios',JSON.stringify(servicios)); }
+    function agregarServicio() { const n = document.getElementById('servNombre').value, c = parseFloat(document.getElementById('servCosto').value); if(n && !isNaN(c)) { servicios.push({nombre:n,costo:c}); mostrarListaServicios(); document.getElementById('servNombre').value=''; document.getElementById('servCosto').value=''; mostrarToast('Servicio agregado'); } else mostrarToast('Complete nombre y costo','error'); }
     function eliminarServicio(i){ servicios.splice(i,1); mostrarListaServicios(); }
     
-    function mostrarListaMedicamentos() { const c = document.getElementById('listaMedicamentos'); if(!c) return; c.innerHTML = medicamentos.map((m,i)=>`<div class="exp-item"><span>${m.nombre}</span><button onclick="eliminarMedicamento(${i})">X</button></div>`).join(''); localStorage.setItem('medicamentos',JSON.stringify(medicamentos)); }
-    function agregarMedicamento() { const n = document.getElementById('medNombre').value; if(n) { medicamentos.push({nombre:n,categoria:document.getElementById('medCategoria').value}); mostrarListaMedicamentos(); document.getElementById('medNombre').value=''; document.getElementById('medCategoria').value=''; mostrarToast('Agregado'); } }
+    function mostrarListaMedicamentos() { const c = document.getElementById('listaMedicamentos'); if(!c) return; c.innerHTML = medicamentos.map((m,i)=>`<div class="med-item"><span>${m.nombre} - ${m.categoria || ''}</span><button onclick="eliminarMedicamento(${i})" style="background:#EF4444;">X</button></div>`).join(''); localStorage.setItem('medicamentos',JSON.stringify(medicamentos)); }
+    function agregarMedicamento() { const n = document.getElementById('medNombre').value; if(n) { medicamentos.push({nombre:n,categoria:document.getElementById('medCategoria').value}); mostrarListaMedicamentos(); document.getElementById('medNombre').value=''; document.getElementById('medCategoria').value=''; mostrarToast('Medicamento agregado'); } else mostrarToast('Ingrese nombre','error'); }
     function eliminarMedicamento(i){ medicamentos.splice(i,1); mostrarListaMedicamentos(); }
     
-    function mostrarListaCitas() { const c = document.getElementById('listaCitas'); if(!c) return; c.innerHTML = citas.map((cita,i)=>`<div class="exp-item">📅 ${cita.fecha} ${cita.hora} - ${cita.paciente}<button onclick="eliminarCita(${i})">X</button></div>`).join(''); localStorage.setItem('citas',JSON.stringify(citas)); }
-    function agendarCita() { const p = document.getElementById('citaPaciente').value, f = document.getElementById('citaFecha').value, h = document.getElementById('citaHora').value; if(p && f && h) { citas.push({paciente:p,fecha:f,hora:h}); mostrarListaCitas(); document.getElementById('citaPaciente').value=''; document.getElementById('citaFecha').value=''; document.getElementById('citaHora').value=''; mostrarToast('Cita agendada'); } }
-    function eliminarCita(i){ citas.splice(i,1); mostrarListaCitas(); }
+    function mostrarListaCitas() { const c = document.getElementById('listaCitas'); if(!c) return; if(citas.length===0) { c.innerHTML='<p style="color:#94A3B8;">No hay citas</p>'; return; } c.innerHTML = citas.map((cita,i)=>`<div class="cita-item">📅 ${cita.fecha} ${cita.hora} - ${cita.paciente}<button onclick="eliminarCita(${i})" style="background:#EF4444;">X</button></div>`).join(''); localStorage.setItem('citas',JSON.stringify(citas)); }
+    function agendarCita() { const p = document.getElementById('citaPaciente').value, f = document.getElementById('citaFecha').value, h = document.getElementById('citaHora').value; if(p && f && h) { citas.push({paciente:p,fecha:f,hora:h}); mostrarListaCitas(); document.getElementById('citaPaciente').value=''; document.getElementById('citaFecha').value=''; document.getElementById('citaHora').value=''; mostrarToast('Cita agendada'); } else mostrarToast('Complete datos','error'); }
+    function eliminarCita(i){ citas.splice(i,1); mostrarListaCitas(); mostrarToast('Cita cancelada'); }
 
-    // Google Drive
+    // ========== GOOGLE DRIVE CON CARPETA FIJA ==========
     async function conectarGoogle() { const id = localStorage.getItem('googleClientId'); if(id) iniciarAuth(id); else document.getElementById('configPanel').classList.remove('hidden'); }
     function guardarClientId() { const id = document.getElementById('clientIdInput').value.trim(); if(id) { localStorage.setItem('googleClientId',id); document.getElementById('configPanel').classList.add('hidden'); iniciarAuth(id); } else mostrarToast('Ingresa Client ID','error'); }
     function cerrarConfig() { document.getElementById('configPanel').classList.add('hidden'); }
@@ -184,8 +200,8 @@
                     document.getElementById('googleBtn').classList.add('connected');
                     document.getElementById('googleText').innerHTML = '✅ Drive Conectado';
                     document.getElementById('driveMsg').classList.remove('hidden');
-                    mostrarToast('✅ Conectado');
-                    await crearCarpetaDrive();
+                    mostrarToast('✅ Conectado a Google Drive');
+                    await obtenerOCrearCarpeta();
                 }
             }
         });
@@ -197,7 +213,7 @@
             document.getElementById('googleText').innerHTML = '✅ Drive Conectado';
             document.getElementById('driveMsg').classList.remove('hidden');
             mostrarToast('✅ Sesión restaurada');
-            await crearCarpetaDrive();
+            await obtenerOCrearCarpeta();
         } else {
             tokenClient.requestAccessToken({ prompt: 'consent' });
         }
@@ -214,23 +230,129 @@
         return new Promise(r=>{ tokenClient.callback = resp => { if(resp.access_token) { accessToken = resp.access_token; localStorage.setItem('driveToken', accessToken); localStorage.setItem('driveTokenExpiry', Date.now() + (resp.expires_in * 1000)); r(accessToken); } else r(null); }; tokenClient.requestAccessToken({prompt: ''}); });
     }
     
-    async function crearCarpetaDrive() { const token = await refrescarToken(); if(!token) return; const nombre = 'C&C Dental Group'; try { const buscar = await fetch(`https://www.googleapis.com/drive/v3/files?q=name='${nombre}' and mimeType='application/vnd.google-apps.folder' and trashed=false`,{headers:{'Authorization':`Bearer ${token}`}}); const res = await buscar.json(); if(res.files && res.files.length>0) folderId = res.files[0].id; else { const crear = await fetch('https://www.googleapis.com/drive/v3/files',{method:'POST',headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({name:nombre,mimeType:'application/vnd.google-apps.folder'})}); const nueva = await crear.json(); if(nueva.id) folderId = nueva.id; } } catch(e) { console.error(e); } }
+    // Función que obtiene o crea la carpeta en Drive
+    async function obtenerOCrearCarpeta() {
+        const token = await refrescarToken();
+        if(!token) return null;
+        
+        try {
+            // Buscar carpeta por nombre
+            const buscar = await fetch(`https://www.googleapis.com/drive/v3/files?q=name='${CARPETA_DRIVE}' and mimeType='application/vnd.google-apps.folder' and trashed=false`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const resultado = await buscar.json();
+            
+            if(resultado.files && resultado.files.length > 0) {
+                folderId = resultado.files[0].id;
+                console.log('Carpeta existente:', folderId);
+                return folderId;
+            }
+            
+            // Crear carpeta si no existe
+            const crear = await fetch('https://www.googleapis.com/drive/v3/files', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: CARPETA_DRIVE,
+                    mimeType: 'application/vnd.google-apps.folder'
+                })
+            });
+            const nueva = await crear.json();
+            if(nueva.id) {
+                folderId = nueva.id;
+                console.log('Carpeta creada:', folderId);
+                mostrarToast(`📁 Carpeta "${CARPETA_DRIVE}" creada en tu Drive`);
+            }
+            return folderId;
+        } catch(e) {
+            console.error('Error con carpeta:', e);
+            return null;
+        }
+    }
     
-    async function guardarEnDrive(nombreArchivo, contenido) { const token = await refrescarToken(); if(!token) { mostrarToast('❌ No conectado a Drive','error'); return false; } if(!folderId) await crearCarpetaDrive(); const metadata = { name: nombreArchivo, mimeType: 'application/json', parents: folderId ? [folderId] : ['root'] }; const form = new FormData(); form.append('metadata', new Blob([JSON.stringify(metadata)],{type:'application/json'})); form.append('file', new Blob([contenido],{type:'application/json'})); try { const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',{method:'POST',headers:{'Authorization':`Bearer ${token}`},body:form}); if(response.ok) { mostrarToast(`✅ Guardado en Drive`); return true; } return false; } catch(e) { mostrarToast('❌ Error de red','error'); return false; } }
+    async function guardarEnDrive(nombreArchivo, contenido) {
+        const token = await refrescarToken();
+        if(!token) { mostrarToast('❌ No conectado a Drive', 'error'); return false; }
+        
+        // Asegurar que tenemos la carpeta
+        if(!folderId) {
+            await obtenerOCrearCarpeta();
+        }
+        
+        const metadata = {
+            name: nombreArchivo,
+            mimeType: 'application/json',
+            parents: folderId ? [folderId] : ['root']
+        };
+        
+        const form = new FormData();
+        form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+        form.append('file', new Blob([contenido], { type: 'application/json' }));
+        
+        try {
+            const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: form
+            });
+            if(response.ok) {
+                mostrarToast(`✅ Guardado en Drive: ${nombreArchivo}`);
+                return true;
+            }
+            return false;
+        } catch(e) {
+            mostrarToast('❌ Error de red', 'error');
+            return false;
+        }
+    }
     
-    async function guardarExpediente() { const nombre = document.getElementById('expNombre').value; if(!nombre) { mostrarToast('Ingrese nombre','error'); return; } const exp = { nombre, edad: document.getElementById('expEdad').value, telefono: document.getElementById('expTelefono').value, diagnostico: document.getElementById('expDiagnostico').value, tratamiento: document.getElementById('expTratamiento').value, fecha: new Date().toLocaleString(), medico: 'Dr. Alejandro Coronado' }; expedientes.unshift(exp); localStorage.setItem('expedientes',JSON.stringify(expedientes)); mostrarListaExpedientes(); await guardarEnDrive(`expediente_${nombre.replace(/ /g,'_')}_${Date.now()}.json`, JSON.stringify(exp,null,2)); document.getElementById('expNombre').value = ''; document.getElementById('expEdad').value = ''; document.getElementById('expTelefono').value = ''; document.getElementById('expDiagnostico').value = ''; document.getElementById('expTratamiento').value = ''; mostrarToast(`Expediente guardado`); }
+    async function guardarExpediente() {
+        const nombre = document.getElementById('expNombre').value;
+        if(!nombre) { mostrarToast('Ingrese nombre del paciente', 'error'); return; }
+        
+        const exp = {
+            nombre: nombre,
+            edad: document.getElementById('expEdad').value,
+            telefono: document.getElementById('expTelefono').value,
+            diagnostico: document.getElementById('expDiagnostico').value,
+            tratamiento: document.getElementById('expTratamiento').value,
+            fecha: new Date().toLocaleString(),
+            medico: 'Dr. Alejandro Coronado',
+            cedula: '9562093'
+        };
+        
+        expedientes.unshift(exp);
+        localStorage.setItem('expedientes', JSON.stringify(expedientes));
+        mostrarListaExpedientes();
+        
+        const nombreArchivo = `expediente_${nombre.replace(/ /g, '_')}_${Date.now()}.json`;
+        await guardarEnDrive(nombreArchivo, JSON.stringify(exp, null, 2));
+        
+        document.getElementById('expNombre').value = '';
+        document.getElementById('expEdad').value = '';
+        document.getElementById('expTelefono').value = '';
+        document.getElementById('expDiagnostico').value = '';
+        document.getElementById('expTratamiento').value = '';
+        
+        mostrarToast(`Expediente guardado para ${nombre}`);
+    }
     
-    function generarRecetaPDF() { const {jsPDF}=window.jspdf; const d=new jsPDF(); d.text("Receta Médica",20,20); d.text(`Paciente: ${document.getElementById('recNombre').value}`,20,40); d.text(`Diagnóstico: ${document.getElementById('recDiagnostico').value}`,20,55); d.save('receta.pdf'); mostrarToast('PDF generado'); }
-    function generarPresupuestoPDF() { const {jsPDF}=window.jspdf; const d=new jsPDF(); d.text("Presupuesto",20,20); d.text(`Paciente: ${document.getElementById('presNombre').value}`,20,40); d.text(`Servicio: ${document.getElementById('presServicio').value}`,20,55); d.text(`Monto: $${document.getElementById('presMonto').value}`,20,70); d.save('presupuesto.pdf'); mostrarToast('PDF generado'); }
-    function generarCertificadoPDF() { const {jsPDF}=window.jspdf; const d=new jsPDF(); d.text("Certificado Médico",20,20); d.text(`Paciente: ${document.getElementById('certPaciente').value}`,20,40); d.text(`Diagnóstico: ${document.getElementById('certDiagnostico').value}`,20,55); d.text(`Reposo: ${document.getElementById('certDias').value} días`,20,70); d.save('certificado.pdf'); mostrarToast('PDF generado'); }
-    function generarConsentimientoPDF() { const {jsPDF}=window.jspdf; const d=new jsPDF(); d.text("Consentimiento Informado",20,20); d.text(`Paciente: ${document.getElementById('consentPaciente').value}`,20,40); d.save('consentimiento.pdf'); mostrarToast('PDF generado'); }
+    // ========== PDFs ==========
+    function generarRecetaPDF() { const {jsPDF}=window.jspdf; const d=new jsPDF(); d.text("C&C Dental Group",20,20); d.text(`Paciente: ${document.getElementById('recNombre').value}`,20,40); d.text(`Diagnóstico: ${document.getElementById('recDiagnostico').value}`,20,55); d.text("Medicamentos:",20,70); d.text(document.getElementById('recMedicamentos').value,20,80); d.save('receta.pdf'); mostrarToast('PDF generado'); }
+    function generarPresupuestoPDF() { const {jsPDF}=window.jspdf; const d=new jsPDF(); d.text("C&C Dental Group - Presupuesto",20,20); d.text(`Paciente: ${document.getElementById('presNombre').value}`,20,40); d.text(`Servicio: ${document.getElementById('presServicio').value}`,20,55); d.text(`Monto: $${document.getElementById('presMonto').value}`,20,70); d.save('presupuesto.pdf'); mostrarToast('PDF generado'); }
+    function generarCertificadoPDF() { const {jsPDF}=window.jspdf; const d=new jsPDF(); d.text("C&C Dental Group",20,20); d.text("CERTIFICADO MÉDICO",20,40); d.text(`Paciente: ${document.getElementById('certPaciente').value}`,20,60); d.text(`Diagnóstico: ${document.getElementById('certDiagnostico').value}`,20,75); d.text(`Reposo: ${document.getElementById('certDias').value} días`,20,90); d.text(`Dr. Alejandro Coronado - Cédula 9562093`,20,130); d.save('certificado.pdf'); mostrarToast('PDF generado'); }
+    function generarConsentimientoPDF() { const {jsPDF}=window.jspdf; const d=new jsPDF(); d.text("C&C Dental Group",20,20); d.text("CONSENTIMIENTO INFORMADO",20,40); d.text(`Paciente: ${document.getElementById('consentPaciente').value}`,20,60); d.text(`Procedimiento: ${document.getElementById('consentProcedimiento').value}`,20,75); d.save('consentimiento.pdf'); mostrarToast('PDF generado'); }
     
-    function mostrarToast(m) { const toast=document.createElement('div'); toast.className='toast'; toast.textContent=m; document.body.appendChild(toast); setTimeout(()=>toast.remove(),3000); }
+    function mostrarToast(m, t='success') { const toast=document.createElement('div'); toast.className='toast'; toast.style.background=t==='error'?'#EF4444':'#2DD4BF'; toast.textContent=m; document.body.appendChild(toast); setTimeout(()=>toast.remove(),3000); }
     function mostrarPanel(p) { document.querySelectorAll('[id^="panel_"]').forEach(el=>el.classList.add('hidden')); document.getElementById(`panel_${p}`).classList.remove('hidden'); }
     
+    // ========== INICIALIZAR ==========
     cargarDatos();
     const idGuardado = localStorage.getItem('googleClientId');
-    if(idGuardado) setTimeout(() => { if(!accessToken) iniciarAuth(idGuardado); }, 500);
+    if(idGuardado) setTimeout(() => { if(!accessToken) conectarGoogle(); }, 500);
 </script>
 </body>
 </html>
