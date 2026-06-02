@@ -28,7 +28,7 @@
             --hover-card: #2D3748;
         }
         
-        /* MODO CLARO - CORREGIDO */
+        /* MODO CLARO */
         body.modo-claro {
             --bg-body: #F0F2F5;
             --bg-card: #FFFFFF;
@@ -55,7 +55,8 @@
         
         .container{max-width:1200px;margin:0 auto}
         .header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:20px}
-        .logo h1{color:var(--primary);font-size:1.3rem}
+        .logo h1{color:var(--primary);font-size:1.3rem;display:flex;align-items:center;gap:8px}
+        .logo h1 img{height:35px;width:auto}
         .logo p{font-size:.7rem;color:var(--text-muted)}
         .btn-google,.btn-theme{background:var(--bg-card);padding:8px 14px;border-radius:50px;cursor:pointer;display:flex;align-items:center;gap:8px;border:1px solid var(--border-color);font-size:.8rem;color:var(--text-color)}
         .btn-google{border-left:3px solid #EF4444}
@@ -95,16 +96,23 @@
         .doctor-fijo{background:rgba(45,212,191,0.1);border-radius:8px;padding:10px;margin-bottom:15px;font-size:.75rem;border-left:3px solid var(--primary)}
         .disabled-field{opacity:0.6;pointer-events:none;background:var(--bg-input)}
         .disabled-field input,.disabled-field textarea,.disabled-field select{background:var(--bg-input);opacity:0.6}
-        .chart-container{background:var(--bg-card);border-radius:12px;padding:15px;margin-bottom:15px;text-align:center}
+        .chart-container{background:var(--bg-card);border-radius:12px;padding:15px;margin-bottom:15px;text-align:center;border:1px solid var(--border-color)}
         .stat-number{font-size:2rem;color:var(--primary);font-weight:bold}
         hr{margin:12px 0;border-color:var(--border-color)}
+        .logo-preview{max-width:150px;border-radius:8px;margin-top:10px}
         @media(max-width:600px){body{padding:10px}.modulo{padding:10px}.modulo i{font-size:1.3rem}.modulo h3{font-size:.7rem}}
     </style>
 </head>
 <body>
 <div class="container">
     <div class="header">
-        <div class="logo"><h1><i class="fas fa-tooth"></i> C&C Dental Group</h1><p>Gestión Clínica Dental</p></div>
+        <div class="logo">
+            <h1>
+                <img id="logoHeader" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 50'%3E%3Ctext x='10' y='35' font-family='Arial, sans-serif' font-weight='bold' font-size='28' fill='%232DD4BF'%3EC%26C%3C/text%3E%3Ctext x='75' y='35' font-family='Arial, sans-serif' font-weight='normal' font-size='16' fill='%2394A3B8'%3EDentalGroup%3C/text%3E%3C/svg%3E" alt="Logo" style="height:35px">
+                <span style="display:none">C&C Dental Group</span>
+            </h1>
+            <p>Gestión Clínica Dental</p>
+        </div>
         <div style="display:flex;gap:10px">
             <div class="btn-google" id="googleBtn" onclick="conectarGoogle()"><i class="fab fa-google"></i><span>Drive</span></div>
             <div class="btn-theme" onclick="toggleModo()"><i class="fas fa-moon"></i><span>Modo</span></div>
@@ -142,7 +150,7 @@
     <div id="pagina-citas" class="pagina"><div class="card"><h2>📅 Agenda de Citas</h2><div class="row"><div><label>Paciente:</label><input type="text" id="citaNombre" readonly></div><div><label>Teléfono:</label><input type="text" id="citaTelefono" readonly></div></div><div class="row"><div><label>Fecha:</label><input type="date" id="citaFecha"></div><div><label>Hora:</label><input type="time" id="citaHora"></div></div><div><label>Tratamiento:</label><input type="text" id="citaTratamiento"></div><button onclick="guardarCita()">Agendar</button><hr><h3>Citas</h3><div id="listaCitas"></div></div></div>
 
     <!-- Página SERVICIOS -->
-    <div id="pagina-servicios" class="pagina"><div class="card"><h2>🦷 Servicios</h2><div class="row"><div><input type="text" id="servNombre" placeholder="Servicio"></div><div><input type="number" id="servCosto" placeholder="$"></div><div><input type="text" id="servDesc" placeholder="Descripción"></div></div><button onclick="agregarServicio()">+ Registrar</button><hr><table class="tabla"><thead><tr><th>Servicio</th><th>Descripción</th><th>Costo</th><th></th></tr></thead><tbody id="listaServicios"></tbody></table></div></div>
+    <div id="pagina-servicios" class="pagina"><div class="card"><h2>🦷 Servicios</h2><div class="row"><div><input type="text" id="servNombre" placeholder="Servicio"></div><div><input type="number" id="servCosto" placeholder="$"></div><div><input type="text" id="servDesc" placeholder="Descripción"></div></div><button onclick="agregarServicio()">+ Registrar</button><hr><table class="tabla"><thead><tr><th>Servicio</th><th>Descripción</th><th>Costo</th><th></th></tr></thead><tbody id="listaServicios"></tbody></tr></div></div>
 
     <!-- Página MEDICAMENTOS -->
     <div id="pagina-medicamentos" class="pagina"><div class="card"><h2>💊 Medicamentos</h2><div class="row"><div><input type="text" id="medNombre" placeholder="Medicamento"></div><div><input type="text" id="medCategoria" placeholder="Categoría"></div><div><input type="text" id="medUso" placeholder="Uso"></div></div><button onclick="agregarMedicamento()">+ Registrar</button><hr><table class="tabla"><thead><tr><th>Medicamento</th><th>Categoría</th><th>Uso</th><th></th></tr></thead><tbody id="listaMedicamentos"></tbody></table></div></div>
@@ -153,10 +161,20 @@
     <!-- Página CERTIFICADO -->
     <div id="pagina-certificado" class="pagina"><div class="card"><h2>📜 Certificado Médico</h2><div class="doctor-fijo">Dr. Alejandro Coronado - Cédula 9562093</div><div class="row"><div><label>Paciente:</label><input type="text" id="certNombre" readonly></div><div><label>Edad:</label><input type="text" id="certEdad" readonly></div></div><div class="row"><div><label>Lugar:</label><input type="text" id="certLugar"></div><div><label>Fecha:</label><input type="date" id="certFecha"></div></div><div><label>Diagnóstico:</label><textarea id="certDiagnostico" rows="2"></textarea></div><div><label>Días de reposo:</label><input type="number" id="certDias"></div><label><input type="checkbox" id="certOmitir"> Omitir diagnóstico</label><br><button onclick="guardarCertificado()">Guardar</button><button onclick="generarCertificadoPDF()">PDF</button><hr><h3>Historial</h3><div id="listaCertificados"></div></div></div>
 
-    <!-- Página MI CONSULTORIO - SOLO LOGO (lo demás deshabilitado) -->
-    <div id="pagina-consultorio" class="pagina"><div class="card"><h2>🏢 Mi Consultorio</h2><div class="doctor-fijo"><strong>DATOS FIJOS DEL DR. ALEJANDRO CORONADO</strong><br>• Cédula: 9562093<br>• Especialidad: Ortodoncia/Endodoncia<br>• Universidad: UABC<br>• Teléfono: 6646251897<br>• Email: Dentist.alexxx@gmail.com<br>• Domicilio: Emiliano Zapata 2751, Ejido Matamoros, Tijuana, CP 22204</div><fieldset><legend>Logo de la Clínica</legend><input type="file" id="logoClinica" accept="image/*" onchange="cargarLogo(event)"><div id="logoPreview" style="margin-top:10px"></div><p style="font-size:.7rem;color:var(--text-muted);margin-top:8px">Formatos soportados: JPG, PNG, GIF, WEBP (tamaño máximo recomendado: 500px de ancho)</p></fieldset><div class="disabled-field"><fieldset><legend>Nombre de la Clínica</legend><input type="text" id="consultorioNombre" value="C&C Dental Group" disabled></fieldset></div><div class="disabled-field"><fieldset><legend>Domicilio</legend><textarea rows="2" disabled>Emiliano Zapata 2751, Ejido Matamoros, Tijuana, CP 22204</textarea></fieldset></div><div class="disabled-field"><fieldset><legend>Teléfonos y Email</legend><div class="row"><div><label>Teléfono:</label><input type="text" value="6646251897" disabled></div><div><label>Email:</label><input type="email" value="Dentist.alexxx@gmail.com" disabled></div></div></fieldset></div><div class="disabled-field"><fieldset><legend>Colores</legend><div class="row"><div><label>Encabezado:</label><input type="color" value="#2DD4BF" disabled></div><div><label>Pie:</label><input type="color" value="#2DD4BF" disabled></div></div></fieldset></div></div></div>
+    <!-- Página MI CONSULTORIO - TODO DESHABILITADO excepto visualización del logo -->
+    <div id="pagina-consultorio" class="pagina"><div class="card"><h2>🏢 Mi Consultorio</h2><div class="doctor-fijo"><strong>DATOS FIJOS DEL DR. ALEJANDRO CORONADO</strong><br>• Cédula: 9562093<br>• Especialidad: Ortodoncia/Endodoncia<br>• Universidad: UABC<br>• Teléfono: 6646251897<br>• Email: Dentist.alexxx@gmail.com<br>• Domicilio: Emiliano Zapata 2751, Ejido Matamoros, Tijuana, CP 22204</div>
+        <fieldset><legend>Logo de la Clínica (Oficial - Fijo)</legend>
+            <div style="text-align:center; padding:15px; background:var(--bg-input); border-radius:12px;">
+                <img id="logoOficial" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 50'%3E%3Ctext x='10' y='35' font-family='Arial, sans-serif' font-weight='bold' font-size='28' fill='%232DD4BF'%3EC%26C%3C/text%3E%3Ctext x='75' y='35' font-family='Arial, sans-serif' font-weight='normal' font-size='16' fill='%2394A3B8'%3EDentalGroup%3C/text%3E%3C/svg%3E" style="max-width:200px; border-radius:8px;">
+                <p style="font-size:.7rem;color:var(--text-muted);margin-top:10px">Logo oficial de C&C Dental Group</p>
+            </div>
+        </fieldset>
+        <div class="disabled-field"><fieldset><legend>Nombre de la Clínica</legend><input type="text" value="C&C Dental Group" disabled></fieldset></div>
+        <div class="disabled-field"><fieldset><legend>Domicilio</legend><textarea rows="2" disabled>Emiliano Zapata 2751, Ejido Matamoros, Tijuana, CP 22204</textarea></fieldset></div>
+        <div class="disabled-field"><fieldset><legend>Teléfonos y Email</legend><div class="row"><div><label>Teléfono:</label><input type="text" value="6646251897" disabled></div><div><label>Email:</label><input type="email" value="Dentist.alexxx@gmail.com" disabled></div></div></fieldset></div>
+    </div></div>
 
-    <!-- Página ESTADÍSTICAS (NUEVO MÓDULO #10) -->
+    <!-- Página ESTADÍSTICAS -->
     <div id="pagina-estadisticas" class="pagina"><div class="card"><h2>📊 Estadísticas y Reportes</h2><div class="row"><div class="chart-container"><div class="stat-number" id="totalPacientes">0</div><div>Pacientes Registrados</div></div><div class="chart-container"><div class="stat-number" id="totalCitas">0</div><div>Citas Programadas</div></div><div class="chart-container"><div class="stat-number" id="totalRecetas">0</div><div>Recetas Emitidas</div></div><div class="chart-container"><div class="stat-number" id="totalPresupuestos">0</div><div>Presupuestos Generados</div></div></div><hr><h3>Resumen de Actividad</h3><div id="resumenActividad"></div><button onclick="exportarReporte()"><i class="fas fa-download"></i> Exportar Reporte (JSON)</button></div></div>
 </div>
 
@@ -170,9 +188,11 @@ const DOCTOR_FIJO = {
     email: "Dentist.alexxx@gmail.com"
 };
 
+// LOGO OFICIAL en formato base64 (SVG)
+const LOGO_OFICIAL = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 50'%3E%3Ctext x='10' y='35' font-family='Arial, sans-serif' font-weight='bold' font-size='28' fill='%232DD4BF'%3EC%26C%3C/text%3E%3Ctext x='75' y='35' font-family='Arial, sans-serif' font-weight='normal' font-size='16' fill='%2394A3B8'%3EDentalGroup%3C/text%3E%3C/svg%3E";
+
 let accessToken=null, tokenClient=null, principalFolderId=null;
 let pacientes={}, pacienteActual=null, servicios=[], medicamentos=[], medicos=[], presupuestoItems=[];
-let logoBase64 = localStorage.getItem('logoClinica') || null;
 
 function toggleModo(){
     document.body.classList.toggle('modo-claro');
@@ -210,6 +230,8 @@ function inicializarDatos(){
     mostrarMedicos();
     actualizarSelectServicios();
     actualizarEstadisticas();
+    // Cargar logo oficial en el header
+    document.getElementById('logoHeader').src = LOGO_OFICIAL;
 }
 
 function actualizarEstadisticas(){
@@ -384,7 +406,7 @@ function eliminarCertificado(i){pacienteActual.certificados.splice(i,1);guardarT
 
 function mostrarServicios(){
     let t=document.getElementById('listaServicios');
-    t.innerHTML=servicios.map((s,i)=>`<tr><td>${s.nombre}</td><td>${s.descripcion||''}</td><td>$${s.costo}</td><td><button onclick="eliminarServicio(${i})">X</button></td></tr>`).join('');
+    t.innerHTML=servicios.map((s,i)=>`<tr><td>${s.nombre}</td><td>${s.descripcion||''}</td><td>$${s.costo}</td><td><button onclick="eliminarServicio(${i})">X</button></td>`).join('');
     actualizarSelectServicios();
     guardarTodoLocal();
 }
@@ -395,7 +417,7 @@ function actualizarSelectServicios(){let s=document.getElementById('presServicio
 
 function mostrarMedicamentos(){
     let t=document.getElementById('listaMedicamentos');
-    t.innerHTML=medicamentos.map((m,i)=>`<tr><td>${m.nombre}</td><td>${m.categoria||''}</td><td>${m.uso||''}</td><td><button onclick="eliminarMedicamento(${i})">X</button></td></tr>`).join('');
+    t.innerHTML=medicamentos.map((m,i)=>`<tr><td>${m.nombre}</td><td>${m.categoria||''}</td><td>${m.uso||''}</td><td><button onclick="eliminarMedicamento(${i})">X</button></td>`).join('');
     guardarTodoLocal();
 }
 
@@ -430,26 +452,21 @@ function guardarPresupuesto(){
 function mostrarPresupuestos(){let d=document.getElementById('listaPresupuestos');if(!d||!pacienteActual)return;d.innerHTML=pacienteActual.presupuestos.map((p,i)=>`<div class="exp-item">💰 ${p.fecha} - Total: $${p.total.toFixed(2)}<button onclick="eliminarPresupuesto(${i})">X</button></div>`).join('')||'<div>No hay presupuestos</div>'}
 function eliminarPresupuesto(i){pacienteActual.presupuestos.splice(i,1);guardarTodoLocal();mostrarPresupuestos();actualizarEstadisticas()}
 
-// FUNCIONES PDF CON LOGO
+// FUNCIONES PDF CON LOGO OFICIAL
 function generarRecetaPDF(){
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    const logo = localStorage.getItem('logoClinica');
-    if(logo){
-        try {
-            doc.addImage(logo, 'JPEG', 70, 10, 70, 20);
-        } catch(e){}
-    }
+    try { doc.addImage(LOGO_OFICIAL, 'SVG', 65, 10, 80, 25); } catch(e){}
     doc.setFontSize(16);
-    doc.text("C&C Dental Group", 20, logo ? 50 : 20);
+    doc.text("C&C Dental Group", 20, 50);
     doc.setFontSize(12);
-    doc.text("RECETA MÉDICA", 20, logo ? 60 : 30);
-    doc.text(`Dr. ${DOCTOR_FIJO.nombre} - Cédula: ${DOCTOR_FIJO.cedula}`, 20, logo ? 75 : 45);
-    doc.text(`Email: ${DOCTOR_FIJO.email}`, 20, logo ? 83 : 53);
-    doc.text(`Paciente: ${pacienteActual?.data?.nombre||''}`, 20, logo ? 100 : 70);
-    doc.text(`Diagnóstico: ${document.getElementById('recDiagnostico').value}`, 20, logo ? 120 : 90);
-    doc.text("Indicaciones:", 20, logo ? 140 : 110);
-    doc.text(document.getElementById('recIndicaciones').value, 20, logo ? 150 : 120, {maxWidth: 170});
+    doc.text("RECETA MÉDICA", 20, 60);
+    doc.text(`Dr. ${DOCTOR_FIJO.nombre} - Cédula: ${DOCTOR_FIJO.cedula}`, 20, 75);
+    doc.text(`Email: ${DOCTOR_FIJO.email}`, 20, 83);
+    doc.text(`Paciente: ${pacienteActual?.data?.nombre||''}`, 20, 100);
+    doc.text(`Diagnóstico: ${document.getElementById('recDiagnostico').value}`, 20, 120);
+    doc.text("Indicaciones:", 20, 140);
+    doc.text(document.getElementById('recIndicaciones').value, 20, 150, {maxWidth: 170});
     doc.save('receta.pdf');
     mostrarToast('PDF generado');
 }
@@ -457,14 +474,12 @@ function generarRecetaPDF(){
 function generarPresupuestoPDF(){
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    const logo = localStorage.getItem('logoClinica');
-    if(logo) try { doc.addImage(logo, 'JPEG', 70, 10, 70, 20); } catch(e){}
-    doc.setFontSize(16);
-    doc.text("C&C Dental Group", 20, logo ? 50 : 20);
-    doc.text("PRESUPUESTO", 20, logo ? 60 : 30);
-    doc.text(`Dr. ${DOCTOR_FIJO.nombre}`, 20, logo ? 75 : 45);
-    doc.text(`Paciente: ${pacienteActual?.data?.nombre||''}`, 20, logo ? 90 : 60);
-    let y = logo ? 110 : 80;
+    try { doc.addImage(LOGO_OFICIAL, 'SVG', 65, 10, 80, 25); } catch(e){}
+    doc.text("C&C Dental Group", 20, 50);
+    doc.text("PRESUPUESTO", 20, 60);
+    doc.text(`Dr. ${DOCTOR_FIJO.nombre}`, 20, 75);
+    doc.text(`Paciente: ${pacienteActual?.data?.nombre||''}`, 20, 90);
+    let y = 110;
     presupuestoItems.forEach(i => { doc.text(`${i.nombre}: $${i.costo}`, 20, y); y += 10; });
     let total = presupuestoItems.reduce((a,b)=>a+b.costo,0) * (1 - (parseFloat(document.getElementById('presDescuento').value)||0)/100);
     doc.text(`Total: $${total.toFixed(2)}`, 20, y + 10);
@@ -475,15 +490,14 @@ function generarPresupuestoPDF(){
 function generarCertificadoPDF(){
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    const logo = localStorage.getItem('logoClinica');
-    if(logo) try { doc.addImage(logo, 'JPEG', 70, 10, 70, 20); } catch(e){}
-    doc.text("C&C Dental Group", 20, logo ? 50 : 20);
-    doc.text("CERTIFICADO MÉDICO", 20, logo ? 60 : 30);
-    doc.text(`Dr. ${DOCTOR_FIJO.nombre} - Cédula: ${DOCTOR_FIJO.cedula}`, 20, logo ? 75 : 45);
-    doc.text(`Paciente: ${pacienteActual?.data?.nombre||''}`, 20, logo ? 95 : 65);
+    try { doc.addImage(LOGO_OFICIAL, 'SVG', 65, 10, 80, 25); } catch(e){}
+    doc.text("C&C Dental Group", 20, 50);
+    doc.text("CERTIFICADO MÉDICO", 20, 60);
+    doc.text(`Dr. ${DOCTOR_FIJO.nombre} - Cédula: ${DOCTOR_FIJO.cedula}`, 20, 75);
+    doc.text(`Paciente: ${pacienteActual?.data?.nombre||''}`, 20, 95);
     let diag = document.getElementById('certOmitir').checked ? "Por motivos de salud dental" : document.getElementById('certDiagnostico').value;
-    doc.text(`Diagnóstico: ${diag}`, 20, logo ? 115 : 85);
-    doc.text(`Reposo: ${document.getElementById('certDias').value||0} días`, 20, logo ? 135 : 105);
+    doc.text(`Diagnóstico: ${diag}`, 20, 115);
+    doc.text(`Reposo: ${document.getElementById('certDias').value||0} días`, 20, 135);
     doc.save('certificado.pdf');
     mostrarToast('PDF generado');
 }
@@ -491,34 +505,14 @@ function generarCertificadoPDF(){
 function generarConsentimientoPDF(){
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    const logo = localStorage.getItem('logoClinica');
-    if(logo) try { doc.addImage(logo, 'JPEG', 70, 10, 70, 20); } catch(e){}
-    doc.text("C&C Dental Group", 20, logo ? 50 : 20);
-    doc.text("CONSENTIMIENTO INFORMADO", 20, logo ? 60 : 30);
-    doc.text(`Dr. ${DOCTOR_FIJO.nombre} - Cédula: ${DOCTOR_FIJO.cedula}`, 20, logo ? 75 : 45);
-    doc.text(`Paciente: ${pacienteActual?.data?.nombre||''}`, 20, logo ? 95 : 65);
-    doc.text(`Procedimiento: ${document.getElementById('consentProcedimiento').value}`, 20, logo ? 115 : 85);
+    try { doc.addImage(LOGO_OFICIAL, 'SVG', 65, 10, 80, 25); } catch(e){}
+    doc.text("C&C Dental Group", 20, 50);
+    doc.text("CONSENTIMIENTO INFORMADO", 20, 60);
+    doc.text(`Dr. ${DOCTOR_FIJO.nombre} - Cédula: ${DOCTOR_FIJO.cedula}`, 20, 75);
+    doc.text(`Paciente: ${pacienteActual?.data?.nombre||''}`, 20, 95);
+    doc.text(`Procedimiento: ${document.getElementById('consentProcedimiento').value}`, 20, 115);
     doc.save('consentimiento.pdf');
     mostrarToast('PDF generado');
-}
-
-function cargarLogo(e){
-    let f=e.target.files[0];
-    if(f){
-        let tipo = f.type;
-        if(tipo === 'image/jpeg' || tipo === 'image/png' || tipo === 'image/gif' || tipo === 'image/webp'){
-            let r=new FileReader();
-            r.onload=function(ev){
-                logoBase64 = ev.target.result;
-                localStorage.setItem('logoClinica', logoBase64);
-                document.getElementById('logoPreview').innerHTML = `<img src="${logoBase64}" style="max-width:150px; border-radius:8px;">`;
-                mostrarToast('Logo guardado correctamente. Aparecerá en los PDFs.');
-            };
-            r.readAsDataURL(f);
-        } else {
-            mostrarToast('Formato no soportado. Use JPG, PNG, GIF o WEBP');
-        }
-    }
 }
 
 async function conectarGoogle(){let id=localStorage.getItem('googleClientId');if(id)iniciarAuth(id);else document.getElementById('configPanel').classList.remove('hidden')}
