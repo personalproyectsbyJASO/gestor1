@@ -75,7 +75,7 @@
     <!-- Panel Expedientes -->
     <div id="panel_expedientes" class="card hidden">
         <h2>📋 Expediente Clínico</h2>
-        <div id="driveMsg" class="hidden" style="background:#10B98120; padding:10px; border-radius:8px; margin-bottom:15px;">✅ Google Drive conectado - Carpeta "C&C Dental Group"</div>
+        <div id="driveMsg" class="hidden" style="background:#10B98120; padding:10px; border-radius:8px; margin-bottom:15px;">✅ Google Drive conectado</div>
         <input type="text" id="expNombre" placeholder="Nombre completo">
         <input type="number" id="expEdad" placeholder="Edad">
         <input type="text" id="expTelefono" placeholder="Teléfono">
@@ -184,7 +184,7 @@
     function agendarCita() { const p = document.getElementById('citaPaciente').value, f = document.getElementById('citaFecha').value, h = document.getElementById('citaHora').value; if(p && f && h) { citas.push({paciente:p,fecha:f,hora:h}); mostrarListaCitas(); document.getElementById('citaPaciente').value=''; document.getElementById('citaFecha').value=''; document.getElementById('citaHora').value=''; mostrarToast('Cita agendada'); } else mostrarToast('Complete datos','error'); }
     function eliminarCita(i){ citas.splice(i,1); mostrarListaCitas(); mostrarToast('Cita cancelada'); }
 
-    // ========== GOOGLE DRIVE CON CARPETA FIJA ==========
+    // ========== GOOGLE DRIVE CON CARPETA FIJA (VERSIÓN CORREGIDA) ==========
     async function conectarGoogle() { const id = localStorage.getItem('googleClientId'); if(id) iniciarAuth(id); else document.getElementById('configPanel').classList.remove('hidden'); }
     function guardarClientId() { const id = document.getElementById('clientIdInput').value.trim(); if(id) { localStorage.setItem('googleClientId',id); document.getElementById('configPanel').classList.add('hidden'); iniciarAuth(id); } else mostrarToast('Ingresa Client ID','error'); }
     function cerrarConfig() { document.getElementById('configPanel').classList.add('hidden'); }
@@ -201,7 +201,7 @@
                     document.getElementById('googleText').innerHTML = '✅ Drive Conectado';
                     document.getElementById('driveMsg').classList.remove('hidden');
                     mostrarToast('✅ Conectado a Google Drive');
-                    await obtenerOCrearCarpeta();
+                    await crearCarpetaSiNoExiste();
                 }
             }
         });
@@ -213,7 +213,7 @@
             document.getElementById('googleText').innerHTML = '✅ Drive Conectado';
             document.getElementById('driveMsg').classList.remove('hidden');
             mostrarToast('✅ Sesión restaurada');
-            await obtenerOCrearCarpeta();
+            await crearCarpetaSiNoExiste();
         } else {
             tokenClient.requestAccessToken({ prompt: 'consent' });
         }
@@ -230,25 +230,38 @@
         return new Promise(r=>{ tokenClient.callback = resp => { if(resp.access_token) { accessToken = resp.access_token; localStorage.setItem('driveToken', accessToken); localStorage.setItem('driveTokenExpiry', Date.now() + (resp.expires_in * 1000)); r(accessToken); } else r(null); }; tokenClient.requestAccessToken({prompt: ''}); });
     }
     
-    // Función que obtiene o crea la carpeta en Drive
-    async function obtenerOCrearCarpeta() {
+    // Función CORREGIDA que crea la carpeta SÍ o SÍ
+    async function crearCarpetaSiNoExiste() {
         const token = await refrescarToken();
-        if(!token) return null;
+        if(!token) {
+            console.error('No hay token');
+            return null;
+        }
         
         try {
-            // Buscar carpeta por nombre
+            // 1. Buscar si la carpeta ya existe
             const buscar = await fetch(`https://www.googleapis.com/drive/v3/files?q=name='${CARPETA_DRIVE}' and mimeType='application/vnd.google-apps.folder' and trashed=false`, {
+                method: 'GET',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
+            
+            if(!buscar.ok) {
+                console.error('Error al buscar carpeta:', await buscar.text());
+                return null;
+            }
+            
             const resultado = await buscar.json();
             
+            // 2. Si existe, guardamos su ID
             if(resultado.files && resultado.files.length > 0) {
                 folderId = resultado.files[0].id;
-                console.log('Carpeta existente:', folderId);
+                console.log('✅ Carpeta encontrada:', folderId);
+                mostrarToast(`📁 Carpeta "${CARPETA_DRIVE}" encontrada en tu Drive`);
                 return folderId;
             }
             
-            // Crear carpeta si no existe
+            // 3. Si no existe, la creamos
+            console.log('📁 Creando carpeta...');
             const crear = await fetch('https://www.googleapis.com/drive/v3/files', {
                 method: 'POST',
                 headers: {
@@ -260,32 +273,50 @@
                     mimeType: 'application/vnd.google-apps.folder'
                 })
             });
+            
+            if(!crear.ok) {
+                console.error('Error al crear carpeta:', await crear.text());
+                return null;
+            }
+            
             const nueva = await crear.json();
             if(nueva.id) {
                 folderId = nueva.id;
-                console.log('Carpeta creada:', folderId);
+                console.log('✅ Carpeta creada:', folderId);
                 mostrarToast(`📁 Carpeta "${CARPETA_DRIVE}" creada en tu Drive`);
+                return folderId;
             }
-            return folderId;
-        } catch(e) {
-            console.error('Error con carpeta:', e);
+            
+            return null;
+        } catch(error) {
+            console.error('Error en crearCarpetaSiNoExiste:', error);
+            mostrarToast('❌ Error al crear carpeta en Drive', 'error');
             return null;
         }
     }
     
     async function guardarEnDrive(nombreArchivo, contenido) {
         const token = await refrescarToken();
-        if(!token) { mostrarToast('❌ No conectado a Drive', 'error'); return false; }
+        if(!token) { 
+            mostrarToast('❌ No conectado a Drive. Reconecta.', 'error'); 
+            return false; 
+        }
         
         // Asegurar que tenemos la carpeta
         if(!folderId) {
-            await obtenerOCrearCarpeta();
+            await crearCarpetaSiNoExiste();
+        }
+        
+        // Si después de intentarlo sigue sin carpeta, guardamos en raíz pero avisamos
+        const parentsFolder = folderId ? [folderId] : ['root'];
+        if(!folderId) {
+            mostrarToast('⚠️ No se pudo crear carpeta, guardando en raíz', 'warning');
         }
         
         const metadata = {
             name: nombreArchivo,
             mimeType: 'application/json',
-            parents: folderId ? [folderId] : ['root']
+            parents: parentsFolder
         };
         
         const form = new FormData();
@@ -298,12 +329,18 @@
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: form
             });
+            
             if(response.ok) {
                 mostrarToast(`✅ Guardado en Drive: ${nombreArchivo}`);
                 return true;
+            } else {
+                const error = await response.json();
+                console.error('Error al guardar:', error);
+                mostrarToast(`❌ Error: ${error.error?.message || 'desconocido'}`, 'error');
+                return false;
             }
-            return false;
         } catch(e) {
+            console.error('Error de red:', e);
             mostrarToast('❌ Error de red', 'error');
             return false;
         }
@@ -346,7 +383,7 @@
     function generarCertificadoPDF() { const {jsPDF}=window.jspdf; const d=new jsPDF(); d.text("C&C Dental Group",20,20); d.text("CERTIFICADO MÉDICO",20,40); d.text(`Paciente: ${document.getElementById('certPaciente').value}`,20,60); d.text(`Diagnóstico: ${document.getElementById('certDiagnostico').value}`,20,75); d.text(`Reposo: ${document.getElementById('certDias').value} días`,20,90); d.text(`Dr. Alejandro Coronado - Cédula 9562093`,20,130); d.save('certificado.pdf'); mostrarToast('PDF generado'); }
     function generarConsentimientoPDF() { const {jsPDF}=window.jspdf; const d=new jsPDF(); d.text("C&C Dental Group",20,20); d.text("CONSENTIMIENTO INFORMADO",20,40); d.text(`Paciente: ${document.getElementById('consentPaciente').value}`,20,60); d.text(`Procedimiento: ${document.getElementById('consentProcedimiento').value}`,20,75); d.save('consentimiento.pdf'); mostrarToast('PDF generado'); }
     
-    function mostrarToast(m, t='success') { const toast=document.createElement('div'); toast.className='toast'; toast.style.background=t==='error'?'#EF4444':'#2DD4BF'; toast.textContent=m; document.body.appendChild(toast); setTimeout(()=>toast.remove(),3000); }
+    function mostrarToast(m, t='success') { const toast=document.createElement('div'); toast.className='toast'; toast.style.background=t==='error'?'#EF4444':t==='warning'?'#F59E0B':'#2DD4BF'; toast.textContent=m; document.body.appendChild(toast); setTimeout(()=>toast.remove(),3000); }
     function mostrarPanel(p) { document.querySelectorAll('[id^="panel_"]').forEach(el=>el.classList.add('hidden')); document.getElementById(`panel_${p}`).classList.remove('hidden'); }
     
     // ========== INICIALIZAR ==========
