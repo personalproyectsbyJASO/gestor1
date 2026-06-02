@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>C&C Dental Group</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>C&C Dental Group - Sistema de Gestión Clínica</title>
     <script src="https://accounts.google.com/gsi/client"></script>
     <script src="https://apis.google.com/js/api.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -11,13 +11,13 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', sans-serif; background: #0F172A; color: #E2E8F0; padding: 20px; }
-        .container { max-width: 1300px; margin: 0 auto; }
+        .container { max-width: 1400px; margin: 0 auto; }
         .header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 30px; }
         .logo h1 { color: #2DD4BF; }
         .btn-google { background: #1E293B; padding: 10px 20px; border-radius: 50px; cursor: pointer; display: flex; align-items: center; gap: 10px; border-left: 3px solid #EF4444; }
         .btn-google.connected { border-left-color: #10B981; }
         .card { background: #1E293B; border-radius: 16px; padding: 20px; margin-bottom: 20px; border: 1px solid #334155; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; margin-bottom: 20px; }
         .modulo { background: #1E293B; border-radius: 12px; padding: 15px; text-align: center; cursor: pointer; border: 1px solid #334155; transition: 0.2s; }
         .modulo:hover { border-color: #2DD4BF; transform: translateY(-3px); }
         .modulo i { font-size: 2rem; color: #2DD4BF; margin-bottom: 8px; }
@@ -30,10 +30,16 @@
         .exp-item, .serv-item, .med-item, .cita-item { background: #0F172A; padding: 10px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         .alert-warning { background: rgba(245,158,11,0.1); border: 1px solid #F59E0B; color: #F59E0B; padding: 15px; border-radius: 12px; margin-bottom: 20px; }
         hr { margin: 15px 0; border-color: #334155; }
-        .paciente-selector { background: #0F172A; padding: 15px; border-radius: 12px; margin-bottom: 20px; }
-        .select-paciente { width: 70%; display: inline-block; margin-right: 10px; }
-        .btn-small { padding: 8px 15px; font-size: 0.8rem; }
-        .info-carpeta { font-size: 0.75rem; color: #10B981; margin-top: 5px; }
+        .row { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 10px; }
+        .row > * { flex: 1; min-width: 150px; }
+        fieldset { border: 1px solid #334155; border-radius: 12px; padding: 15px; margin-bottom: 20px; }
+        legend { color: #2DD4BF; padding: 0 10px; font-weight: bold; }
+        .tabla { width: 100%; border-collapse: collapse; }
+        .tabla th, .tabla td { padding: 8px; text-align: left; border-bottom: 1px solid #334155; }
+        .tabla th { color: #2DD4BF; }
+        .presupuesto-item { background: #0F172A; padding: 10px; border-radius: 8px; margin-bottom: 5px; display: flex; justify-content: space-between; }
+        .total-presupuesto { font-size: 1.5rem; color: #2DD4BF; text-align: right; margin-top: 15px; }
+        .selector-paciente { background: #0F172A; padding: 15px; border-radius: 12px; margin-bottom: 20px; }
     </style>
 </head>
 <body>
@@ -42,7 +48,7 @@
     <div class="header">
         <div class="logo">
             <h1><i class="fas fa-tooth"></i> C&C Dental Group</h1>
-            <p>Gestión clínica con respaldo en Google Drive</p>
+            <p>Sistema de Gestión Clínica con Respaldo en Google Drive</p>
         </div>
         <div class="btn-google" id="googleBtn" onclick="conectarGoogle()">
             <i class="fab fa-google"></i>
@@ -50,14 +56,15 @@
         </div>
     </div>
 
+    <!-- Panel de Configuración Inicial -->
     <div id="configPanel" class="card hidden">
-        <h3>⚙️ Configuración inicial</h3>
+        <h3>⚙️ Configuración de Google Drive</h3>
         <div class="alert-warning">
             <strong>Configuración única (5 minutos)</strong><br><br>
             1. Ve a <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color:#2DD4BF;">Google Cloud Console</a><br>
             2. Crea proyecto → Habilita "Google Drive API"<br>
             3. Credenciales → ID cliente OAuth → Aplicación web<br>
-            4. Orígenes autorizados: agrega tu dominio de GitHub Pages<br>
+            4. Orígenes autorizados: agrega tu dominio de GitHub Pages o http://localhost<br>
             5. Copia el Client ID y pégalo aquí
         </div>
         <input type="text" id="clientIdInput" placeholder="Pega tu Client ID">
@@ -66,151 +73,240 @@
     </div>
 
     <!-- Selector de Paciente Global -->
-    <div class="card paciente-selector">
-        <h3><i class="fas fa-user-circle"></i> Seleccionar Paciente</h3>
-        <select id="selectPaciente" class="select-paciente" onchange="cargarDatosPaciente()">
-            <option value="">-- Seleccionar paciente --</option>
-        </select>
-        <button onclick="crearNuevoPaciente()" class="btn-small"><i class="fas fa-plus"></i> Nuevo Paciente</button>
-        <div id="infoCarpeta" class="info-carpeta"></div>
+    <div class="card selector-paciente">
+        <div class="row">
+            <div style="flex:2"><label>👤 Seleccionar Paciente</label>
+            <select id="selectPaciente" onchange="cargarDatosPaciente()" style="width:100%">
+                <option value="">-- Seleccionar paciente --</option>
+            </select></div>
+            <div style="flex:1"><label>&nbsp;</label><br>
+            <button onclick="crearNuevoPaciente()" style="width:100%"><i class="fas fa-plus"></i> Nuevo Paciente</button></div>
+        </div>
+        <div id="infoCarpeta" class="info-carpeta" style="font-size:0.8rem; color:#10B981; margin-top:8px;"></div>
     </div>
 
+    <!-- Módulos -->
     <div class="grid">
-        <div class="modulo" onclick="mostrarPanel('expedientes')"><i class="fas fa-folder-open"></i><h3>Expediente</h3></div>
-        <div class="modulo" onclick="mostrarPanel('receta')"><i class="fas fa-prescription-bottle"></i><h3>Receta</h3></div>
-        <div class="modulo" onclick="mostrarPanel('presupuestos')"><i class="fas fa-file-invoice-dollar"></i><h3>Presupuesto</h3></div>
-        <div class="modulo" onclick="mostrarPanel('agenda')"><i class="fas fa-calendar-alt"></i><h3>Citas</h3></div>
+        <div class="modulo" onclick="mostrarPanel('expediente')"><i class="fas fa-folder-open"></i><h3>Expediente</h3></div>
+        <div class="modulo" onclick="mostrarPanel('receta')"><i class="fas fa-prescription-bottle"></i><h3>Receta Médica</h3></div>
+        <div class="modulo" onclick="mostrarPanel('presupuesto')"><i class="fas fa-file-invoice-dollar"></i><h3>Presupuesto</h3></div>
+        <div class="modulo" onclick="mostrarPanel('citas')"><i class="fas fa-calendar-alt"></i><h3>Agenda</h3></div>
+        <div class="modulo" onclick="mostrarPanel('servicios')"><i class="fas fa-tooth"></i><h3>Servicios</h3></div>
+        <div class="modulo" onclick="mostrarPanel('medicamentos')"><i class="fas fa-capsules"></i><h3>Medicamentos</h3></div>
         <div class="modulo" onclick="mostrarPanel('consentimiento')"><i class="fas fa-file-signature"></i><h3>Consentimiento</h3></div>
         <div class="modulo" onclick="mostrarPanel('certificado')"><i class="fas fa-certificate"></i><h3>Certificado</h3></div>
     </div>
 
-    <div class="grid" style="margin-top: 0;">
-        <div class="modulo" onclick="mostrarPanel('servicios')"><i class="fas fa-tooth"></i><h3>Servicios</h3></div>
-        <div class="modulo" onclick="mostrarPanel('medicamentos')"><i class="fas fa-capsules"></i><h3>Medicamentos</h3></div>
-    </div>
-
-    <!-- Panel Expediente -->
-    <div id="panel_expedientes" class="card hidden">
-        <h2>📋 Expediente Clínico</h2>
+    <!-- ==================== MÓDULO EXPEDIENTE ==================== -->
+    <div id="panel_expediente" class="card hidden">
+        <h2>📋 EXPEDIENTE CLÍNICO</h2>
         <div id="driveMsg" class="hidden" style="background:#10B98120; padding:10px; border-radius:8px; margin-bottom:15px;">✅ Google Drive conectado</div>
-        <input type="text" id="expNombre" placeholder="Nombre completo">
-        <input type="number" id="expEdad" placeholder="Edad">
-        <input type="text" id="expTelefono" placeholder="Teléfono">
-        <input type="text" id="expDiagnostico" placeholder="Diagnóstico">
-        <input type="text" id="expAlergias" placeholder="Alergias">
-        <textarea id="expTratamiento" rows="4" placeholder="Historial médico / Tratamientos"></textarea>
-        <button onclick="guardarExpediente()"><i class="fas fa-save"></i> Guardar Expediente</button>
+        
+        <fieldset><legend>👨‍⚕️ Médico Tratante</legend>
+            <select id="expMedico"><option>Dr. Alejandro Coronado</option><option>Dr. Juan Pérez</option></select>
+        </fieldset>
+
+        <fieldset><legend><i class="fas fa-id-card"></i> Ficha de Identificación</legend>
+            <div class="row"><div><label>Nombre completo:</label><input type="text" id="expNombre"></div><div><label>Tutor (opcional):</label><input type="text" id="expTutor"></div></div>
+            <div class="row"><div><label>Fecha nacimiento:</label><input type="date" id="expFechaNac"></div><div><label>Edad:</label><input type="number" id="expEdad"></div><div><label>Sexo:</label><select id="expSexo"><option>Masculino</option><option>Femenino</option></select></div><div><label>Estado Civil:</label><select id="expEstadoCivil"><option>Soltero/a</option><option>Casado/a</option><option>Divorciado/a</option><option>Viudo/a</option></select></div></div>
+            <div class="row"><div><label>Lugar de origen:</label><input type="text" id="expOrigen"></div><div><label>Tipo sangre:</label><select id="expSangre"><option>O+</option><option>O-</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option></select></div></div>
+            <div class="row"><div><label>Teléfono:</label><input type="tel" id="expTelefono"></div><div><label>Correo:</label><input type="email" id="expEmail"></div></div>
+            <div><label>Domicilio:</label><textarea id="expDomicilio" rows="2"></textarea></div>
+        </fieldset>
+
+        <fieldset><legend><i class="fas fa-dna"></i> Enfermedades Heredofamiliares</legend>
+            <textarea id="expHeredo" rows="2" placeholder="Familiares del paciente y enfermedades relevantes"></textarea>
+        </fieldset>
+
+        <fieldset><legend><i class="fas fa-user-check"></i> Antecedentes Personales no Patológicos</legend>
+            <div class="row"><div><label>Higiene Oral:</label><textarea id="expHigiene" rows="2"></textarea></div><div><label>Hábitos Alimenticios:</label><textarea id="expAlimentacion" rows="2"></textarea></div></div>
+            <div class="row"><div><label>Consumo de Sustancias:</label><textarea id="expSustancias" rows="2"></textarea></div><div><label>Vivienda:</label><textarea id="expVivienda" rows="2"></textarea></div></div>
+            <div class="row"><div><label>Actividad Física:</label><textarea id="expActividad" rows="2"></textarea></div><div><label>Vacunas:</label><textarea id="expVacunas" rows="2"></textarea></div></div>
+        </fieldset>
+
+        <fieldset><legend><i class="fas fa-notes-medical"></i> Antecedentes Personales Patológicos</legend>
+            <div class="row"><div><label>Enf. infancia:</label><textarea id="expInfancia" rows="2"></textarea></div><div><label>Enf. Sistémicas:</label><textarea id="expSistemica" rows="2"></textarea></div></div>
+            <div class="row"><div><label>Neoplasias:</label><textarea id="expNeoplasias" rows="2"></textarea></div><div><label>Cirugías:</label><textarea id="expCirugias" rows="2"></textarea></div></div>
+            <div class="row"><div><label>Fármacos:</label><textarea id="expFarmacos" rows="2"></textarea></div><div><label>Alergias:</label><textarea id="expAlergias" rows="2"></textarea></div></div>
+            <div class="row"><div><label>Traumáticos:</label><textarea id="expTraumaticos" rows="2"></textarea></div><div><label>Transfusiones:</label><textarea id="expTransfusiones" rows="2"></textarea></div></div>
+            <div><label>Otras enfermedades:</label><textarea id="expOtrasEnf" rows="2"></textarea></div>
+        </fieldset>
+
+        <fieldset><legend><i class="fas fa-stethoscope"></i> Padecimiento Actual</legend>
+            <div><label>Motivo consulta:</label><textarea id="expMotivo" rows="2"></textarea></div>
+            <div><label>Semiología del Dolor:</label><textarea id="expDolor" rows="2"></textarea></div>
+            <div><label>Síntomas acompañantes:</label>
+                <div style="display:flex; gap:15px; flex-wrap:wrap; margin:10px 0">
+                    <label><input type="checkbox" id="sintHinchazon"> Hinchazón</label>
+                    <label><input type="checkbox" id="sintSangrado"> Sangrado</label>
+                    <label><input type="checkbox" id="sintMovilidad"> Movilidad dental</label>
+                    <label><input type="checkbox" id="sintFistula"> Fístula</label>
+                    <label><input type="checkbox" id="sintHalitosis"> Halitosis</label>
+                </div>
+            </div>
+            <div><label>Evolución:</label><textarea id="expEvolucion" rows="2"></textarea></div>
+        </fieldset>
+
+        <fieldset><legend><i class="fas fa-heartbeat"></i> Interrogatorio por Aparatos</legend>
+            <div class="row"><div><label>Digestivo:</label><textarea id="apaDigestivo" rows="2"></textarea></div><div><label>Cardiovascular:</label><textarea id="apaCardio" rows="2"></textarea></div></div>
+            <div class="row"><div><label>Respiratorio:</label><textarea id="apaRespiratorio" rows="2"></textarea></div><div><label>Nervioso:</label><textarea id="apaNervioso" rows="2"></textarea></div></div>
+            <div class="row"><div><label>Musculoesquelético:</label><textarea id="apaMusculo" rows="2"></textarea></div><div><label>Genitourinario:</label><textarea id="apaGenitourinario" rows="2"></textarea></div></div>
+            <div class="row"><div><label>Endocrino:</label><textarea id="apaEndocrino" rows="2"></textarea></div><div><label>Hematológico:</label><textarea id="apaHematologico" rows="2"></textarea></div></div>
+        </fieldset>
+
+        <fieldset><legend><i class="fas fa-heart"></i> Signos Vitales</legend>
+            <div class="row"><div><label>Presión arterial:</label><input type="text" id="signosPA" placeholder="120/80"></div><div><label>FC:</label><input type="text" id="signosFC" placeholder="lpm"></div><div><label>FR:</label><input type="text" id="signosFR" placeholder="rpm"></div></div>
+            <div class="row"><div><label>Temperatura:</label><input type="text" id="signosTemp" placeholder="°C"></div><div><label>SpO2:</label><input type="text" id="signosO2" placeholder="%"></div><div><label>Peso/Talla/IMC:</label><input type="text" id="signosIMC" placeholder="kg / m / IMC"></div></div>
+        </fieldset>
+
+        <fieldset><legend><i class="fas fa-clipboard-list"></i> Diagnóstico y Tratamiento</legend>
+            <div><label>Diagnóstico:</label><textarea id="expDiagnosticoFinal" rows="2"></textarea></div>
+            <div><label>Tratamientos recomendados:</label><textarea id="expTratamientos" rows="2"></textarea></div>
+            <div><label>Notas:</label><textarea id="expNotas" rows="2"></textarea></div>
+        </fieldset>
+
+        <button onclick="guardarExpedienteCompleto()"><i class="fas fa-save"></i> Guardar Expediente</button>
     </div>
 
-    <!-- Panel Receta -->
+    <!-- ==================== MÓDULO RECETA MÉDICA ==================== -->
     <div id="panel_receta" class="card hidden">
-        <h2>📄 Receta Médica</h2>
-        <input type="text" id="recNombre" placeholder="Paciente" readonly style="background:#1E293B;">
-        <input type="text" id="recDiagnostico" placeholder="Diagnóstico">
-        <textarea id="recMedicamentos" rows="4" placeholder="Medicamentos y dosis"></textarea>
-        <textarea id="recIndicaciones" rows="3" placeholder="Indicaciones adicionales"></textarea>
+        <h2>📄 RECETA MÉDICA</h2>
+        <fieldset><legend>👨‍⚕️ Datos del Médico</legend>
+            <select id="recMedico"><option>Dr. Alejandro Coronado (Cédula 9562093)</option><option>Dr. Juan Pérez</option></select>
+        </fieldset>
+        <fieldset><legend>📋 Datos del Paciente</legend>
+            <div class="row"><div><label>Nombre completo:</label><input type="text" id="recNombre" readonly></div><div><label>Teléfono:</label><input type="text" id="recTelefono" readonly></div></div>
+            <div class="row"><div><label>Edad:</label><input type="number" id="recEdad" readonly></div><div><label>Fecha nacimiento:</label><input type="date" id="recNacimiento" readonly></div><div><label>Alergias:</label><input type="text" id="recAlergias" readonly></div></div>
+        </fieldset>
+        <fieldset><legend><i class="fas fa-heartbeat"></i> Signos Vitales y Diagnóstico</legend>
+            <div class="row"><div><label>Peso (kg):</label><input type="number" id="recPeso" value="0"></div><div><label>Estatura (m):</label><input type="number" id="recEstatura" value="0" step="0.01"></div><div><label>IMC:</label><input type="text" id="recIMC" readonly></div></div>
+            <div class="row"><div><label>SpO2 (%):</label><input type="text" id="recSpO2"></div><div><label>FC (lpm):</label><input type="text" id="recFC"></div><div><label>FR (rpm):</label><input type="text" id="recFR"></div></div>
+            <div class="row"><div><label>Tensión arterial:</label><input type="text" id="recTA" placeholder="120/80"></div><div><label>Temperatura (°C):</label><input type="text" id="recTemp"></div></div>
+            <div><label>Diagnóstico médico:</label><textarea id="recDiagnostico" rows="2"></textarea></div>
+        </fieldset>
+        <fieldset><legend>💊 Medicamentos e Indicaciones</legend>
+            <div><label>Indicaciones:</label><textarea id="recIndicaciones" rows="3" placeholder="Reposo, dieta, cuidados generales..."></textarea></div>
+            <div><label>Próxima cita:</label><input type="date" id="recProxCita"></div>
+        </fieldset>
         <button onclick="guardarReceta()"><i class="fas fa-save"></i> Guardar Receta</button>
         <button onclick="generarRecetaPDF()"><i class="fas fa-file-pdf"></i> Generar PDF</button>
-        <hr>
-        <h3>Historial de Recetas</h3>
-        <div id="listaRecetas"></div>
+        <hr><h3>Historial de Recetas</h3><div id="listaRecetas"></div>
     </div>
 
-    <!-- Panel Presupuesto -->
-    <div id="panel_presupuestos" class="card hidden">
-        <h2>💰 Presupuesto</h2>
-        <input type="text" id="presNombre" placeholder="Paciente" readonly style="background:#1E293B;">
-        <input type="text" id="presServicio" placeholder="Servicio / Tratamiento">
-        <input type="number" id="presMonto" placeholder="Monto $">
-        <input type="number" id="presDescuento" placeholder="Descuento %" value="0">
-        <textarea id="presNotas" rows="2" placeholder="Notas"></textarea>
-        <button onclick="guardarPresupuesto()"><i class="fas fa-save"></i> Guardar Presupuesto</button>
-        <button onclick="generarPresupuestoPDF()"><i class="fas fa-file-pdf"></i> Generar PDF</button>
-        <hr>
-        <h3>Historial de Presupuestos</h3>
-        <div id="listaPresupuestos"></div>
+    <!-- ==================== MÓDULO PRESUPUESTO ==================== -->
+    <div id="panel_presupuesto" class="card hidden">
+        <h2>💰 PRESUPUESTO</h2>
+        <div><label>Paciente / Prospecto:</label><input type="text" id="presNombre" readonly></div>
+        <div class="row"><div style="flex:3"><label>Añadir Servicio del Catálogo:</label><select id="presServicioSelect"></select></div><div style="flex:1"><button onclick="agregarServicioPresupuesto()" style="margin-top:28px;">+ Añadir</button></div></div>
+        <div><label>Material o servicio adicional:</label><div class="row"><input type="text" id="extraNombre" placeholder="Nombre"><input type="number" id="extraMonto" placeholder="Monto $"><button onclick="agregarExtraPresupuesto()">Añadir</button></div></div>
+        <div id="listaPresupuestoItems"></div>
+        <div class="row"><div><label>Porcentaje de Descuento (%):</label><input type="number" id="presDescuento" value="0" oninput="calcularTotalPresupuesto()"></div><div><label>Vigencia / Nota Extra:</label><input type="text" id="presVigencia" placeholder="Ej: Válido por 15 días"></div></div>
+        <div class="total-presupuesto" id="totalPresupuestoDisplay">Total: $0.00</div>
+        <button onclick="generarPresupuestoPDF()">Generar Presupuesto PDF</button>
+        <hr><h3>Historial de Presupuestos</h3><div id="listaPresupuestos"></div>
     </div>
 
-    <!-- Panel Agenda/Citas -->
-    <div id="panel_agenda" class="card hidden">
-        <h2>📅 Citas</h2>
-        <input type="text" id="citaNombre" placeholder="Paciente" readonly style="background:#1E293B;">
-        <input type="date" id="citaFecha">
-        <input type="time" id="citaHora">
-        <input type="text" id="citaMotivo" placeholder="Motivo de la cita">
-        <button onclick="guardarCita()"><i class="fas fa-save"></i> Guardar Cita</button>
-        <hr>
-        <h3>Historial de Citas</h3>
+    <!-- ==================== MÓDULO AGENDA DE CITAS ==================== -->
+    <div id="panel_citas" class="card hidden">
+        <h2>📅 AGENDA DE CITAS</h2>
+        <div class="row"><div><label>Paciente:</label><input type="text" id="citaNombre" readonly></div><div><label>Teléfono / WhatsApp:</label><input type="text" id="citaTelefono" readonly></div></div>
+        <div class="row"><div><label>Fecha:</label><input type="date" id="citaFecha"></div><div><label>Hora:</label><input type="time" id="citaHora"></div><div><label>Duración:</label><select id="citaDuracion"><option>15 min</option><option selected>30 min</option><option>45 min</option><option>60 min</option></select></div></div>
+        <div><label>Tratamiento:</label><input type="text" id="citaTratamiento"></div>
+        <button onclick="guardarCita()">Agendar Cita</button>
+        <hr><h3>Panel de Consultas Programadas</h3>
+        <div><label>Filtrar por fecha:</label><input type="date" id="filtroFecha" onchange="mostrarCitasPorFecha()"></div>
         <div id="listaCitas"></div>
     </div>
 
-    <!-- Panel Consentimiento -->
-    <div id="panel_consentimiento" class="card hidden">
-        <h2>📝 Consentimiento Informado</h2>
-        <input type="text" id="consentNombre" placeholder="Paciente" readonly style="background:#1E293B;">
-        <input type="text" id="consentProcedimiento" placeholder="Procedimiento">
-        <textarea id="consentTexto" rows="6">Yo, [NOMBRE], autorizo al Dr. Alejandro Coronado (Cédula 9562093) a realizar [PROCEDIMIENTO]. He sido informado de los riesgos, beneficios y alternativas.</textarea>
-        <button onclick="guardarConsentimiento()"><i class="fas fa-save"></i> Guardar Consentimiento</button>
-        <button onclick="generarConsentimientoPDF()"><i class="fas fa-file-pdf"></i> Generar PDF</button>
-        <hr>
-        <h3>Historial de Consentimientos</h3>
-        <div id="listaConsentimientos"></div>
-    </div>
-
-    <!-- Panel Certificado -->
-    <div id="panel_certificado" class="card hidden">
-        <h2>📜 Certificado Médico</h2>
-        <input type="text" id="certNombre" placeholder="Paciente" readonly style="background:#1E293B;">
-        <input type="text" id="certDiagnostico" placeholder="Diagnóstico">
-        <input type="number" id="certDias" placeholder="Días de reposo">
-        <button onclick="guardarCertificado()"><i class="fas fa-save"></i> Guardar Certificado</button>
-        <button onclick="generarCertificadoPDF()"><i class="fas fa-file-pdf"></i> Generar PDF</button>
-        <hr>
-        <h3>Historial de Certificados</h3>
-        <div id="listaCertificados"></div>
-    </div>
-
-    <!-- Panel Servicios (Global) -->
+    <!-- ==================== MÓDULO SERVICIOS (Catálogo Global) ==================== -->
     <div id="panel_servicios" class="card hidden">
-        <h2>🦷 Catálogo de Servicios</h2>
-        <input type="text" id="servNombre" placeholder="Nombre">
-        <input type="number" id="servCosto" placeholder="Costo">
-        <button onclick="agregarServicio()">+ Agregar</button>
-        <button onclick="guardarCatalogoServicios()" style="background:#10B981;">💾 Respaldar en Drive</button>
+        <h2>🦷 Gestión de Servicios y Precios</h2>
+        <div class="row"><div><label>Nombre del Servicio:</label><input type="text" id="servNombre"></div><div><label>Monto ($):</label><input type="number" id="servCosto"></div><div><label>Descripción breve:</label><input type="text" id="servDesc"></div></div>
+        <button onclick="agregarServicio()">+ REGISTRAR EN CATÁLOGO</button>
         <hr>
-        <div id="listaServicios"></div>
+        <table class="tabla" id="tablaServicios">
+            <thead><tr><th>SERVICIO</th><th>DESCRIPCIÓN</th><th>COSTO</th><th>ELIMINAR</th></tr></thead>
+            <tbody id="listaServicios"></tbody>
+        </table>
+        <button onclick="guardarCatalogoServicios()" style="background:#10B981;">💾 Respaldar Catálogo en Drive</button>
     </div>
 
-    <!-- Panel Medicamentos (Global) -->
+    <!-- ==================== MÓDULO MEDICAMENTOS (Catálogo Global) ==================== -->
     <div id="panel_medicamentos" class="card hidden">
         <h2>💊 Catálogo de Medicamentos</h2>
-        <input type="text" id="medNombre" placeholder="Nombre">
-        <input type="text" id="medCategoria" placeholder="Categoría">
-        <button onclick="agregarMedicamento()">+ Agregar</button>
-        <button onclick="guardarCatalogoMedicamentos()" style="background:#10B981;">💾 Respaldar en Drive</button>
+        <div class="row"><div><label>Nombre del Medicamento:</label><input type="text" id="medNombre"></div><div><label>Categoría Terapéutica:</label><input type="text" id="medCategoria"></div><div><label>Uso Principal / Indicación:</label><input type="text" id="medUso"></div></div>
+        <button onclick="agregarMedicamento()">+ REGISTRAR MEDICAMENTO</button>
+        <button onclick="cargaMasivaMedicamentos()" style="background:#F59E0B;">📂 CARGA MASIVA (TXT)</button>
         <hr>
-        <div id="listaMedicamentos"></div>
+        <table class="tabla"><thead><tr><th>MEDICAMENTO</th><th>CATEGORÍA</th><th>USO PRINCIPAL</th><th>ACCIÓN</th></tr></thead>
+        <tbody id="listaMedicamentos"></tbody></table>
+        <button onclick="guardarCatalogoMedicamentos()" style="background:#10B981;">💾 Respaldar Catálogo en Drive</button>
+    </div>
+
+    <!-- ==================== MÓDULO CONSENTIMIENTO INFORMADO ==================== -->
+    <div id="panel_consentimiento" class="card hidden">
+        <h2>📝 CONSENTIMIENTO INFORMADO</h2>
+        <div class="row"><div style="flex:1"><label>Buscar consentimiento por nombre:</label><input type="text" id="buscarConsentimiento" placeholder="Nombre del paciente..."></div><div style="flex:0.5"><button onclick="buscarConsentimiento()" style="margin-top:28px;"><i class="fas fa-search"></i> Buscar</button></div></div>
+        <button onclick="nuevoConsentimiento()">+ NUEVO CONSENTIMIENTO</button>
+        <hr>
+        <div><label>Paciente:</label><input type="text" id="consentNombre" readonly></div>
+        <div><label>Procedimiento:</label><input type="text" id="consentProcedimiento"></div>
+        <div><label>Texto del Consentimiento:</label><textarea id="consentTexto" rows="6">Yo, [NOMBRE DEL PACIENTE], autorizo al Dr. Alejandro Coronado (Cédula 9562093) a realizar el procedimiento de [PROCEDIMIENTO]. He sido informado de los riesgos, beneficios y alternativas.</textarea></div>
+        <button onclick="guardarConsentimiento()">Guardar Consentimiento</button>
+        <button onclick="generarConsentimientoPDF()">Generar PDF</button>
+        <hr><h3>Consentimientos guardados</h3><div id="listaConsentimientos"></div>
+    </div>
+
+    <!-- ==================== MÓDULO CERTIFICADO MÉDICO ==================== -->
+    <div id="panel_certificado" class="card hidden">
+        <h2>📜 CERTIFICADO MÉDICO</h2>
+        <fieldset><legend>1. Datos del Paciente</legend>
+            <div class="row"><div><label>Nombre Completo:</label><input type="text" id="certNombre" readonly></div><div><label>Edad:</label><input type="number" id="certEdad" readonly></div></div>
+        </fieldset>
+        <fieldset><legend>2. Datos Generales</legend>
+            <div class="row"><div><label>Médico que Certifica:</label><select id="certMedico"><option>Dr. Alejandro Coronado</option><option>Dr. Juan Pérez</option></select></div><div><label>Lugar de Expedición:</label><input type="text" id="certLugar" placeholder="Ciudad, Estado"></div><div><label>Fecha de Expedición:</label><input type="date" id="certFecha"></div></div>
+        </fieldset>
+        <fieldset><legend>3. Información Clínica</legend>
+            <div><label>Diagnóstico:</label><textarea id="certDiagnostico" rows="2"></textarea></div>
+            <div><label>Procedimiento Realizado:</label><textarea id="certProcedimiento" rows="2"></textarea></div>
+        </fieldset>
+        <fieldset><legend>4. Indicaciones de Reposo</legend>
+            <div class="row"><div><label>Días de Reposo:</label><input type="number" id="certDias"></div><div><label>Desde:</label><input type="date" id="certDesde"></div><div><label>Hasta:</label><input type="date" id="certHasta"></div></div>
+        </fieldset>
+        <fieldset><legend>5. Firmas</legend>
+            <label><input type="checkbox" id="certFirmas"> Incluir espacios para firmas digitales</label>
+        </fieldset>
+        <button onclick="guardarCertificado()">Guardar Certificado</button>
+        <button onclick="generarCertificadoPDF()">Generar Certificado PDF</button>
+        <hr><h3>Certificados guardados</h3><div id="listaCertificados"></div>
     </div>
 </div>
 
 <script>
-    // ========== VARIABLES ==========
+    // ========== VARIABLES GLOBALES ==========
     let accessToken = null, tokenClient = null, principalFolderId = null;
-    let pacientes = {}; // { "nombre_normalizado": { id: "folderId", data: {...}, recetas: [], presupuestos: [], citas: [], consentimientos: [], certificados: [] } }
+    let pacientes = {}; // { "nombre_key": { folderId, data, recetas, presupuestos, citas, consentimientos, certificados } }
     let pacienteActual = null;
     let servicios = [], medicamentos = [];
+    let presupuestoItems = [];
     const CARPETA_PRINCIPAL = 'C&C Dental Group';
 
     // ========== INICIALIZACIÓN ==========
     function cargarDatosLocales() {
         if(localStorage.getItem('servicios')) servicios = JSON.parse(localStorage.getItem('servicios'));
-        else servicios = [{nombre:"Extracción simple",costo:900},{nombre:"Endodoncia",costo:3500}];
+        else servicios = [
+            {nombre:"Extracción simple", costo:900, descripcion:"Sacar muela que no sea del juicio"},
+            {nombre:"Drenaje pus", costo:500, descripcion:"Drenar pus acumulada"},
+            {nombre:"Caries", costo:800, descripcion:"Eliminación de caries"},
+            {nombre:"Corona zirconia", costo:5000, descripcion:""},
+            {nombre:"Endodoncia", costo:3500, descripcion:""}
+        ];
         if(localStorage.getItem('medicamentos')) medicamentos = JSON.parse(localStorage.getItem('medicamentos'));
-        if(localStorage.getItem('pacientes')) {
-            pacientes = JSON.parse(localStorage.getItem('pacientes'));
-            actualizarSelectorPacientes();
-        }
-        mostrarServicios(); mostrarMedicamentos();
+        if(localStorage.getItem('pacientes')) pacientes = JSON.parse(localStorage.getItem('pacientes'));
+        actualizarSelectServicios();
+        mostrarServicios();
+        mostrarMedicamentos();
+        actualizarSelectorPacientes();
     }
 
     function actualizarSelectorPacientes() {
@@ -226,22 +322,21 @@
         if(key && pacientes[key]) {
             pacienteActual = pacientes[key];
             document.getElementById('infoCarpeta').innerHTML = `📁 Carpeta en Drive: ${key}`;
+            // Cargar datos en campos
             document.getElementById('expNombre').value = pacienteActual.data?.nombre || '';
             document.getElementById('expEdad').value = pacienteActual.data?.edad || '';
             document.getElementById('expTelefono').value = pacienteActual.data?.telefono || '';
-            document.getElementById('expDiagnostico').value = pacienteActual.data?.diagnostico || '';
-            document.getElementById('expAlergias').value = pacienteActual.data?.alergias || '';
-            document.getElementById('expTratamiento').value = pacienteActual.data?.tratamiento || '';
-            // Actualizar campos readonly en otros paneles
-            ['recNombre', 'presNombre', 'citaNombre', 'consentNombre', 'certNombre'].forEach(id => {
-                let el = document.getElementById(id);
-                if(el) el.value = pacienteActual.data?.nombre || '';
-            });
+            document.getElementById('recNombre').value = pacienteActual.data?.nombre || '';
+            document.getElementById('recEdad').value = pacienteActual.data?.edad || '';
+            document.getElementById('recTelefono').value = pacienteActual.data?.telefono || '';
+            document.getElementById('presNombre').value = pacienteActual.data?.nombre || '';
+            document.getElementById('citaNombre').value = pacienteActual.data?.nombre || '';
+            document.getElementById('citaTelefono').value = pacienteActual.data?.telefono || '';
+            document.getElementById('consentNombre').value = pacienteActual.data?.nombre || '';
+            document.getElementById('certNombre').value = pacienteActual.data?.nombre || '';
+            document.getElementById('certEdad').value = pacienteActual.data?.edad || '';
             mostrarRecetas(); mostrarPresupuestos(); mostrarCitas(); mostrarConsentimientos(); mostrarCertificados();
-        } else {
-            pacienteActual = null;
-            document.getElementById('infoCarpeta').innerHTML = '';
-        }
+        } else { pacienteActual = null; }
     }
 
     async function crearNuevoPaciente() {
@@ -250,24 +345,18 @@
         let edad = prompt('Edad:');
         let telefono = prompt('Teléfono:');
         let key = nombre.toLowerCase().replace(/ /g, '_') + '_' + Date.now();
-        
         pacientes[key] = {
-            id: null,
-            folderId: null,
-            data: { nombre, edad, telefono, diagnostico: '', alergias: '', tratamiento: '', fecha_creacion: new Date().toISOString() },
+            folderId: null, data: { nombre, edad, telefono, diagnostico: '', alergias: '', tratamiento: '', fecha_creacion: new Date().toISOString() },
             recetas: [], presupuestos: [], citas: [], consentimientos: [], certificados: []
         };
-        
         if(accessToken && principalFolderId) {
             let folderId = await crearSubcarpeta(principalFolderId, key);
             if(folderId) pacientes[key].folderId = folderId;
-            await guardarExpedienteEnDrive(key);
         }
-        
         localStorage.setItem('pacientes', JSON.stringify(pacientes));
         actualizarSelectorPacientes();
         document.getElementById('selectPaciente').value = key;
-        await cargarDatosPaciente();
+        cargarDatosPaciente();
         mostrarToast(`Paciente ${nombre} creado`);
     }
 
@@ -301,20 +390,15 @@
             document.getElementById('driveMsg').classList.remove('hidden');
             mostrarToast('✅ Sesión restaurada');
             await crearCarpetaPrincipal();
-        } else {
-            tokenClient.requestAccessToken({ prompt: 'consent' });
-        }
+        } else { tokenClient.requestAccessToken({ prompt: 'consent' }); }
     }
     
     async function refrescarToken() {
         const savedToken = localStorage.getItem('driveToken');
         const savedExpiry = localStorage.getItem('driveTokenExpiry');
-        if(savedToken && savedExpiry && Date.now() < parseInt(savedExpiry)) {
-            accessToken = savedToken;
-            return accessToken;
-        }
+        if(savedToken && savedExpiry && Date.now() < parseInt(savedExpiry)) return savedToken;
         if(!tokenClient) return null;
-        return new Promise(r=>{ tokenClient.callback = resp => { if(resp.access_token) { accessToken = resp.access_token; localStorage.setItem('driveToken', accessToken); localStorage.setItem('driveTokenExpiry', Date.now() + (resp.expires_in * 1000)); r(accessToken); } else r(null); }; tokenClient.requestAccessToken({prompt: ''}); });
+        return new Promise(r=>{ tokenClient.callback = resp => { if(resp.access_token) { localStorage.setItem('driveToken', resp.access_token); localStorage.setItem('driveTokenExpiry', Date.now() + (resp.expires_in * 1000)); r(resp.access_token); } else r(null); }; tokenClient.requestAccessToken({prompt: ''}); });
     }
     
     async function crearCarpetaPrincipal() {
@@ -328,7 +412,6 @@
                 const nueva = await crear.json();
                 if(nueva.id) principalFolderId = nueva.id;
             }
-            // Cargar pacientes existentes desde Drive
             await cargarPacientesDesdeDrive();
         } catch(e) { console.error(e); }
     }
@@ -366,7 +449,7 @@
             if(res.files) {
                 for(let folder of res.files) {
                     if(!pacientes[folder.name]) {
-                        pacientes[folder.name] = { id: folder.id, folderId: folder.id, data: {}, recetas: [], presupuestos: [], citas: [], consentimientos: [], certificados: [] };
+                        pacientes[folder.name] = { folderId: folder.id, data: {}, recetas: [], presupuestos: [], citas: [], consentimientos: [], certificados: [] };
                         await cargarDatosPacienteDesdeDrive(folder.name, folder.id);
                     }
                 }
@@ -396,79 +479,63 @@
             } catch(e) {}
         }
     }
-    
+
     // ========== FUNCIONES DE GUARDADO ==========
-    async function guardarExpediente() {
-        if(!pacienteActual) { mostrarToast('Selecciona un paciente primero','error'); return; }
-        pacienteActual.data = {
-            nombre: document.getElementById('expNombre').value,
-            edad: document.getElementById('expEdad').value,
-            telefono: document.getElementById('expTelefono').value,
-            diagnostico: document.getElementById('expDiagnostico').value,
-            alergias: document.getElementById('expAlergias').value,
-            tratamiento: document.getElementById('expTratamiento').value,
+    async function guardarExpedienteCompleto() {
+        if(!pacienteActual) { mostrarToast('Selecciona un paciente','error'); return; }
+        const expedienteData = {
+            medico: document.getElementById('expMedico').value,
+            nombre: document.getElementById('expNombre').value, tutor: document.getElementById('expTutor').value,
+            fecha_nacimiento: document.getElementById('expFechaNac').value, edad: document.getElementById('expEdad').value,
+            sexo: document.getElementById('expSexo').value, estado_civil: document.getElementById('expEstadoCivil').value,
+            lugar_origen: document.getElementById('expOrigen').value, tipo_sangre: document.getElementById('expSangre').value,
+            telefono: document.getElementById('expTelefono').value, email: document.getElementById('expEmail').value, domicilio: document.getElementById('expDomicilio').value,
+            heredo_familiares: document.getElementById('expHeredo').value,
+            higiene_oral: document.getElementById('expHigiene').value, alimentacion: document.getElementById('expAlimentacion').value,
+            sustancias: document.getElementById('expSustancias').value, vivienda: document.getElementById('expVivienda').value,
+            actividad_fisica: document.getElementById('expActividad').value, vacunas: document.getElementById('expVacunas').value,
+            enfermedades_infancia: document.getElementById('expInfancia').value, enfermedades_sistemicas: document.getElementById('expSistemica').value,
+            neoplasias: document.getElementById('expNeoplasias').value, cirugias: document.getElementById('expCirugias').value,
+            farmacos: document.getElementById('expFarmacos').value, alergias: document.getElementById('expAlergias').value,
+            traumaticos: document.getElementById('expTraumaticos').value, transfusiones: document.getElementById('expTransfusiones').value,
+            otras_enfermedades: document.getElementById('expOtrasEnf').value,
+            motivo_consulta: document.getElementById('expMotivo').value, semiologia_dolor: document.getElementById('expDolor').value,
+            sintomas_acompanantes: { hinchazon: document.getElementById('sintHinchazon').checked, sangrado: document.getElementById('sintSangrado').checked, movilidad: document.getElementById('sintMovilidad').checked, fistula: document.getElementById('sintFistula').checked, halitosis: document.getElementById('sintHalitosis').checked },
+            evolucion: document.getElementById('expEvolucion').value,
+            aparatos: { digestivo: document.getElementById('apaDigestivo').value, cardiovascular: document.getElementById('apaCardio').value, respiratorio: document.getElementById('apaRespiratorio').value, nervioso: document.getElementById('apaNervioso').value, musculoesqueletico: document.getElementById('apaMusculo').value, genitourinario: document.getElementById('apaGenitourinario').value, endocrino: document.getElementById('apaEndocrino').value, hematologico: document.getElementById('apaHematologico').value },
+            signos_vitales: { presion: document.getElementById('signosPA').value, fc: document.getElementById('signosFC').value, fr: document.getElementById('signosFR').value, temperatura: document.getElementById('signosTemp').value, spo2: document.getElementById('signosO2').value, imc: document.getElementById('signosIMC').value },
+            diagnostico_final: document.getElementById('expDiagnosticoFinal').value, tratamientos_recomendados: document.getElementById('expTratamientos').value, notas_medicas: document.getElementById('expNotas').value,
             ultima_actualizacion: new Date().toISOString()
         };
-        if(accessToken && pacienteActual.folderId) {
-            await guardarArchivoEnDrive(pacienteActual.folderId, 'expediente.json', pacienteActual.data);
-        }
+        pacienteActual.data = {...pacienteActual.data, ...expedienteData};
         localStorage.setItem('pacientes', JSON.stringify(pacientes));
+        if(accessToken && pacienteActual.folderId) await guardarArchivoEnDrive(pacienteActual.folderId, 'expediente.json', expedienteData);
         mostrarToast('Expediente guardado');
     }
-    
-    async function guardarExpedienteEnDrive(key) {
-        if(pacientes[key] && pacientes[key].folderId && pacientes[key].data) {
-            await guardarArchivoEnDrive(pacientes[key].folderId, 'expediente.json', pacientes[key].data);
-        }
-    }
-    
+
     async function guardarReceta() {
         if(!pacienteActual) { mostrarToast('Selecciona un paciente','error'); return; }
-        let receta = {
-            fecha: new Date().toLocaleString(),
-            diagnostico: document.getElementById('recDiagnostico').value,
-            medicamentos: document.getElementById('recMedicamentos').value,
-            indicaciones: document.getElementById('recIndicaciones').value
-        };
+        let receta = { fecha: new Date().toLocaleString(), medico: document.getElementById('recMedico').value, diagnostico: document.getElementById('recDiagnostico').value, indicaciones: document.getElementById('recIndicaciones').value, prox_cita: document.getElementById('recProxCita').value, peso: document.getElementById('recPeso').value, estatura: document.getElementById('recEstatura').value, spo2: document.getElementById('recSpO2').value, fc: document.getElementById('recFC').value, fr: document.getElementById('recFR').value, ta: document.getElementById('recTA').value, temp: document.getElementById('recTemp').value };
         pacienteActual.recetas.push(receta);
-        if(accessToken && pacienteActual.folderId) {
-            await guardarArchivoEnDrive(pacienteActual.folderId, 'recetas.json', pacienteActual.recetas);
-        }
+        if(accessToken && pacienteActual.folderId) await guardarArchivoEnDrive(pacienteActual.folderId, 'recetas.json', pacienteActual.recetas);
         localStorage.setItem('pacientes', JSON.stringify(pacientes));
-        mostrarRecetas();
-        mostrarToast('Receta guardada');
+        mostrarRecetas(); mostrarToast('Receta guardada');
     }
-    
-    function mostrarRecetas() {
-        const c = document.getElementById('listaRecetas');
-        if(!c || !pacienteActual) return;
-        if(pacienteActual.recetas.length===0) { c.innerHTML='<p>No hay recetas</p>'; return; }
-        c.innerHTML = pacienteActual.recetas.map((r,i)=>`<div class="exp-item"><span><strong>${r.fecha}</strong><br><small>${r.diagnostico}</small></span><button onclick="eliminarReceta(${i})">X</button></div>`).join('');
-    }
-    function eliminarReceta(i){ pacienteActual.recetas.splice(i,1); guardarArchivoEnDrive(pacienteActual.folderId,'recetas.json',pacienteActual.recetas); localStorage.setItem('pacientes',JSON.stringify(pacientes)); mostrarRecetas(); mostrarToast('Eliminado'); }
-    
-    async function guardarPresupuesto() {
-        if(!pacienteActual) return;
-        let presu = { fecha: new Date().toLocaleString(), servicio: document.getElementById('presServicio').value, monto: document.getElementById('presMonto').value, descuento: document.getElementById('presDescuento').value, notas: document.getElementById('presNotas').value };
-        pacienteActual.presupuestos.push(presu);
-        if(accessToken && pacienteActual.folderId) await guardarArchivoEnDrive(pacienteActual.folderId, 'presupuestos.json', pacienteActual.presupuestos);
-        localStorage.setItem('pacientes', JSON.stringify(pacientes));
-        mostrarPresupuestos(); mostrarToast('Presupuesto guardado');
-    }
-    function mostrarPresupuestos() { const c=document.getElementById('listaPresupuestos'); if(!c||!pacienteActual) return; if(pacienteActual.presupuestos.length===0){ c.innerHTML='<p>No hay presupuestos</p>'; return; } c.innerHTML=pacienteActual.presupuestos.map((p,i)=>`<div class="exp-item"><span><strong>${p.fecha}</strong> - $${p.monto}<br><small>${p.servicio}</small></span><button onclick="eliminarPresupuesto(${i})">X</button></div>`).join(''); }
-    function eliminarPresupuesto(i){ pacienteActual.presupuestos.splice(i,1); guardarArchivoEnDrive(pacienteActual.folderId,'presupuestos.json',pacienteActual.presupuestos); localStorage.setItem('pacientes',JSON.stringify(pacientes)); mostrarPresupuestos(); mostrarToast('Eliminado'); }
-    
+    function mostrarRecetas() { const c=document.getElementById('listaRecetas'); if(!c||!pacienteActual) return; c.innerHTML=pacienteActual.recetas.map((r,i)=>`<div class="exp-item">📄 ${r.fecha} - ${r.diagnostico}<button onclick="eliminarReceta(${i})">X</button></div>`).join(''); }
+    function eliminarReceta(i){ pacienteActual.recetas.splice(i,1); guardarArchivoEnDrive(pacienteActual.folderId,'recetas.json',pacienteActual.recetas); localStorage.setItem('pacientes',JSON.stringify(pacientes)); mostrarRecetas(); }
+
     async function guardarCita() {
         if(!pacienteActual) return;
-        let cita = { fecha: document.getElementById('citaFecha').value, hora: document.getElementById('citaHora').value, motivo: document.getElementById('citaMotivo').value };
+        let cita = { fecha: document.getElementById('citaFecha').value, hora: document.getElementById('citaHora').value, duracion: document.getElementById('citaDuracion').value, tratamiento: document.getElementById('citaTratamiento').value };
         pacienteActual.citas.push(cita);
         if(accessToken && pacienteActual.folderId) await guardarArchivoEnDrive(pacienteActual.folderId, 'citas.json', pacienteActual.citas);
         localStorage.setItem('pacientes', JSON.stringify(pacientes));
-        mostrarCitas(); mostrarToast('Cita guardada');
+        mostrarCitas(); mostrarToast('Cita agendada');
     }
-    function mostrarCitas() { const c=document.getElementById('listaCitas'); if(!c||!pacienteActual) return; if(pacienteActual.citas.length===0){ c.innerHTML='<p>No hay citas</p>'; return; } c.innerHTML=pacienteActual.citas.map((cita,i)=>`<div class="cita-item">📅 ${cita.fecha} ${cita.hora} - ${cita.motivo}<button onclick="eliminarCita(${i})">X</button></div>`).join(''); }
-    function eliminarCita(i){ pacienteActual.citas.splice(i,1); guardarArchivoEnDrive(pacienteActual.folderId,'citas.json',pacienteActual.citas); localStorage.setItem('pacientes',JSON.stringify(pacientes)); mostrarCitas(); mostrarToast('Eliminado'); }
-    
+    function mostrarCitas() { const c=document.getElementById('listaCitas'); if(!c||!pacienteActual) return; c.innerHTML=pacienteActual.citas.map((cita,i)=>`<div class="cita-item">📅 ${cita.fecha} ${cita.hora} - ${cita.tratamiento}<button onclick="eliminarCita(${i})">X</button></div>`).join(''); }
+    function eliminarCita(i){ pacienteActual.citas.splice(i,1); guardarArchivoEnDrive(pacienteActual.folderId,'citas.json',pacienteActual.citas); localStorage.setItem('pacientes',JSON.stringify(pacientes)); mostrarCitas(); }
+    function mostrarCitasPorFecha() { const fecha = document.getElementById('filtroFecha').value; if(!fecha||!pacienteActual) return; const filtradas = pacienteActual.citas.filter(c=>c.fecha===fecha); document.getElementById('listaCitas').innerHTML = filtradas.map(c=>`<div>📅 ${c.hora} - ${c.tratamiento}</div>`).join('') || '<div>No hay citas</div>'; }
+
     async function guardarConsentimiento() {
         if(!pacienteActual) return;
         let cons = { fecha: new Date().toLocaleString(), procedimiento: document.getElementById('consentProcedimiento').value, texto: document.getElementById('consentTexto').value };
@@ -477,40 +544,51 @@
         localStorage.setItem('pacientes', JSON.stringify(pacientes));
         mostrarConsentimientos(); mostrarToast('Consentimiento guardado');
     }
-    function mostrarConsentimientos() { const c=document.getElementById('listaConsentimientos'); if(!c||!pacienteActual) return; if(pacienteActual.consentimientos.length===0){ c.innerHTML='<p>No hay consentimientos</p>'; return; } c.innerHTML=pacienteActual.consentimientos.map((c,i)=>`<div class="exp-item"><span><strong>${c.fecha}</strong> - ${c.procedimiento}</span><button onclick="eliminarConsentimiento(${i})">X</button></div>`).join(''); }
-    function eliminarConsentimiento(i){ pacienteActual.consentimientos.splice(i,1); guardarArchivoEnDrive(pacienteActual.folderId,'consentimientos.json',pacienteActual.consentimientos); localStorage.setItem('pacientes',JSON.stringify(pacientes)); mostrarConsentimientos(); mostrarToast('Eliminado'); }
-    
+    function mostrarConsentimientos() { const c=document.getElementById('listaConsentimientos'); if(!c||!pacienteActual) return; c.innerHTML=pacienteActual.consentimientos.map((c,i)=>`<div class="exp-item">📝 ${c.fecha} - ${c.procedimiento}<button onclick="eliminarConsentimiento(${i})">X</button></div>`).join(''); }
+    function eliminarConsentimiento(i){ pacienteActual.consentimientos.splice(i,1); guardarArchivoEnDrive(pacienteActual.folderId,'consentimientos.json',pacienteActual.consentimientos); localStorage.setItem('pacientes',JSON.stringify(pacientes)); mostrarConsentimientos(); }
+
     async function guardarCertificado() {
         if(!pacienteActual) return;
-        let cert = { fecha: new Date().toLocaleString(), diagnostico: document.getElementById('certDiagnostico').value, dias_reposo: document.getElementById('certDias').value };
+        let cert = { fecha: new Date().toLocaleString(), medico: document.getElementById('certMedico').value, lugar: document.getElementById('certLugar').value, fecha_expedicion: document.getElementById('certFecha').value, diagnostico: document.getElementById('certDiagnostico').value, procedimiento: document.getElementById('certProcedimiento').value, dias_reposo: document.getElementById('certDias').value, desde: document.getElementById('certDesde').value, hasta: document.getElementById('certHasta').value, firmas: document.getElementById('certFirmas').checked };
         pacienteActual.certificados.push(cert);
         if(accessToken && pacienteActual.folderId) await guardarArchivoEnDrive(pacienteActual.folderId, 'certificados.json', pacienteActual.certificados);
         localStorage.setItem('pacientes', JSON.stringify(pacientes));
         mostrarCertificados(); mostrarToast('Certificado guardado');
     }
-    function mostrarCertificados() { const c=document.getElementById('listaCertificados'); if(!c||!pacienteActual) return; if(pacienteActual.certificados.length===0){ c.innerHTML='<p>No hay certificados</p>'; return; } c.innerHTML=pacienteActual.certificados.map((c,i)=>`<div class="exp-item"><span><strong>${c.fecha}</strong> - ${c.diagnostico}</span><button onclick="eliminarCertificado(${i})">X</button></div>`).join(''); }
-    function eliminarCertificado(i){ pacienteActual.certificados.splice(i,1); guardarArchivoEnDrive(pacienteActual.folderId,'certificados.json',pacienteActual.certificados); localStorage.setItem('pacientes',JSON.stringify(pacientes)); mostrarCertificados(); mostrarToast('Eliminado'); }
-    
+    function mostrarCertificados() { const c=document.getElementById('listaCertificados'); if(!c||!pacienteActual) return; c.innerHTML=pacienteActual.certificados.map((c,i)=>`<div class="exp-item">📜 ${c.fecha} - ${c.diagnostico}<button onclick="eliminarCertificado(${i})">X</button></div>`).join(''); }
+    function eliminarCertificado(i){ pacienteActual.certificados.splice(i,1); guardarArchivoEnDrive(pacienteActual.folderId,'certificados.json',pacienteActual.certificados); localStorage.setItem('pacientes',JSON.stringify(pacientes)); mostrarCertificados(); }
+
     // ========== CATÁLOGOS GLOBALES ==========
-    function mostrarServicios() { const c=document.getElementById('listaServicios'); if(!c) return; c.innerHTML=servicios.map((s,i)=>`<div class="serv-item"><span><strong>${s.nombre}</strong> - $${s.costo}</span><button onclick="eliminarServicio(${i})">X</button></div>`).join(''); localStorage.setItem('servicios',JSON.stringify(servicios)); }
-    function agregarServicio() { const n=document.getElementById('servNombre').value, c=parseFloat(document.getElementById('servCosto').value); if(n&&!isNaN(c)){ servicios.push({nombre:n,costo:c}); mostrarServicios(); document.getElementById('servNombre').value=''; document.getElementById('servCosto').value=''; mostrarToast('Agregado'); } }
+    function actualizarSelectServicios() { const s=document.getElementById('presServicioSelect'); if(s) s.innerHTML=servicios.map(s=>`<option value="${s.nombre}|${s.costo}">${s.nombre} - $${s.costo}</option>`).join(''); }
+    function agregarServicioPresupuesto() { const val=document.getElementById('presServicioSelect').value; if(val){ const[n,c]=val.split('|'); presupuestoItems.push({nombre:n,costo:parseFloat(c)}); renderPresupuestoItems(); calcularTotalPresupuesto(); } }
+    function agregarExtraPresupuesto() { const n=document.getElementById('extraNombre').value, m=parseFloat(document.getElementById('extraMonto').value); if(n&&!isNaN(m)){ presupuestoItems.push({nombre:n,costo:m}); renderPresupuestoItems(); calcularTotalPresupuesto(); document.getElementById('extraNombre').value=''; document.getElementById('extraMonto').value=''; } }
+    function renderPresupuestoItems() { const c=document.getElementById('listaPresupuestoItems'); c.innerHTML=presupuestoItems.map((i,idx)=>`<div class="presupuesto-item">${i.nombre} - $${i.costo}<button onclick="eliminarItemPresupuesto(${idx})">X</button></div>`).join(''); }
+    function eliminarItemPresupuesto(i){ presupuestoItems.splice(i,1); renderPresupuestoItems(); calcularTotalPresupuesto(); }
+    function calcularTotalPresupuesto() { let s=presupuestoItems.reduce((a,b)=>a+b.costo,0), d=parseFloat(document.getElementById('presDescuento').value)||0; document.getElementById('totalPresupuestoDisplay').innerHTML=`Subtotal: $${s.toFixed(2)}<br>Total: $${(s*(1-d/100)).toFixed(2)}`; }
+    async function guardarPresupuesto() { if(!pacienteActual) return; let pres = { fecha: new Date().toLocaleString(), items: presupuestoItems, descuento: document.getElementById('presDescuento').value, vigencia: document.getElementById('presVigencia').value, total: (presupuestoItems.reduce((a,b)=>a+b.costo,0)*(1-document.getElementById('presDescuento').value/100)).toFixed(2) }; pacienteActual.presupuestos.push(pres); if(accessToken&&pacienteActual.folderId) await guardarArchivoEnDrive(pacienteActual.folderId,'presupuestos.json',pacienteActual.presupuestos); localStorage.setItem('pacientes',JSON.stringify(pacientes)); mostrarPresupuestos(); presupuestoItems=[]; renderPresupuestoItems(); calcularTotalPresupuesto(); mostrarToast('Presupuesto guardado'); }
+    function mostrarPresupuestos() { const c=document.getElementById('listaPresupuestos'); if(!c||!pacienteActual) return; c.innerHTML=pacienteActual.presupuestos.map((p,i)=>`<div class="exp-item">💰 ${p.fecha} - Total: $${p.total}<button onclick="eliminarPresupuesto(${i})">X</button></div>`).join(''); }
+    function eliminarPresupuesto(i){ pacienteActual.presupuestos.splice(i,1); guardarArchivoEnDrive(pacienteActual.folderId,'presupuestos.json',pacienteActual.presupuestos); localStorage.setItem('pacientes',JSON.stringify(pacientes)); mostrarPresupuestos(); }
+
+    function mostrarServicios() { const t=document.getElementById('listaServicios'); t.innerHTML=servicios.map((s,i)=>`<tr><td>${s.nombre}</td><td>${s.descripcion||''}</td><td>$${s.costo}</td><td><button onclick="eliminarServicio(${i})">Eliminar</button></td></tr>`).join(''); localStorage.setItem('servicios',JSON.stringify(servicios)); actualizarSelectServicios(); }
+    function agregarServicio() { const n=document.getElementById('servNombre').value, c=parseFloat(document.getElementById('servCosto').value), d=document.getElementById('servDesc').value; if(n&&!isNaN(c)){ servicios.push({nombre:n,costo:c,descripcion:d}); mostrarServicios(); document.getElementById('servNombre').value=''; document.getElementById('servCosto').value=''; document.getElementById('servDesc').value=''; mostrarToast('Servicio agregado'); } }
     function eliminarServicio(i){ servicios.splice(i,1); mostrarServicios(); }
     async function guardarCatalogoServicios() { if(accessToken && principalFolderId) await guardarArchivoEnDrive(principalFolderId, 'catalogo_servicios.json', servicios); mostrarToast('Catálogo respaldado'); }
-    
-    function mostrarMedicamentos() { const c=document.getElementById('listaMedicamentos'); if(!c) return; c.innerHTML=medicamentos.map((m,i)=>`<div class="med-item"><span><strong>${m.nombre}</strong> - ${m.categoria||''}</span><button onclick="eliminarMedicamento(${i})">X</button></div>`).join(''); localStorage.setItem('medicamentos',JSON.stringify(medicamentos)); }
-    function agregarMedicamento() { const n=document.getElementById('medNombre').value; if(n){ medicamentos.push({nombre:n,categoria:document.getElementById('medCategoria').value}); mostrarMedicamentos(); document.getElementById('medNombre').value=''; document.getElementById('medCategoria').value=''; mostrarToast('Agregado'); } }
+
+    function mostrarMedicamentos() { const t=document.getElementById('listaMedicamentos'); t.innerHTML=medicamentos.map((m,i)=>`<tr><td>${m.nombre}</td><td>${m.categoria||''}</td><td>${m.uso||''}</td><td><button onclick="eliminarMedicamento(${i})">Eliminar</button></td></tr>`).join(''); localStorage.setItem('medicamentos',JSON.stringify(medicamentos)); }
+    function agregarMedicamento() { const n=document.getElementById('medNombre').value; if(n){ medicamentos.push({nombre:n,categoria:document.getElementById('medCategoria').value,uso:document.getElementById('medUso').value}); mostrarMedicamentos(); document.getElementById('medNombre').value=''; document.getElementById('medCategoria').value=''; document.getElementById('medUso').value=''; mostrarToast('Medicamento agregado'); } }
     function eliminarMedicamento(i){ medicamentos.splice(i,1); mostrarMedicamentos(); }
+    function cargaMasivaMedicamentos() { alert("Funcionalidad: Subir archivo TXT con formato: nombre|categoria|uso por línea"); }
     async function guardarCatalogoMedicamentos() { if(accessToken && principalFolderId) await guardarArchivoEnDrive(principalFolderId, 'catalogo_medicamentos.json', medicamentos); mostrarToast('Catálogo respaldado'); }
-    
+
     // ========== PDFs ==========
-    function generarRecetaPDF() { const {jsPDF}=window.jspdf; const d=new jsPDF(); d.text("C&C Dental Group - Receta Médica",20,20); d.text(`Paciente: ${pacienteActual?.data?.nombre || ''}`,20,40); d.text(`Diagnóstico: ${document.getElementById('recDiagnostico').value}`,20,55); d.text("Medicamentos:",20,70); d.text(document.getElementById('recMedicamentos').value,20,80); d.save('receta.pdf'); mostrarToast('PDF generado'); }
-    function generarPresupuestoPDF() { const {jsPDF}=window.jspdf; const d=new jsPDF(); d.text("C&C Dental Group - Presupuesto",20,20); d.text(`Paciente: ${pacienteActual?.data?.nombre || ''}`,20,40); d.text(`Servicio: ${document.getElementById('presServicio').value}`,20,55); d.text(`Monto: $${document.getElementById('presMonto').value}`,20,70); d.save('presupuesto.pdf'); mostrarToast('PDF generado'); }
-    function generarCertificadoPDF() { const {jsPDF}=window.jspdf; const d=new jsPDF(); d.text("C&C Dental Group - Certificado Médico",20,20); d.text(`Paciente: ${pacienteActual?.data?.nombre || ''}`,20,40); d.text(`Diagnóstico: ${document.getElementById('certDiagnostico').value}`,20,55); d.text(`Reposo: ${document.getElementById('certDias').value} días`,20,70); d.save('certificado.pdf'); mostrarToast('PDF generado'); }
-    function generarConsentimientoPDF() { const {jsPDF}=window.jspdf; const d=new jsPDF(); d.text("C&C Dental Group - Consentimiento Informado",20,20); d.text(`Paciente: ${pacienteActual?.data?.nombre || ''}`,20,40); d.text(`Procedimiento: ${document.getElementById('consentProcedimiento').value}`,20,55); d.save('consentimiento.pdf'); mostrarToast('PDF generado'); }
-    
+    function generarRecetaPDF() { const {jsPDF}=window.jspdf; const d=new jsPDF(); d.text("C&C Dental Group - Receta Médica",20,20); d.text(`Paciente: ${pacienteActual?.data?.nombre||''}`,20,40); d.text(`Diagnóstico: ${document.getElementById('recDiagnostico').value}`,20,55); d.text("Indicaciones:",20,70); d.text(document.getElementById('recIndicaciones').value,20,80); d.save('receta.pdf'); mostrarToast('PDF generado'); }
+    function generarPresupuestoPDF() { const {jsPDF}=window.jspdf; const d=new jsPDF(); d.text("C&C Dental Group - Presupuesto",20,20); d.text(`Paciente: ${pacienteActual?.data?.nombre||''}`,20,40); let y=60; presupuestoItems.forEach(i=>{ d.text(`${i.nombre} - $${i.costo}`,20,y); y+=10; }); d.text(`Total: ${document.getElementById('totalPresupuestoDisplay').innerText}`,20,y+10); d.save('presupuesto.pdf'); mostrarToast('PDF generado'); }
+    function generarCertificadoPDF() { const {jsPDF}=window.jspdf; const d=new jsPDF(); d.text("C&C Dental Group - Certificado Médico",20,20); d.text(`Paciente: ${pacienteActual?.data?.nombre||''}`,20,40); d.text(`Diagnóstico: ${document.getElementById('certDiagnostico').value}`,20,55); d.text(`Reposo: ${document.getElementById('certDias').value} días`,20,70); d.save('certificado.pdf'); mostrarToast('PDF generado'); }
+    function generarConsentimientoPDF() { const {jsPDF}=window.jspdf; const d=new jsPDF(); d.text("C&C Dental Group - Consentimiento Informado",20,20); d.text(`Paciente: ${pacienteActual?.data?.nombre||''}`,20,40); d.text(`Procedimiento: ${document.getElementById('consentProcedimiento').value}`,20,55); d.save('consentimiento.pdf'); mostrarToast('PDF generado'); }
+
     function mostrarToast(m) { const t=document.createElement('div'); t.className='toast'; t.textContent=m; document.body.appendChild(t); setTimeout(()=>t.remove(),3000); }
     function mostrarPanel(p) { document.querySelectorAll('[id^="panel_"]').forEach(el=>el.classList.add('hidden')); document.getElementById(`panel_${p}`).classList.remove('hidden'); }
-    
+
     cargarDatosLocales();
     const idGuardado = localStorage.getItem('googleClientId');
     if(idGuardado) setTimeout(() => { if(!accessToken) conectarGoogle(); }, 500);
