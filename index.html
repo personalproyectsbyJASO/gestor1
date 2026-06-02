@@ -11,7 +11,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
-        /* Variables para modo oscuro (por defecto) */
+        /* Variables modo oscuro (por defecto) */
         :root {
             --bg-body: #0F172A;
             --bg-card: #1E293B;
@@ -26,7 +26,6 @@
             --danger: #EF4444;
             --warning: #F59E0B;
             --hover-card: #2D3748;
-            --google-btn-bg: #1E293B;
         }
         
         /* Modo claro */
@@ -44,7 +43,6 @@
             --danger: #DC2626;
             --warning: #D97706;
             --hover-card: #F1F5F9;
-            --google-btn-bg: #FFFFFF;
         }
         
         body {
@@ -63,7 +61,7 @@
         .logo p { font-size: 0.75rem; color: var(--text-muted); }
         .header-buttons { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
         
-        .btn-google { background: var(--google-btn-bg); padding: 8px 14px; border-radius: 50px; cursor: pointer; display: flex; align-items: center; gap: 8px; border-left: 3px solid #EF4444; font-size: 0.85rem; color: var(--text-color); border: 1px solid var(--border-color); }
+        .btn-google { background: var(--bg-card); padding: 8px 14px; border-radius: 50px; cursor: pointer; display: flex; align-items: center; gap: 8px; border-left: 3px solid #EF4444; font-size: 0.85rem; color: var(--text-color); border: 1px solid var(--border-color); }
         .btn-google.connected { border-left-color: #10B981; }
         .btn-google i { color: #4285F4; }
         
@@ -114,8 +112,8 @@
         hr { margin: 12px 0; border-color: var(--border-color); }
         .alert-info { background: rgba(45,212,191,0.1); border: 1px solid var(--primary); color: var(--primary); padding: 10px; border-radius: 12px; margin-bottom: 20px; font-size: 0.85rem; text-align: center; }
         .alert-warning { background: rgba(245,158,11,0.1); border: 1px solid var(--warning); color: var(--warning); padding: 12px; border-radius: 12px; margin-bottom: 20px; font-size: 0.8rem; }
+        .hidden { display: none; }
         
-        /* Responsive */
         @media (max-width: 600px) {
             body { padding: 10px; }
             .modulo { padding: 12px 8px; }
@@ -204,7 +202,7 @@
         </div>
     </div>
 
-    <!-- PÁGINA: EXPEDIENTE -->
+    <!-- PÁGINA: EXPEDIENTE (simplificada) -->
     <div id="pagina-expediente" class="pagina">
         <div class="card">
             <h2><i class="fas fa-folder-open"></i> Expediente Clínico</h2>
@@ -452,6 +450,9 @@
             document.getElementById('expTelefono').value = pacienteActual.data.telefono || '';
             document.getElementById('expEmail').value = pacienteActual.data.email || '';
             document.getElementById('expAlergias').value = pacienteActual.data.alergias || '';
+            document.getElementById('expHeredo').value = pacienteActual.data.heredo || '';
+            document.getElementById('expPatologicos').value = pacienteActual.data.patologicos || '';
+            document.getElementById('expPadecimiento').value = pacienteActual.data.padecimiento || '';
             
             document.getElementById('recNombre').value = pacienteActual.data.nombre || '';
             document.getElementById('recEdad').value = pacienteActual.data.edad || '';
@@ -695,7 +696,7 @@
         }
     }
     
-    // ========== GUARDAR DATOS ==========
+    // ========== GUARDAR EXPEDIENTE ==========
     function guardarExpediente() {
         if(!pacienteActual) { mostrarToast('Selecciona un paciente','error'); return; }
         
@@ -866,7 +867,7 @@
     // ========== SERVICIOS ==========
     function mostrarServicios() {
         let tbody = document.getElementById('listaServicios');
-        tbody.innerHTML = servicios.map((s,i) => `<tr><td>${s.nombre}</td><td>${s.descripcion || ''}</td><td>$${s.costo}</td><td><button onclick="eliminarServicio(${i})">X</button></td></tr>`).join('');
+        tbody.innerHTML = servicios.map((s,i) => `<tr><td>${s.nombre}</td><td>${s.descripcion || ''}</td><td>$${s.costo}</td><td><button onclick="eliminarServicio(${i})">X</button></td>`).join('');
         actualizarSelectServicios();
         guardarTodoLocal();
     }
@@ -899,7 +900,7 @@
     // ========== MEDICAMENTOS ==========
     function mostrarMedicamentos() {
         let tbody = document.getElementById('listaMedicamentos');
-        tbody.innerHTML = medicamentos.map((m,i) => `<tr><td>${m.nombre}</td><td>${m.categoria||''}</td><td>${m.uso||''}</td><td><button onclick="eliminarMedicamento(${i})">X</button></td></tr>`).join('');
+        tbody.innerHTML = medicamentos.map((m,i) => `<tr><td>${m.nombre}</td><td>${m.categoria||''}</td><td>${m.uso||''}</td><td><button onclick="eliminarMedicamento(${i})">X</button></td>`).join('');
         guardarTodoLocal();
     }
     
