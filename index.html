@@ -4,78 +4,168 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>C&C Dental Group - Sistema de Gestión Clínica</title>
+    <script src="https://accounts.google.com/gsi/client"></script>
+    <script src="https://apis.google.com/js/api.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: #0F172A; color: #E2E8F0; padding: 20px; }
+        
+        /* Variables para modo oscuro (por defecto) */
+        :root {
+            --bg-body: #0F172A;
+            --bg-card: #1E293B;
+            --bg-input: #0F172A;
+            --text-color: #E2E8F0;
+            --text-muted: #94A3B8;
+            --border-color: #334155;
+            --primary: #2DD4BF;
+            --primary-hover: #14B8A6;
+            --btn-bg: #2DD4BF;
+            --btn-text: #0F172A;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --hover-card: #2D3748;
+            --google-btn-bg: #1E293B;
+        }
+        
+        /* Modo claro */
+        body.modo-claro {
+            --bg-body: #F1F5F9;
+            --bg-card: #FFFFFF;
+            --bg-input: #F8FAFC;
+            --text-color: #1E293B;
+            --text-muted: #64748B;
+            --border-color: #CBD5E1;
+            --primary: #0D9488;
+            --primary-hover: #0F766E;
+            --btn-bg: #0D9488;
+            --btn-text: #FFFFFF;
+            --danger: #DC2626;
+            --warning: #D97706;
+            --hover-card: #F1F5F9;
+            --google-btn-bg: #FFFFFF;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-body);
+            color: var(--text-color);
+            padding: 15px;
+            transition: background 0.3s, color 0.3s;
+        }
+        
         .container { max-width: 1400px; margin: 0 auto; }
         
         /* HEADER */
-        .header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; }
-        .logo h1 { color: #2DD4BF; font-size: 1.5rem; }
-        .logo p { font-size: 0.8rem; color: #94A3B8; }
-        .btn-backup { background: #1E293B; padding: 8px 16px; border-radius: 50px; cursor: pointer; display: flex; align-items: center; gap: 8px; border-left: 3px solid #10B981; font-size: 0.9rem; }
-        .btn-backup:hover { background: #2DD4BF; color: #0F172A; }
+        .header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+        .logo h1 { color: var(--primary); font-size: 1.4rem; display: flex; align-items: center; gap: 8px; }
+        .logo p { font-size: 0.75rem; color: var(--text-muted); }
+        .header-buttons { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        
+        .btn-google { background: var(--google-btn-bg); padding: 8px 14px; border-radius: 50px; cursor: pointer; display: flex; align-items: center; gap: 8px; border-left: 3px solid #EF4444; font-size: 0.85rem; color: var(--text-color); border: 1px solid var(--border-color); }
+        .btn-google.connected { border-left-color: #10B981; }
+        .btn-google i { color: #4285F4; }
+        
+        .btn-theme { background: var(--bg-card); padding: 8px 14px; border-radius: 50px; cursor: pointer; display: flex; align-items: center; gap: 6px; border: 1px solid var(--border-color); font-size: 0.85rem; color: var(--text-color); }
+        .btn-theme:hover, .btn-google:hover { background: var(--primary); color: var(--btn-text); border-color: var(--primary); }
+        
+        /* SELECTOR PACIENTE */
+        .selector-paciente { background: var(--bg-card); border-radius: 12px; padding: 12px 15px; margin-bottom: 20px; border: 1px solid var(--border-color); }
+        .selector-paciente .row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+        .selector-paciente select, .selector-paciente button { margin-bottom: 0; }
+        .selector-paciente label { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px; display: block; }
+        .info-paciente { font-size: 0.75rem; color: var(--primary); margin-top: 8px; }
         
         /* BOTÓN VOLVER */
-        .btn-volver { background: #334155; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-bottom: 15px; display: inline-flex; align-items: center; gap: 8px; }
-        .btn-volver:hover { background: #475569; }
+        .btn-volver { background: var(--bg-card); color: var(--text-color); border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-bottom: 15px; display: inline-flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+        .btn-volver:hover { background: var(--primary); color: var(--btn-text); }
         
-        /* SELECTOR PACIENTE - SIEMPRE VISIBLE */
-        .selector-paciente { background: #1E293B; border-radius: 12px; padding: 12px 15px; margin-bottom: 20px; border: 1px solid #334155; }
-        .selector-paciente .row { display: flex; gap: 12px; align-items: flex-end; }
-        .selector-paciente select, .selector-paciente button { margin-bottom: 0; }
+        /* MÓDULOS (MENÚ) */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-top: 20px; }
+        .modulo { background: var(--bg-card); border-radius: 12px; padding: 20px 12px; text-align: center; cursor: pointer; border: 1px solid var(--border-color); transition: 0.2s; }
+        .modulo:hover { border-color: var(--primary); transform: translateY(-3px); background: var(--hover-card); }
+        .modulo i { font-size: 2rem; color: var(--primary); margin-bottom: 10px; display: block; }
+        .modulo h3 { font-size: 0.9rem; }
         
-        /* MÓDULOS (MENÚ PRINCIPAL) */
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 20px; }
-        .modulo { background: #1E293B; border-radius: 12px; padding: 20px 15px; text-align: center; cursor: pointer; border: 1px solid #334155; transition: 0.2s; }
-        .modulo:hover { border-color: #2DD4BF; transform: translateY(-3px); background: #2D3748; }
-        .modulo i { font-size: 2rem; color: #2DD4BF; margin-bottom: 10px; display: block; }
-        .modulo h3 { font-size: 1rem; }
-        
-        /* PÁGINAS (se muestran/ocultan) */
+        /* PÁGINAS */
         .pagina { display: none; }
         .pagina.activa { display: block; }
         
         /* FORMULARIOS */
-        .card { background: #1E293B; border-radius: 16px; padding: 20px; margin-bottom: 20px; border: 1px solid #334155; }
-        input, textarea, select { width: 100%; padding: 10px; background: #0F172A; border: 1px solid #334155; border-radius: 8px; color: white; margin-bottom: 10px; }
-        button { background: #2DD4BF; color: #0F172A; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; margin: 3px; }
-        button:hover { background: #14B8A6; }
-        .row { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 10px; }
+        .card { background: var(--bg-card); border-radius: 16px; padding: 18px; margin-bottom: 20px; border: 1px solid var(--border-color); }
+        h2 { font-size: 1.3rem; margin-bottom: 15px; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+        input, textarea, select { width: 100%; padding: 10px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-color); margin-bottom: 10px; font-size: 0.9rem; }
+        input:focus, textarea:focus, select:focus { outline: none; border-color: var(--primary); }
+        button { background: var(--btn-bg); color: var(--btn-text); border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: bold; margin: 3px; font-size: 0.85rem; transition: 0.2s; }
+        button:hover { background: var(--primary-hover); }
+        .row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
         .row > * { flex: 1; min-width: 120px; }
-        fieldset { border: 1px solid #334155; border-radius: 12px; padding: 15px; margin-bottom: 20px; }
-        legend { color: #2DD4BF; padding: 0 10px; font-weight: bold; }
-        .tabla { width: 100%; border-collapse: collapse; }
-        .tabla th, .tabla td { padding: 8px; text-align: left; border-bottom: 1px solid #334155; }
-        .tabla th { color: #2DD4BF; }
-        .presupuesto-item { background: #0F172A; padding: 10px; border-radius: 8px; margin-bottom: 5px; display: flex; justify-content: space-between; }
-        .total-presupuesto { font-size: 1.3rem; color: #2DD4BF; text-align: right; margin-top: 15px; }
-        .exp-item, .cita-item { background: #0F172A; padding: 10px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-        .toast { position: fixed; bottom: 20px; right: 20px; background: #2DD4BF; color: #0F172A; padding: 12px 20px; border-radius: 8px; z-index: 1000; animation: slideIn 0.3s ease; }
+        fieldset { border: 1px solid var(--border-color); border-radius: 12px; padding: 12px; margin-bottom: 15px; }
+        legend { color: var(--primary); padding: 0 8px; font-weight: bold; font-size: 0.85rem; }
+        .tabla { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        .tabla th, .tabla td { padding: 8px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        .tabla th { color: var(--primary); }
+        .presupuesto-item { background: var(--bg-input); padding: 8px 12px; border-radius: 8px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+        .total-presupuesto { font-size: 1.2rem; color: var(--primary); text-align: right; margin-top: 15px; }
+        .exp-item, .cita-item { background: var(--bg-input); padding: 8px 12px; border-radius: 8px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 0.85rem; }
+        .toast { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: var(--btn-text); padding: 10px 18px; border-radius: 8px; z-index: 1000; animation: slideIn 0.3s ease; font-size: 0.85rem; }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        hr { margin: 15px 0; border-color: #334155; }
-        .info-carpeta { font-size: 0.75rem; color: #10B981; margin-top: 5px; }
-        .alert-info { background: rgba(45,212,191,0.1); border: 1px solid #2DD4BF; color: #2DD4BF; padding: 12px; border-radius: 12px; margin-bottom: 20px; font-size: 0.9rem; }
+        hr { margin: 12px 0; border-color: var(--border-color); }
+        .alert-info { background: rgba(45,212,191,0.1); border: 1px solid var(--primary); color: var(--primary); padding: 10px; border-radius: 12px; margin-bottom: 20px; font-size: 0.85rem; text-align: center; }
+        .alert-warning { background: rgba(245,158,11,0.1); border: 1px solid var(--warning); color: var(--warning); padding: 12px; border-radius: 12px; margin-bottom: 20px; font-size: 0.8rem; }
+        
+        /* Responsive */
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            .modulo { padding: 12px 8px; }
+            .modulo i { font-size: 1.5rem; }
+            .modulo h3 { font-size: 0.75rem; }
+            h2 { font-size: 1.1rem; }
+            .btn-google, .btn-theme { padding: 6px 10px; font-size: 0.7rem; }
+            .logo h1 { font-size: 1.2rem; }
+            .selector-paciente .row { flex-direction: column; align-items: stretch; }
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- HEADER FIJO -->
+    <!-- HEADER -->
     <div class="header">
         <div class="logo">
             <h1><i class="fas fa-tooth"></i> C&C Dental Group</h1>
-            <p>Gestión Clínica Dental</p>
+            <p>Gestión Clínica Dental con Respaldo en Google Drive</p>
         </div>
-        <div class="btn-backup" onclick="exportarBackup()">
-            <i class="fas fa-download"></i>
-            <span>📥 Respaldo</span>
+        <div class="header-buttons">
+            <div class="btn-google" id="googleBtn" onclick="conectarGoogle()">
+                <i class="fab fa-google"></i>
+                <span id="googleText">Conectar Drive</span>
+            </div>
+            <div class="btn-theme" onclick="toggleModo()">
+                <i class="fas fa-moon" id="icono-theme"></i>
+                <span id="texto-theme">Modo Oscuro</span>
+            </div>
         </div>
     </div>
 
-    <!-- SELECTOR DE PACIENTE (SIEMPRE VISIBLE EN TODAS LAS PÁGINAS) -->
+    <!-- Panel Configuración Google -->
+    <div id="configPanel" class="card hidden">
+        <h3>⚙️ Configuración de Google Drive</h3>
+        <div class="alert-warning">
+            <strong>Configuración única (5 minutos)</strong><br><br>
+            1. Ve a <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color:var(--primary);">Google Cloud Console</a><br>
+            2. Crea proyecto → Habilita "Google Drive API"<br>
+            3. Credenciales → ID cliente OAuth → Aplicación web<br>
+            4. Orígenes autorizados: agrega tu dominio de GitHub Pages o http://localhost<br>
+            5. Copia el Client ID y pégalo aquí
+        </div>
+        <input type="text" id="clientIdInput" placeholder="Pega tu Client ID">
+        <button onclick="guardarClientId()">Guardar y Conectar</button>
+        <button onclick="cerrarConfig()" style="background:var(--danger);">Cancelar</button>
+    </div>
+
+    <!-- SELECTOR PACIENTE -->
     <div class="selector-paciente">
         <div class="row">
             <div style="flex:2">
@@ -89,17 +179,17 @@
                 <button onclick="crearNuevoPaciente()" style="width:100%"><i class="fas fa-plus"></i> Nuevo</button>
             </div>
         </div>
-        <div id="infoPacienteActual" class="info-carpeta"></div>
+        <div id="infoPacienteActual" class="info-paciente"></div>
     </div>
 
-    <!-- BOTÓN VOLVER (solo visible cuando no estamos en el menú) -->
+    <!-- BOTÓN VOLVER -->
     <button id="btnVolver" class="btn-volver" onclick="irAlMenu()" style="display:none;">
         <i class="fas fa-arrow-left"></i> Volver al menú
     </button>
 
-    <!-- ========== MENÚ PRINCIPAL (PÁGINA INICIAL) ========== -->
+    <!-- MENÚ PRINCIPAL -->
     <div id="pagina-menu" class="pagina activa">
-        <div class="alert-info" style="margin-bottom:20px;">
+        <div class="alert-info">
             <i class="fas fa-info-circle"></i> Selecciona un paciente arriba y luego el módulo que necesites
         </div>
         <div class="grid">
@@ -114,42 +204,43 @@
         </div>
     </div>
 
-    <!-- ========== PÁGINA: EXPEDIENTE ========== -->
+    <!-- PÁGINA: EXPEDIENTE -->
     <div id="pagina-expediente" class="pagina">
         <div class="card">
             <h2><i class="fas fa-folder-open"></i> Expediente Clínico</h2>
+            <div id="driveMsg" class="hidden" style="background:var(--primary)20; padding:8px; border-radius:8px; margin-bottom:15px; font-size:0.8rem;">✅ Google Drive conectado</div>
             <fieldset><legend>👨‍⚕️ Médico Tratante</legend>
                 <select id="expMedico"><option>Dr. Alejandro Coronado</option><option>Dr. Juan Pérez</option></select>
             </fieldset>
             <fieldset><legend>Ficha de Identificación</legend>
-                <div class="row"><div><label>Nombre:</label><input type="text" id="expNombre"></div><div><label>Tutor:</label><input type="text" id="expTutor"></div></div>
-                <div class="row"><div><label>Fecha nacimiento:</label><input type="date" id="expFechaNac"></div><div><label>Edad:</label><input type="number" id="expEdad"></div><div><label>Sexo:</label><select id="expSexo"><option>Masculino</option><option>Femenino</option></select></div></div>
-                <div class="row"><div><label>Teléfono:</label><input type="tel" id="expTelefono"></div><div><label>Correo:</label><input type="email" id="expEmail"></div></div>
-                <div><label>Alergias:</label><textarea id="expAlergias" rows="2"></textarea></div>
+                <div class="row"><div><label>Nombre:</label><input type="text" id="expNombre" placeholder="Nombre completo"></div><div><label>Tutor:</label><input type="text" id="expTutor" placeholder="Si es menor de edad"></div></div>
+                <div class="row"><div><label>Fecha nacimiento:</label><input type="date" id="expFechaNac"></div><div><label>Edad:</label><input type="number" id="expEdad" placeholder="Edad"></div><div><label>Sexo:</label><select id="expSexo"><option>Masculino</option><option>Femenino</option></select></div></div>
+                <div class="row"><div><label>Teléfono:</label><input type="tel" id="expTelefono" placeholder="Teléfono"></div><div><label>Correo:</label><input type="email" id="expEmail" placeholder="correo@ejemplo.com"></div></div>
+                <div><label>Alergias:</label><textarea id="expAlergias" rows="2" placeholder="Medicamentos, alimentos, látex..."></textarea></div>
             </fieldset>
             <fieldset><legend>Antecedentes</legend>
-                <div><label>Enfermedades heredofamiliares:</label><textarea id="expHeredo" rows="2"></textarea></div>
-                <div><label>Antecedentes patológicos:</label><textarea id="expPatologicos" rows="2"></textarea></div>
-                <div><label>Padecimiento actual:</label><textarea id="expPadecimiento" rows="2"></textarea></div>
+                <div><label>Enfermedades heredofamiliares:</label><textarea id="expHeredo" rows="2" placeholder="Familiares con enfermedades relevantes"></textarea></div>
+                <div><label>Antecedentes patológicos:</label><textarea id="expPatologicos" rows="2" placeholder="Enfermedades crónicas, cirugías, medicamentos"></textarea></div>
+                <div><label>Padecimiento actual:</label><textarea id="expPadecimiento" rows="2" placeholder="Motivo de consulta, síntomas"></textarea></div>
             </fieldset>
             <button onclick="guardarExpediente()"><i class="fas fa-save"></i> Guardar Expediente</button>
         </div>
     </div>
 
-    <!-- ========== PÁGINA: RECETA ========== -->
+    <!-- PÁGINA: RECETA -->
     <div id="pagina-receta" class="pagina">
         <div class="card">
             <h2><i class="fas fa-prescription-bottle"></i> Receta Médica</h2>
-            <fieldset><legend>Datos del Médico</legend>
+            <fieldset><legend>👨‍⚕️ Datos del Médico</legend>
                 <select id="recMedico"><option>Dr. Alejandro Coronado (Cédula 9562093)</option><option>Dr. Juan Pérez</option></select>
             </fieldset>
-            <fieldset><legend>Datos del Paciente</legend>
+            <fieldset><legend>📋 Datos del Paciente</legend>
                 <div class="row"><div><label>Nombre:</label><input type="text" id="recNombre" readonly></div><div><label>Edad:</label><input type="text" id="recEdad" readonly></div></div>
                 <div><label>Alergias:</label><input type="text" id="recAlergias" readonly></div>
             </fieldset>
             <fieldset><legend>Diagnóstico</legend>
-                <div><label>Diagnóstico:</label><textarea id="recDiagnostico" rows="2"></textarea></div>
-                <div><label>Indicaciones:</label><textarea id="recIndicaciones" rows="3"></textarea></div>
+                <div><label>Diagnóstico:</label><textarea id="recDiagnostico" rows="2" placeholder="Diagnóstico médico"></textarea></div>
+                <div><label>Indicaciones:</label><textarea id="recIndicaciones" rows="3" placeholder="Reposo, dieta, cuidados..."></textarea></div>
                 <div><label>Próxima cita:</label><input type="date" id="recProxCita"></div>
             </fieldset>
             <button onclick="guardarReceta()">Guardar Receta</button>
@@ -158,7 +249,7 @@
         </div>
     </div>
 
-    <!-- ========== PÁGINA: PRESUPUESTO ========== -->
+    <!-- PÁGINA: PRESUPUESTO -->
     <div id="pagina-presupuesto" class="pagina">
         <div class="card">
             <h2><i class="fas fa-file-invoice-dollar"></i> Presupuesto</h2>
@@ -174,23 +265,23 @@
         </div>
     </div>
 
-    <!-- ========== PÁGINA: CITAS ========== -->
+    <!-- PÁGINA: CITAS -->
     <div id="pagina-citas" class="pagina">
         <div class="card">
             <h2><i class="fas fa-calendar-alt"></i> Agenda de Citas</h2>
             <div class="row"><div><label>Paciente:</label><input type="text" id="citaNombre" readonly></div><div><label>Teléfono:</label><input type="text" id="citaTelefono" readonly></div></div>
             <div class="row"><div><label>Fecha:</label><input type="date" id="citaFecha"></div><div><label>Hora:</label><input type="time" id="citaHora"></div><div><label>Duración:</label><select id="citaDuracion"><option>30 min</option><option>60 min</option></select></div></div>
-            <div><label>Tratamiento:</label><input type="text" id="citaTratamiento"></div>
+            <div><label>Tratamiento:</label><input type="text" id="citaTratamiento" placeholder="Ej. Limpieza"></div>
             <button onclick="guardarCita()">Agendar Cita</button>
             <hr><h3>Próximas citas</h3><div id="listaCitas"></div>
         </div>
     </div>
 
-    <!-- ========== PÁGINA: SERVICIOS ========== -->
+    <!-- PÁGINA: SERVICIOS -->
     <div id="pagina-servicios" class="pagina">
         <div class="card">
             <h2><i class="fas fa-tooth"></i> Servicios y Precios</h2>
-            <div class="row"><div><label>Servicio:</label><input type="text" id="servNombre"></div><div><label>Costo ($):</label><input type="number" id="servCosto"></div><div><label>Descripción:</label><input type="text" id="servDesc"></div></div>
+            <div class="row"><div><label>Servicio:</label><input type="text" id="servNombre" placeholder="Ej: Extracción"></div><div><label>Costo ($):</label><input type="number" id="servCosto" placeholder="0"></div><div><label>Descripción:</label><input type="text" id="servDesc" placeholder="Breve descripción"></div></div>
             <button onclick="agregarServicio()">+ Registrar</button>
             <hr>
             <table class="tabla"><thead><tr><th>SERVICIO</th><th>DESCRIPCIÓN</th><th>COSTO</th><th></th></tr></thead>
@@ -198,11 +289,11 @@
         </div>
     </div>
 
-    <!-- ========== PÁGINA: MEDICAMENTOS ========== -->
+    <!-- PÁGINA: MEDICAMENTOS -->
     <div id="pagina-medicamentos" class="pagina">
         <div class="card">
             <h2><i class="fas fa-capsules"></i> Medicamentos</h2>
-            <div class="row"><div><label>Medicamento:</label><input type="text" id="medNombre"></div><div><label>Categoría:</label><input type="text" id="medCategoria"></div><div><label>Uso:</label><input type="text" id="medUso"></div></div>
+            <div class="row"><div><label>Medicamento:</label><input type="text" id="medNombre" placeholder="Ej: Amoxicilina"></div><div><label>Categoría:</label><input type="text" id="medCategoria" placeholder="Antibiótico"></div><div><label>Uso:</label><input type="text" id="medUso" placeholder="Infecciones"></div></div>
             <button onclick="agregarMedicamento()">+ Registrar</button>
             <hr>
             <table class="tabla"><thead><tr><th>MEDICAMENTO</th><th>CATEGORÍA</th><th>USO</th><th></th></tr></thead>
@@ -210,25 +301,25 @@
         </div>
     </div>
 
-    <!-- ========== PÁGINA: CONSENTIMIENTO ========== -->
+    <!-- PÁGINA: CONSENTIMIENTO -->
     <div id="pagina-consentimiento" class="pagina">
         <div class="card">
             <h2><i class="fas fa-file-signature"></i> Consentimiento Informado</h2>
             <div><label>Paciente:</label><input type="text" id="consentNombre" readonly></div>
-            <div><label>Procedimiento:</label><input type="text" id="consentProcedimiento"></div>
-            <div><label>Texto:</label><textarea id="consentTexto" rows="6"></textarea></div>
+            <div><label>Procedimiento:</label><input type="text" id="consentProcedimiento" placeholder="Ej: Extracción quirúrgica"></div>
+            <div><label>Texto:</label><textarea id="consentTexto" rows="6">Yo, [NOMBRE], autorizo al Dr. Alejandro Coronado a realizar [PROCEDIMIENTO]. He sido informado de los riesgos, beneficios y alternativas.</textarea></div>
             <button onclick="guardarConsentimiento()">Guardar</button>
             <button onclick="generarConsentimientoPDF()">PDF</button>
             <hr><h3>Historial</h3><div id="listaConsentimientos"></div>
         </div>
     </div>
 
-    <!-- ========== PÁGINA: CERTIFICADO ========== -->
+    <!-- PÁGINA: CERTIFICADO -->
     <div id="pagina-certificado" class="pagina">
         <div class="card">
             <h2><i class="fas fa-certificate"></i> Certificado Médico</h2>
             <div class="row"><div><label>Paciente:</label><input type="text" id="certNombre" readonly></div><div><label>Edad:</label><input type="text" id="certEdad" readonly></div></div>
-            <div class="row"><div><label>Médico:</label><select id="certMedico"><option>Dr. Alejandro Coronado</option></select></div><div><label>Lugar:</label><input type="text" id="certLugar"></div><div><label>Fecha:</label><input type="date" id="certFecha"></div></div>
+            <div class="row"><div><label>Médico:</label><select id="certMedico"><option>Dr. Alejandro Coronado</option></select></div><div><label>Lugar:</label><input type="text" id="certLugar" placeholder="Ciudad, Estado"></div><div><label>Fecha:</label><input type="date" id="certFecha"></div></div>
             <div><label>Diagnóstico:</label><textarea id="certDiagnostico" rows="2"></textarea></div>
             <div><label>Procedimiento:</label><textarea id="certProcedimiento" rows="2"></textarea></div>
             <div class="row"><div><label>Días de reposo:</label><input type="number" id="certDias"></div><div><label>Desde:</label><input type="date" id="certDesde"></div><div><label>Hasta:</label><input type="date" id="certHasta"></div></div>
@@ -241,16 +332,51 @@
 </div>
 
 <script>
-    // ========== DATOS GLOBALES ==========
+    // ========== VARIABLES GLOBALES ==========
+    let accessToken = null, tokenClient = null, principalFolderId = null;
     let pacientes = {};
     let pacienteActual = null;
     let servicios = [];
     let medicamentos = [];
     let presupuestoItems = [];
+    const CARPETA_PRINCIPAL = 'C&C Dental Group';
+
+    // ========== MODO OSCURO/CLARO ==========
+    function toggleModo() {
+        const body = document.body;
+        const icono = document.getElementById('icono-theme');
+        const texto = document.getElementById('texto-theme');
+        
+        if(body.classList.contains('modo-claro')) {
+            body.classList.remove('modo-claro');
+            icono.className = 'fas fa-moon';
+            texto.textContent = 'Modo Oscuro';
+            localStorage.setItem('modo', 'oscuro');
+        } else {
+            body.classList.add('modo-claro');
+            icono.className = 'fas fa-sun';
+            texto.textContent = 'Modo Claro';
+            localStorage.setItem('modo', 'claro');
+        }
+    }
+    
+    function cargarModo() {
+        const modoGuardado = localStorage.getItem('modo');
+        const icono = document.getElementById('icono-theme');
+        const texto = document.getElementById('texto-theme');
+        if(modoGuardado === 'claro') {
+            document.body.classList.add('modo-claro');
+            if(icono) icono.className = 'fas fa-sun';
+            if(texto) texto.textContent = 'Modo Claro';
+        } else {
+            document.body.classList.remove('modo-claro');
+            if(icono) icono.className = 'fas fa-moon';
+            if(texto) texto.textContent = 'Modo Oscuro';
+        }
+    }
 
     // ========== INICIALIZAR DATOS ==========
     function inicializarDatos() {
-        // Cargar servicios
         let serviciosGuardados = localStorage.getItem('servicios');
         if(serviciosGuardados) {
             servicios = JSON.parse(serviciosGuardados);
@@ -266,7 +392,6 @@
             ];
         }
         
-        // Cargar medicamentos
         let medicamentosGuardados = localStorage.getItem('medicamentos');
         if(medicamentosGuardados) {
             medicamentos = JSON.parse(medicamentosGuardados);
@@ -278,13 +403,13 @@
             ];
         }
         
-        // Cargar pacientes
         let pacientesGuardados = localStorage.getItem('pacientes');
         if(pacientesGuardados) {
             pacientes = JSON.parse(pacientesGuardados);
         } else {
             pacientes = {
                 "ejemplo_uri": {
+                    folderId: null,
                     data: { 
                         nombre: "Uri Gamaliel", 
                         edad: 25, 
@@ -322,7 +447,6 @@
             pacienteActual = pacientes[key];
             document.getElementById('infoPacienteActual').innerHTML = `✅ Paciente activo: ${pacienteActual.data.nombre}`;
             
-            // Actualizar todos los campos
             document.getElementById('expNombre').value = pacienteActual.data.nombre || '';
             document.getElementById('expEdad').value = pacienteActual.data.edad || '';
             document.getElementById('expTelefono').value = pacienteActual.data.telefono || '';
@@ -359,6 +483,7 @@
         let key = nombre.toLowerCase().replace(/ /g, '_') + '_' + Date.now();
         
         pacientes[key] = {
+            folderId: null,
             data: { nombre, edad, telefono, email: '', alergias: '' },
             recetas: [],
             presupuestos: [],
@@ -367,31 +492,235 @@
             certificados: []
         };
         
-        localStorage.setItem('pacientes', JSON.stringify(pacientes));
+        if(accessToken && principalFolderId) {
+            crearSubcarpeta(principalFolderId, key).then(folderId => {
+                if(folderId) pacientes[key].folderId = folderId;
+                guardarTodoLocal();
+            });
+        }
+        
+        guardarTodoLocal();
         actualizarSelectPacientes();
         document.getElementById('selectPaciente').value = key;
         cambiarPaciente();
         mostrarToast(`Paciente ${nombre} creado`);
     }
     
-    // ========== GUARDAR DATOS ==========
-    function guardarTodo() {
+    function guardarTodoLocal() {
         localStorage.setItem('pacientes', JSON.stringify(pacientes));
         localStorage.setItem('servicios', JSON.stringify(servicios));
         localStorage.setItem('medicamentos', JSON.stringify(medicamentos));
     }
     
+    async function guardarArchivoPaciente(nombreArchivo, contenido) {
+        if(accessToken && pacienteActual && pacienteActual.folderId) {
+            await guardarArchivoEnDrive(pacienteActual.folderId, nombreArchivo, contenido);
+        }
+    }
+    
+    // ========== GOOGLE DRIVE ==========
+    async function conectarGoogle() { 
+        const id = localStorage.getItem('googleClientId'); 
+        if(id) iniciarAuth(id); 
+        else document.getElementById('configPanel').classList.remove('hidden'); 
+    }
+    
+    function guardarClientId() { 
+        const id = document.getElementById('clientIdInput').value.trim(); 
+        if(id) { 
+            localStorage.setItem('googleClientId', id); 
+            document.getElementById('configPanel').classList.add('hidden'); 
+            iniciarAuth(id); 
+        } else mostrarToast('Ingresa Client ID', 'error'); 
+    }
+    
+    function cerrarConfig() { 
+        document.getElementById('configPanel').classList.add('hidden'); 
+    }
+    
+    async function iniciarAuth(clientId) {
+        tokenClient = google.accounts.oauth2.initTokenClient({
+            client_id: clientId, 
+            scope: 'https://www.googleapis.com/auth/drive.file',
+            callback: async (resp) => {
+                if(resp.access_token) {
+                    accessToken = resp.access_token;
+                    localStorage.setItem('driveToken', accessToken);
+                    localStorage.setItem('driveTokenExpiry', Date.now() + (resp.expires_in * 1000));
+                    document.getElementById('googleBtn').classList.add('connected');
+                    document.getElementById('googleText').innerHTML = '✅ Drive OK';
+                    document.getElementById('driveMsg').classList.remove('hidden');
+                    mostrarToast('✅ Conectado a Google Drive');
+                    await crearCarpetaPrincipal();
+                }
+            }
+        });
+        
+        const savedToken = localStorage.getItem('driveToken');
+        const savedExpiry = localStorage.getItem('driveTokenExpiry');
+        if(savedToken && savedExpiry && Date.now() < parseInt(savedExpiry)) {
+            accessToken = savedToken;
+            document.getElementById('googleBtn').classList.add('connected');
+            document.getElementById('googleText').innerHTML = '✅ Drive OK';
+            document.getElementById('driveMsg').classList.remove('hidden');
+            mostrarToast('✅ Sesión restaurada');
+            await crearCarpetaPrincipal();
+        } else { 
+            tokenClient.requestAccessToken({ prompt: 'consent' }); 
+        }
+    }
+    
+    async function refrescarToken() {
+        const savedToken = localStorage.getItem('driveToken');
+        const savedExpiry = localStorage.getItem('driveTokenExpiry');
+        if(savedToken && savedExpiry && Date.now() < parseInt(savedExpiry)) return savedToken;
+        if(!tokenClient) return null;
+        return new Promise(r => { 
+            tokenClient.callback = resp => { 
+                if(resp.access_token) { 
+                    localStorage.setItem('driveToken', resp.access_token); 
+                    localStorage.setItem('driveTokenExpiry', Date.now() + (resp.expires_in * 1000)); 
+                    r(resp.access_token); 
+                } else r(null); 
+            }; 
+            tokenClient.requestAccessToken({prompt: ''}); 
+        });
+    }
+    
+    async function crearCarpetaPrincipal() {
+        const token = await refrescarToken(); 
+        if(!token) return;
+        try {
+            const buscar = await fetch(`https://www.googleapis.com/drive/v3/files?q=name='${CARPETA_PRINCIPAL}' and mimeType='application/vnd.google-apps.folder' and trashed=false`, { 
+                headers: { 'Authorization': `Bearer ${token}` } 
+            });
+            const res = await buscar.json();
+            if(res.files && res.files.length > 0) {
+                principalFolderId = res.files[0].id;
+            } else {
+                const crear = await fetch('https://www.googleapis.com/drive/v3/files', { 
+                    method: 'POST', 
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify({ name: CARPETA_PRINCIPAL, mimeType: 'application/vnd.google-apps.folder' }) 
+                });
+                const nueva = await crear.json();
+                if(nueva.id) principalFolderId = nueva.id;
+            }
+            await cargarPacientesDesdeDrive();
+        } catch(e) { console.error(e); }
+    }
+    
+    async function crearSubcarpeta(parentId, nombre) {
+        const token = await refrescarToken(); 
+        if(!token) return null;
+        try {
+            const buscar = await fetch(`https://www.googleapis.com/drive/v3/files?q=name='${nombre}' and mimeType='application/vnd.google-apps.folder' and '${parentId}' in parents and trashed=false`, { 
+                headers: { 'Authorization': `Bearer ${token}` } 
+            });
+            const res = await buscar.json();
+            if(res.files && res.files.length > 0) return res.files[0].id;
+            
+            const crear = await fetch('https://www.googleapis.com/drive/v3/files', { 
+                method: 'POST', 
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ name: nombre, mimeType: 'application/vnd.google-apps.folder', parents: [parentId] }) 
+            });
+            const nueva = await crear.json();
+            return nueva.id || null;
+        } catch(e) { return null; }
+    }
+    
+    async function guardarArchivoEnDrive(folderId, nombreArchivo, contenido) {
+        const token = await refrescarToken(); 
+        if(!token) return false;
+        const metadata = { name: nombreArchivo, mimeType: 'application/json', parents: [folderId] };
+        const form = new FormData();
+        form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+        form.append('file', new Blob([JSON.stringify(contenido, null, 2)], { type: 'application/json' }));
+        try {
+            const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', { 
+                method: 'POST', 
+                headers: { 'Authorization': `Bearer ${token}` }, 
+                body: form 
+            });
+            return response.ok;
+        } catch(e) { return false; }
+    }
+    
+    async function cargarPacientesDesdeDrive() {
+        if(!principalFolderId) return;
+        const token = await refrescarToken(); 
+        if(!token) return;
+        try {
+            const buscar = await fetch(`https://www.googleapis.com/drive/v3/files?q='${principalFolderId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`, { 
+                headers: { 'Authorization': `Bearer ${token}` } 
+            });
+            const res = await buscar.json();
+            if(res.files) {
+                for(let folder of res.files) {
+                    if(!pacientes[folder.name]) {
+                        pacientes[folder.name] = { folderId: folder.id, data: {}, recetas: [], presupuestos: [], citas: [], consentimientos: [], certificados: [] };
+                        await cargarDatosPacienteDesdeDrive(folder.name, folder.id);
+                    }
+                }
+                guardarTodoLocal();
+                actualizarSelectPacientes();
+            }
+        } catch(e) {}
+    }
+    
+    async function cargarDatosPacienteDesdeDrive(key, folderId) {
+        const token = await refrescarToken(); 
+        if(!token) return;
+        const archivos = ['expediente.json', 'recetas.json', 'presupuestos.json', 'citas.json', 'consentimientos.json', 'certificados.json'];
+        for(let archivo of archivos) {
+            try {
+                const buscar = await fetch(`https://www.googleapis.com/drive/v3/files?q='${folderId}' in parents and name='${archivo}' and trashed=false`, { 
+                    headers: { 'Authorization': `Bearer ${token}` } 
+                });
+                const res = await buscar.json();
+                if(res.files && res.files.length > 0) {
+                    const contenido = await fetch(`https://www.googleapis.com/drive/v3/files/${res.files[0].id}?alt=media`, { 
+                        headers: { 'Authorization': `Bearer ${token}` } 
+                    });
+                    const data = await contenido.json();
+                    if(archivo === 'expediente.json') pacientes[key].data = {...pacientes[key].data, ...data};
+                    else if(archivo === 'recetas.json') pacientes[key].recetas = data;
+                    else if(archivo === 'presupuestos.json') pacientes[key].presupuestos = data;
+                    else if(archivo === 'citas.json') pacientes[key].citas = data;
+                    else if(archivo === 'consentimientos.json') pacientes[key].consentimientos = data;
+                    else if(archivo === 'certificados.json') pacientes[key].certificados = data;
+                }
+            } catch(e) {}
+        }
+    }
+    
+    // ========== GUARDAR DATOS ==========
     function guardarExpediente() {
         if(!pacienteActual) { mostrarToast('Selecciona un paciente','error'); return; }
-        pacienteActual.data.nombre = document.getElementById('expNombre').value;
-        pacienteActual.data.edad = document.getElementById('expEdad').value;
-        pacienteActual.data.telefono = document.getElementById('expTelefono').value;
-        pacienteActual.data.email = document.getElementById('expEmail').value;
-        pacienteActual.data.alergias = document.getElementById('expAlergias').value;
-        pacienteActual.data.heredo = document.getElementById('expHeredo').value;
-        pacienteActual.data.patologicos = document.getElementById('expPatologicos').value;
-        pacienteActual.data.padecimiento = document.getElementById('expPadecimiento').value;
-        guardarTodo();
+        
+        let expedienteData = {
+            nombre: document.getElementById('expNombre').value,
+            tutor: document.getElementById('expTutor').value,
+            fecha_nacimiento: document.getElementById('expFechaNac').value,
+            edad: document.getElementById('expEdad').value,
+            sexo: document.getElementById('expSexo').value,
+            telefono: document.getElementById('expTelefono').value,
+            email: document.getElementById('expEmail').value,
+            alergias: document.getElementById('expAlergias').value,
+            heredo: document.getElementById('expHeredo').value,
+            patologicos: document.getElementById('expPatologicos').value,
+            padecimiento: document.getElementById('expPadecimiento').value,
+            medico: document.getElementById('expMedico').value,
+            ultima_actualizacion: new Date().toISOString()
+        };
+        
+        pacienteActual.data = {...pacienteActual.data, ...expedienteData};
+        guardarTodoLocal();
+        
+        if(accessToken && pacienteActual.folderId) {
+            guardarArchivoEnDrive(pacienteActual.folderId, 'expediente.json', expedienteData);
+        }
         mostrarToast('Expediente guardado');
     }
     
@@ -405,7 +734,8 @@
             prox_cita: document.getElementById('recProxCita').value
         };
         pacienteActual.recetas.push(receta);
-        guardarTodo();
+        guardarTodoLocal();
+        guardarArchivoPaciente('recetas.json', pacienteActual.recetas);
         mostrarRecetas();
         mostrarToast('Receta guardada');
         document.getElementById('recDiagnostico').value = '';
@@ -424,7 +754,8 @@
     
     function eliminarReceta(i) {
         pacienteActual.recetas.splice(i,1);
-        guardarTodo();
+        guardarTodoLocal();
+        guardarArchivoPaciente('recetas.json', pacienteActual.recetas);
         mostrarRecetas();
     }
     
@@ -437,7 +768,8 @@
             tratamiento: document.getElementById('citaTratamiento').value
         };
         pacienteActual.citas.push(cita);
-        guardarTodo();
+        guardarTodoLocal();
+        guardarArchivoPaciente('citas.json', pacienteActual.citas);
         mostrarCitas();
         mostrarToast('Cita agendada');
         document.getElementById('citaFecha').value = '';
@@ -457,7 +789,8 @@
     
     function eliminarCita(i) {
         pacienteActual.citas.splice(i,1);
-        guardarTodo();
+        guardarTodoLocal();
+        guardarArchivoPaciente('citas.json', pacienteActual.citas);
         mostrarCitas();
     }
     
@@ -469,7 +802,8 @@
             texto: document.getElementById('consentTexto').value
         };
         pacienteActual.consentimientos.push(cons);
-        guardarTodo();
+        guardarTodoLocal();
+        guardarArchivoPaciente('consentimientos.json', pacienteActual.consentimientos);
         mostrarConsentimientos();
         mostrarToast('Consentimiento guardado');
     }
@@ -486,7 +820,8 @@
     
     function eliminarConsentimiento(i) {
         pacienteActual.consentimientos.splice(i,1);
-        guardarTodo();
+        guardarTodoLocal();
+        guardarArchivoPaciente('consentimientos.json', pacienteActual.consentimientos);
         mostrarConsentimientos();
     }
     
@@ -505,7 +840,8 @@
             firmas: document.getElementById('certFirmas').checked
         };
         pacienteActual.certificados.push(cert);
-        guardarTodo();
+        guardarTodoLocal();
+        guardarArchivoPaciente('certificados.json', pacienteActual.certificados);
         mostrarCertificados();
         mostrarToast('Certificado guardado');
     }
@@ -522,7 +858,8 @@
     
     function eliminarCertificado(i) {
         pacienteActual.certificados.splice(i,1);
-        guardarTodo();
+        guardarTodoLocal();
+        guardarArchivoPaciente('certificados.json', pacienteActual.certificados);
         mostrarCertificados();
     }
     
@@ -531,7 +868,7 @@
         let tbody = document.getElementById('listaServicios');
         tbody.innerHTML = servicios.map((s,i) => `<tr><td>${s.nombre}</td><td>${s.descripcion || ''}</td><td>$${s.costo}</td><td><button onclick="eliminarServicio(${i})">X</button></td></tr>`).join('');
         actualizarSelectServicios();
-        guardarTodo();
+        guardarTodoLocal();
     }
     
     function agregarServicio() {
@@ -562,8 +899,8 @@
     // ========== MEDICAMENTOS ==========
     function mostrarMedicamentos() {
         let tbody = document.getElementById('listaMedicamentos');
-        tbody.innerHTML = medicamentos.map((m,i) => `<tr><td>${m.nombre}</td><td>${m.categoria||''}</td><td>${m.uso||''}</td><td><button onclick="eliminarMedicamento(${i})">X</button></td>`).join('');
-        guardarTodo();
+        tbody.innerHTML = medicamentos.map((m,i) => `<tr><td>${m.nombre}</td><td>${m.categoria||''}</td><td>${m.uso||''}</td><td><button onclick="eliminarMedicamento(${i})">X</button></td></tr>`).join('');
+        guardarTodoLocal();
     }
     
     function agregarMedicamento() {
@@ -649,7 +986,8 @@
         };
         
         pacienteActual.presupuestos.push(pres);
-        guardarTodo();
+        guardarTodoLocal();
+        guardarArchivoPaciente('presupuestos.json', pacienteActual.presupuestos);
         mostrarPresupuestos();
         presupuestoItems = [];
         renderPresupuestoItems();
@@ -671,7 +1009,8 @@
     
     function eliminarPresupuesto(i) {
         pacienteActual.presupuestos.splice(i,1);
-        guardarTodo();
+        guardarTodoLocal();
+        guardarArchivoPaciente('presupuestos.json', pacienteActual.presupuestos);
         mostrarPresupuestos();
     }
     
@@ -725,26 +1064,8 @@
         mostrarToast('PDF generado');
     }
     
-    function exportarBackup() {
-        let datos = {
-            pacientes,
-            servicios,
-            medicamentos,
-            fecha_exportacion: new Date().toISOString()
-        };
-        let blob = new Blob([JSON.stringify(datos, null, 2)], {type: 'application/json'});
-        let url = URL.createObjectURL(blob);
-        let a = document.createElement('a');
-        a.href = url;
-        a.download = `respaldo_dental_${new Date().toISOString().slice(0,10)}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
-        mostrarToast('Respaldo exportado');
-    }
-    
-    // ========== NAVEGACIÓN POR PÁGINAS (CON BOTÓN BACK) ==========
+    // ========== NAVEGACIÓN ==========
     function irAPagina(pagina) {
-        // Cambiar la URL sin recargar
         window.location.hash = pagina;
         mostrarPagina(pagina);
     }
@@ -755,7 +1076,6 @@
     }
     
     function mostrarPagina(pagina) {
-        // Ocultar todas
         document.querySelectorAll('.pagina').forEach(p => p.classList.remove('activa'));
         
         if(pagina === 'menu' || pagina === '') {
@@ -767,16 +1087,14 @@
                 paginaElement.classList.add('activa');
                 document.getElementById('btnVolver').style.display = 'inline-flex';
             } else {
-                // Si no existe, mostrar menú
                 document.getElementById('pagina-menu').classList.add('activa');
                 document.getElementById('btnVolver').style.display = 'none';
             }
         }
     }
     
-    // Escuchar cambios en el hash (para el botón atrás)
     window.addEventListener('hashchange', function() {
-        let hash = window.location.hash.substring(1); // quitar el #
+        let hash = window.location.hash.substring(1);
         if(hash && ['expediente','receta','presupuesto','citas','servicios','medicamentos','consentimiento','certificado'].includes(hash)) {
             mostrarPagina(hash);
         } else {
@@ -794,13 +1112,16 @@
     
     // Inicializar
     inicializarDatos();
+    cargarModo();
     
-    // Si hay hash al cargar, mostrar esa página
     let hashInicial = window.location.hash.substring(1);
     if(hashInicial && ['expediente','receta','presupuesto','citas','servicios','medicamentos','consentimiento','certificado'].includes(hashInicial)) {
         mostrarPagina(hashInicial);
         document.getElementById('btnVolver').style.display = 'inline-flex';
     }
+    
+    const idGuardado = localStorage.getItem('googleClientId');
+    if(idGuardado) setTimeout(() => { if(!accessToken) conectarGoogle(); }, 500);
 </script>
 </body>
 </html>
