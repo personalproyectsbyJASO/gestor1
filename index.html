@@ -3,1063 +3,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>C&C Dental Group - Sistema de Gestión Clínica</title>
+    <title>C&C Dental Group - Sistema Dental</title>
     <script src="https://accounts.google.com/gsi/client"></script>
     <script src="https://apis.google.com/js/api.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        :root {
-            --bg-body: #0F172A;
-            --bg-card: #1E293B;
-            --bg-input: #0F172A;
-            --text-color: #E2E8F0;
-            --text-muted: #94A3B8;
-            --border-color: #334155;
-            --primary: #2DD4BF;
-            --primary-hover: #14B8A6;
-            --btn-bg: #2DD4BF;
-            --btn-text: #0F172A;
-            --danger: #EF4444;
-            --warning: #F59E0B;
-            --hover-card: #2D3748;
-        }
-        
-        body.modo-claro {
-            --bg-body: #F1F5F9;
-            --bg-card: #FFFFFF;
-            --bg-input: #F8FAFC;
-            --text-color: #1E293B;
-            --text-muted: #64748B;
-            --border-color: #CBD5E1;
-            --primary: #0D9488;
-            --primary-hover: #0F766E;
-            --btn-bg: #0D9488;
-            --btn-text: #FFFFFF;
-            --danger: #DC2626;
-            --warning: #D97706;
-            --hover-card: #F1F5F9;
-        }
-        
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: var(--bg-body);
-            color: var(--text-color);
-            padding: 15px;
-            transition: all 0.3s;
-        }
-        
-        .container { max-width: 1400px; margin: 0 auto; }
-        
-        /* HEADER */
-        .header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
-        .logo h1 { color: var(--primary); font-size: 1.4rem; display: flex; align-items: center; gap: 8px; }
-        .logo p { font-size: 0.75rem; color: var(--text-muted); }
-        .header-buttons { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-        
-        .btn-google { background: var(--bg-card); padding: 8px 14px; border-radius: 50px; cursor: pointer; display: flex; align-items: center; gap: 8px; border-left: 3px solid #EF4444; font-size: 0.85rem; color: var(--text-color); border: 1px solid var(--border-color); }
-        .btn-google.connected { border-left-color: #10B981; }
-        .btn-theme { background: var(--bg-card); padding: 8px 14px; border-radius: 50px; cursor: pointer; display: flex; align-items: center; gap: 6px; border: 1px solid var(--border-color); font-size: 0.85rem; color: var(--text-color); }
-        .btn-theme:hover, .btn-google:hover { background: var(--primary); color: var(--btn-text); }
-        
-        /* SELECTOR */
-        .selector-paciente { background: var(--bg-card); border-radius: 12px; padding: 12px 15px; margin-bottom: 20px; border: 1px solid var(--border-color); }
-        .selector-paciente .row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
-        .selector-paciente select, .selector-paciente button { margin-bottom: 0; }
-        .selector-paciente label { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px; display: block; }
-        .info-paciente { font-size: 0.75rem; color: var(--primary); margin-top: 8px; }
-        
-        /* BOTÓN VOLVER */
-        .btn-volver { background: var(--bg-card); color: var(--text-color); border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-bottom: 15px; display: inline-flex; align-items: center; gap: 8px; }
-        .btn-volver:hover { background: var(--primary); color: var(--btn-text); }
-        
-        /* MÓDULOS */
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-top: 20px; }
-        .modulo { background: var(--bg-card); border-radius: 12px; padding: 20px 12px; text-align: center; cursor: pointer; border: 1px solid var(--border-color); transition: 0.2s; }
-        .modulo:hover { border-color: var(--primary); transform: translateY(-3px); background: var(--hover-card); }
-        .modulo i { font-size: 2rem; color: var(--primary); margin-bottom: 10px; display: block; }
-        .modulo h3 { font-size: 0.9rem; }
-        
-        /* PÁGINAS */
-        .pagina { display: none; }
-        .pagina.activa { display: block; }
-        
-        /* FORMULARIOS */
-        .card { background: var(--bg-card); border-radius: 16px; padding: 18px; margin-bottom: 20px; border: 1px solid var(--border-color); }
-        h2 { font-size: 1.3rem; margin-bottom: 15px; color: var(--primary); display: flex; align-items: center; gap: 10px; }
-        input, textarea, select { width: 100%; padding: 10px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-color); margin-bottom: 10px; font-size: 0.9rem; }
-        input:focus, textarea:focus, select:focus { outline: none; border-color: var(--primary); }
-        button { background: var(--btn-bg); color: var(--btn-text); border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: bold; margin: 3px; font-size: 0.85rem; transition: 0.2s; }
-        button:hover { background: var(--primary-hover); }
-        .row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
-        .row > * { flex: 1; min-width: 120px; }
-        fieldset { border: 1px solid var(--border-color); border-radius: 12px; padding: 12px; margin-bottom: 15px; }
-        legend { color: var(--primary); padding: 0 8px; font-weight: bold; font-size: 0.85rem; }
-        .tabla { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        .tabla th, .tabla td { padding: 8px; text-align: left; border-bottom: 1px solid var(--border-color); }
-        .tabla th { color: var(--primary); }
-        .presupuesto-item, .exp-item, .cita-item, .medico-item { background: var(--bg-input); padding: 8px 12px; border-radius: 8px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
-        .total-presupuesto { font-size: 1.2rem; color: var(--primary); text-align: right; margin-top: 15px; }
-        .toast { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: var(--btn-text); padding: 10px 18px; border-radius: 8px; z-index: 1000; animation: slideIn 0.3s ease; font-size: 0.85rem; }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        hr { margin: 12px 0; border-color: var(--border-color); }
-        .alert-info { background: rgba(45,212,191,0.1); border: 1px solid var(--primary); color: var(--primary); padding: 10px; border-radius: 12px; margin-bottom: 20px; font-size: 0.85rem; text-align: center; }
-        .alert-warning { background: rgba(245,158,11,0.1); border: 1px solid var(--warning); color: var(--warning); padding: 12px; border-radius: 12px; margin-bottom: 20px; font-size: 0.8rem; }
-        .hidden { display: none; }
-        .sintomas-grid { display: flex; gap: 15px; flex-wrap: wrap; margin: 10px 0; }
-        .sintomas-grid label { display: flex; align-items: center; gap: 5px; }
-        
-        @media (max-width: 600px) {
-            body { padding: 10px; }
-            .modulo { padding: 12px 8px; }
-            .modulo i { font-size: 1.5rem; }
-            .modulo h3 { font-size: 0.75rem; }
-            h2 { font-size: 1.1rem; }
-        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{--bg-body:#0F172A;--bg-card:#1E293B;--bg-input:#0F172A;--text:#E2E8F0;--text-muted:#94A3B8;--border:#334155;--primary:#2DD4BF;--primary-hover:#14B8A6;--btn-bg:#2DD4BF;--btn-text:#0F172A;--danger:#EF4444;--warning:#F59E0B}
+        body.modo-claro{--bg-body:#F1F5F9;--bg-card:#FFFFFF;--bg-input:#F8FAFC;--text:#1E293B;--text-muted:#64748B;--border:#CBD5E1;--primary:#0D9488;--primary-hover:#0F766E;--btn-bg:#0D9488;--btn-text:#FFF}
+        body{font-family:'Segoe UI',sans-serif;background:var(--bg-body);color:var(--text);padding:15px;transition:.3s}
+        .container{max-width:1400px;margin:0 auto}
+        .header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px}
+        .logo h1{color:var(--primary);font-size:1.4rem;display:flex;align-items:center;gap:8px}
+        .logo p{font-size:.75rem;color:var(--text-muted)}
+        .header-buttons{display:flex;gap:10px;flex-wrap:wrap}
+        .btn-google,.btn-theme{background:var(--bg-card);padding:8px 14px;border-radius:50px;cursor:pointer;display:flex;align-items:center;gap:8px;border:1px solid var(--border);font-size:.85rem;color:var(--text)}
+        .btn-google{border-left:3px solid #EF4444}
+        .btn-google.connected{border-left-color:#10B981}
+        .btn-theme:hover,.btn-google:hover{background:var(--primary);color:var(--btn-text)}
+        .selector-paciente{background:var(--bg-card);border-radius:12px;padding:12px 15px;margin-bottom:20px;border:1px solid var(--border)}
+        .selector-paciente .row{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
+        .selector-paciente select,.selector-paciente button{margin-bottom:0}
+        .selector-paciente label{font-size:.8rem;color:var(--text-muted);margin-bottom:4px;display:block}
+        .info-paciente{font-size:.75rem;color:var(--primary);margin-top:8px}
+        .btn-volver{background:var(--bg-card);color:var(--text);border:1px solid var(--border);padding:8px 16px;border-radius:8px;cursor:pointer;margin-bottom:15px;display:inline-flex;align-items:center;gap:8px}
+        .btn-volver:hover{background:var(--primary);color:var(--btn-text)}
+        .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:15px;margin-top:20px}
+        .modulo{background:var(--bg-card);border-radius:12px;padding:20px 12px;text-align:center;cursor:pointer;border:1px solid var(--border);transition:.2s}
+        .modulo:hover{border-color:var(--primary);transform:translateY(-3px);background:var(--hover-card, #2D3748)}
+        .modulo i{font-size:2rem;color:var(--primary);margin-bottom:10px;display:block}
+        .modulo h3{font-size:.9rem}
+        .pagina{display:none}
+        .pagina.activa{display:block}
+        .card{background:var(--bg-card);border-radius:16px;padding:18px;margin-bottom:20px;border:1px solid var(--border)}
+        h2{font-size:1.3rem;margin-bottom:15px;color:var(--primary);display:flex;align-items:center;gap:10px}
+        input,textarea,select{width:100%;padding:10px;background:var(--bg-input);border:1px solid var(--border);border-radius:8px;color:var(--text);margin-bottom:10px;font-size:.9rem}
+        input:focus,textarea:focus,select:focus{outline:none;border-color:var(--primary)}
+        button{background:var(--btn-bg);color:var(--btn-text);border:none;padding:10px 18px;border-radius:8px;cursor:pointer;font-weight:bold;margin:3px;font-size:.85rem}
+        button:hover{background:var(--primary-hover)}
+        .row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+        .row>*{flex:1;min-width:120px}
+        fieldset{border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:15px}
+        legend{color:var(--primary);padding:0 8px;font-weight:bold;font-size:.85rem}
+        .tabla{width:100%;border-collapse:collapse;font-size:.85rem}
+        .tabla th,.tabla td{padding:8px;text-align:left;border-bottom:1px solid var(--border)}
+        .tabla th{color:var(--primary)}
+        .presupuesto-item,.exp-item,.cita-item{background:var(--bg-input);padding:8px 12px;border-radius:8px;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+        .total-presupuesto{font-size:1.2rem;color:var(--primary);text-align:right;margin-top:15px}
+        .toast{position:fixed;bottom:20px;right:20px;background:var(--primary);color:var(--btn-text);padding:10px 18px;border-radius:8px;z-index:1000;animation:slideIn .3s ease;font-size:.85rem}
+        @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+        hr{margin:12px 0;border-color:var(--border)}
+        .alert-info{background:rgba(45,212,191,0.1);border:1px solid var(--primary);color:var(--primary);padding:10px;border-radius:12px;margin-bottom:20px;font-size:.85rem;text-align:center}
+        .alert-warning{background:rgba(245,158,11,0.1);border:1px solid var(--warning);color:var(--warning);padding:12px;border-radius:12px;margin-bottom:20px;font-size:.8rem}
+        .hidden{display:none}
+        .sintomas-grid{display:flex;gap:15px;flex-wrap:wrap;margin:10px 0}
+        .sintomas-grid label{display:flex;align-items:center;gap:5px}
+        .doctor-fijo{background:var(--primary)10;border-radius:8px;padding:10px;margin-bottom:15px;font-size:.8rem}
+        .doctor-fijo i{color:var(--primary);margin-right:8px}
+        @media(max-width:600px){body{padding:10px}.modulo{padding:12px 8px}.modulo i{font-size:1.5rem}.modulo h3{font-size:.75rem}h2{font-size:1.1rem}}
     </style>
 </head>
 <body>
-
 <div class="container">
-    <!-- HEADER -->
     <div class="header">
-        <div class="logo">
-            <h1><i class="fas fa-tooth"></i> <span id="clinicaNombre">C&C Dental Group</span></h1>
-            <p id="clinicaSubtexto">Gestión Clínica Dental con Respaldo en Google Drive</p>
-        </div>
+        <div class="logo"><h1><i class="fas fa-tooth"></i> C&C Dental Group</h1><p>Gestión Clínica Dental con Respaldo en Google Drive</p></div>
         <div class="header-buttons">
-            <div class="btn-google" id="googleBtn" onclick="conectarGoogle()">
-                <i class="fab fa-google"></i>
-                <span id="googleText">Conectar Drive</span>
-            </div>
-            <div class="btn-theme" onclick="toggleModo()">
-                <i class="fas fa-moon" id="icono-theme"></i>
-                <span id="texto-theme">Modo Oscuro</span>
-            </div>
+            <div class="btn-google" id="googleBtn" onclick="conectarGoogle()"><i class="fab fa-google"></i><span id="googleText">Conectar Drive</span></div>
+            <div class="btn-theme" onclick="toggleModo()"><i class="fas fa-moon" id="icono-theme"></i><span id="texto-theme">Modo Oscuro</span></div>
         </div>
     </div>
-
-    <!-- Panel Configuración Google -->
-    <div id="configPanel" class="card hidden">
-        <h3>⚙️ Configuración de Google Drive</h3>
-        <div class="alert-warning">
-            <strong>Configuración única:</strong><br>
-            1. Ve a <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color:var(--primary);">Google Cloud Console</a><br>
-            2. Crea proyecto → Habilita "Google Drive API"<br>
-            3. Credenciales → ID cliente OAuth → Aplicación web<br>
-            4. Orígenes autorizados: agrega http://localhost y tu dominio<br>
-            5. Copia el Client ID y pégalo aquí
-        </div>
-        <input type="text" id="clientIdInput" placeholder="Pega tu Client ID">
-        <button onclick="guardarClientId()">Guardar y Conectar</button>
-        <button onclick="cerrarConfig()" style="background:var(--danger);">Cancelar</button>
-    </div>
-
-    <!-- SELECTOR PACIENTE -->
-    <div class="selector-paciente">
-        <div class="row">
-            <div style="flex:2">
-                <label>👤 Paciente actual</label>
-                <select id="selectPaciente" onchange="cambiarPaciente()">
-                    <option value="">-- Seleccionar paciente --</option>
-                </select>
-            </div>
-            <div style="flex:1">
-                <label>&nbsp;</label>
-                <button onclick="crearNuevoPaciente()" style="width:100%"><i class="fas fa-plus"></i> Nuevo</button>
-            </div>
-        </div>
-        <div id="infoPacienteActual" class="info-paciente"></div>
-    </div>
-
-    <!-- BOTÓN VOLVER -->
-    <button id="btnVolver" class="btn-volver" onclick="irAlMenu()" style="display:none;">
-        <i class="fas fa-arrow-left"></i> Volver al menú
-    </button>
-
-    <!-- MENÚ PRINCIPAL -->
-    <div id="pagina-menu" class="pagina activa">
-        <div class="alert-info">
-            <i class="fas fa-info-circle"></i> Selecciona un paciente arriba y luego el módulo que necesites
-        </div>
-        <div class="grid">
-            <div class="modulo" onclick="irAPagina('expediente')"><i class="fas fa-folder-open"></i><h3>Expediente Clínico</h3></div>
-            <div class="modulo" onclick="irAPagina('receta')"><i class="fas fa-prescription-bottle"></i><h3>Receta Médica</h3></div>
-            <div class="modulo" onclick="irAPagina('presupuesto')"><i class="fas fa-file-invoice-dollar"></i><h3>Presupuesto</h3></div>
-            <div class="modulo" onclick="irAPagina('citas')"><i class="fas fa-calendar-alt"></i><h3>Agenda de Citas</h3></div>
-            <div class="modulo" onclick="irAPagina('servicios')"><i class="fas fa-tooth"></i><h3>Servicios y Precios</h3></div>
-            <div class="modulo" onclick="irAPagina('medicamentos')"><i class="fas fa-capsules"></i><h3>Medicamentos</h3></div>
-            <div class="modulo" onclick="irAPagina('consentimiento')"><i class="fas fa-file-signature"></i><h3>Consentimiento</h3></div>
-            <div class="modulo" onclick="irAPagina('certificado')"><i class="fas fa-certificate"></i><h3>Certificado Médico</h3></div>
-            <div class="modulo" onclick="irAPagina('consultorio')"><i class="fas fa-building"></i><h3>Mi Consultorio</h3></div>
-            <div class="modulo" onclick="irAPagina('medicos')"><i class="fas fa-user-md"></i><h3>Perfiles Médicos</h3></div>
-        </div>
-    </div>
-
-    <!-- ==================== PÁGINA: EXPEDIENTE CLÍNICO COMPLETO ==================== -->
-    <div id="pagina-expediente" class="pagina">
-        <div class="card">
-            <h2><i class="fas fa-folder-open"></i> EXPEDIENTE CLÍNICO</h2>
-            <div id="driveMsg" class="hidden" style="background:var(--primary)20; padding:8px; border-radius:8px; margin-bottom:15px;">✅ Google Drive conectado</div>
-            
-            <fieldset><legend>👨‍⚕️ Médico Tratante</legend>
-                <select id="expMedico"></select>
-            </fieldset>
-
-            <fieldset><legend><i class="fas fa-id-card"></i> Ficha de Identificación</legend>
-                <div class="row"><div><label>Nombre Completo:</label><input type="text" id="expNombre" placeholder="Nombre del paciente"></div><div><label>Menor de edad (Tutor):</label><input type="text" id="expTutor" placeholder="Nombre del tutor"></div></div>
-                <div class="row"><div><label>Fecha de Nacimiento:</label><input type="date" id="expFechaNac"></div><div><label>Edad:</label><input type="number" id="expEdad" placeholder="Edad en años"></div><div><label>Sexo:</label><select id="expSexo"><option>Masculino</option><option>Femenino</option></select></div><div><label>Estado Civil:</label><select id="expEstadoCivil"><option>Soltero/a</option><option>Casado/a</option><option>Divorciado/a</option><option>Viudo/a</option></select></div></div>
-                <div class="row"><div><label>Lugar de Origen:</label><input type="text" id="expOrigen" placeholder="Ciudad, Estado, País"></div><div><label>Tipo de Sangre:</label><select id="expSangre"><option>O+</option><option>O-</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option></select></div></div>
-                <div class="row"><div><label>Teléfono:</label><input type="tel" id="expTelefono" placeholder="123456789"></div><div><label>Correo Electrónico:</label><input type="email" id="expEmail" placeholder="correo@example.com"></div></div>
-                <div><label>Domicilio:</label><textarea id="expDomicilio" rows="2" placeholder="Calle, número, colonia, ciudad"></textarea></div>
-            </fieldset>
-
-            <fieldset><legend><i class="fas fa-dna"></i> Enfermedades Heredofamiliares</legend>
-                <textarea id="expHeredo" rows="2" placeholder="Fallecidos del paciente y enfermedades hereditarias familiares"></textarea>
-            </fieldset>
-
-            <fieldset><legend><i class="fas fa-user-check"></i> Antecedentes Personales no Patológicos</legend>
-                <div class="row"><div><label>Hábitos de Higiene Oral:</label><textarea id="expHigiene" rows="2" placeholder="Frecuencia de cepillado, uso de hilo dental..."></textarea></div><div><label>Hábitos Alimenticios (Dieta):</label><textarea id="expAlimentacion" rows="2" placeholder="Tipo de alimentos, frecuencia de comidas..."></textarea></div></div>
-                <div class="row"><div><label>Consumo de Sustancias (Hábitos Tóxicos):</label><textarea id="expSustancias" rows="2" placeholder="Tabaco, alcohol, otras sustancias"></textarea></div><div><label>Vivienda y Medio Ambiente:</label><textarea id="expVivienda" rows="2" placeholder="Tipo de vivienda, servicios básicos"></textarea></div></div>
-                <div class="row"><div><label>Actividad Física:</label><textarea id="expActividad" rows="2" placeholder="Ejercicio regular, deportes"></textarea></div><div><label>Inmunizaciones (Vacunas):</label><textarea id="expVacunas" rows="2" placeholder="Vacunas recibidas"></textarea></div></div>
-            </fieldset>
-
-            <fieldset><legend><i class="fas fa-notes-medical"></i> Antecedentes Personales Patológicos</legend>
-                <div class="row"><div><label>Enfermedades de la infancia:</label><textarea id="expInfancia" rows="2" placeholder="Sarampión, varicela, paperas..."></textarea></div><div><label>Enfermedades Sistémicas Activas:</label><textarea id="expSistemica" rows="2" placeholder="Diabetes, hipertensión, etc."></textarea></div></div>
-                <div class="row"><div><label>Neoplasias o Cáncer:</label><textarea id="expNeoplasias" rows="2" placeholder="Tipo de cáncer, tratamiento"></textarea></div><div><label>Cirugías y Hospitalizaciones:</label><textarea id="expCirugias" rows="2" placeholder="Procedimientos quirúrgicos previos"></textarea></div></div>
-                <div class="row"><div><label>Medicamentos Actuales:</label><textarea id="expFarmacos" rows="2" placeholder="Fármacos que toma actualmente"></textarea></div><div><label>Alergias:</label><textarea id="expAlergias" rows="2" placeholder="Medicamentos, alimentos, látex"></textarea></div></div>
-                <div class="row"><div><label>Antecedentes Traumáticos:</label><textarea id="expTraumaticos" rows="2" placeholder="Accidentes, fracturas"></textarea></div><div><label>Transfusiones Sanguíneas:</label><textarea id="expTransfusiones" rows="2" placeholder="¿Ha recibido transfusiones?"></textarea></div></div>
-                <div><label>Otras Enfermedades:</label><textarea id="expOtrasEnf" rows="2" placeholder="Cualquier otra condición médica"></textarea></div>
-            </fieldset>
-
-            <fieldset><legend><i class="fas fa-stethoscope"></i> Padecimiento Actual</legend>
-                <div><label>Motivo de Consulta:</label><textarea id="expMotivo" rows="2" placeholder="¿Por qué acude a consulta?"></textarea></div>
-                <div><label>Semiología del Dolor (si presenta dolor):</label><textarea id="expDolor" rows="2" placeholder="Localización, intensidad, tipo de dolor"></textarea></div>
-                <div><label>Síntomas Acompañantes:</label>
-                    <div class="sintomas-grid">
-                        <label><input type="checkbox" id="sintSangrado"> Sangrado</label>
-                        <label><input type="checkbox" id="sintDolor"> Dolor</label>
-                        <label><input type="checkbox" id="sintInmovilidad"> Inmovilización</label>
-                        <label><input type="checkbox" id="sintIncapacidad"> Incapacidad</label>
-                        <label><input type="checkbox" id="sintTension"> Tensión</label>
-                        <label><input type="checkbox" id="sintInsomnio"> Insomnio</label>
-                        <label><input type="checkbox" id="sintHinchazon"> Hinchazón</label>
-                        <label><input type="checkbox" id="sintHalitosis"> Halitosis</label>
-                    </div>
-                </div>
-                <div><label>Evolución y Estado Actual:</label><textarea id="expEvolucion" rows="2" placeholder="¿Cómo ha cambiado desde que empezó? Tratamientos previos"></textarea></div>
-            </fieldset>
-
-            <fieldset><legend><i class="fas fa-heartbeat"></i> Interrogatorio por Aparatos y Sistemas</legend>
-                <div class="row"><div><label>Digestivo:</label><textarea id="apaDigestivo" rows="2"></textarea></div><div><label>Cardiovascular:</label><textarea id="apaCardio" rows="2"></textarea></div></div>
-                <div class="row"><div><label>Respiratorio:</label><textarea id="apaRespiratorio" rows="2"></textarea></div><div><label>Nervioso:</label><textarea id="apaNervioso" rows="2"></textarea></div></div>
-                <div class="row"><div><label>Musculoesquelético:</label><textarea id="apaMusculo" rows="2"></textarea></div><div><label>Genitourinario:</label><textarea id="apaGenitourinario" rows="2"></textarea></div></div>
-                <div class="row"><div><label>Endocrino:</label><textarea id="apaEndocrino" rows="2"></textarea></div><div><label>Hematológico:</label><textarea id="apaHematologico" rows="2"></textarea></div></div>
-            </fieldset>
-
-            <fieldset><legend><i class="fas fa-heart"></i> Signos Vitales</legend>
-                <div class="row"><div><label>Peso (KG):</label><input type="text" id="signosPeso" placeholder="kg"></div><div><label>Estatura (M):</label><input type="text" id="signosEstatura" placeholder="metros"></div><div><label>IMC:</label><input type="text" id="signosIMC" placeholder="Índice de masa corporal" readonly></div></div>
-                <div class="row"><div><label>Presión Arterial:</label><input type="text" id="signosPA" placeholder="120/80 mmHg"></div><div><label>FC (Frecuencia Cardiaca):</label><input type="text" id="signosFC" placeholder="lpm"></div><div><label>FR (Frecuencia Respiratoria):</label><input type="text" id="signosFR" placeholder="rpm"></div></div>
-                <div class="row"><div><label>Temperatura:</label><input type="text" id="signosTemp" placeholder="°C"></div><div><label>SpO2 (Oxigenación):</label><input type="text" id="signosO2" placeholder="%"></div></div>
-            </fieldset>
-
-            <fieldset><legend><i class="fas fa-clipboard-list"></i> Diagnóstico y Tratamiento</legend>
-                <div><label>Diagnóstico Médico:</label><textarea id="expDiagnosticoFinal" rows="2"></textarea></div>
-                <div><label>Tratamiento/Plan de Acción:</label><textarea id="expTratamientos" rows="2"></textarea></div>
-                <div><label>Indicaciones Adicionales:</label><textarea id="expNotas" rows="2"></textarea></div>
-            </fieldset>
-
-            <button onclick="guardarExpedienteCompleto()"><i class="fas fa-save"></i> Guardar Expediente</button>
-        </div>
-    </div>
-
-    <!-- ==================== PÁGINA: RECETA MÉDICA COMPLETA ==================== -->
-    <div id="pagina-receta" class="pagina">
-        <div class="card">
-            <h2><i class="fas fa-prescription-bottle"></i> NUEVA RECETA MÉDICA</h2>
-            
-            <fieldset><legend>👨‍⚕️ DATOS DEL MÉDICO</legend>
-                <select id="recMedico"></select>
-                <div id="infoMedicoReceta" class="info-paciente"></div>
-            </fieldset>
-
-            <fieldset><legend>📋 DATOS DEL PACIENTE</legend>
-                <div class="row"><div><label>NOMBRE COMPLETO:</label><input type="text" id="recNombre" readonly></div><div><label>TELÉFONO:</label><input type="text" id="recTelefono" readonly></div></div>
-                <div class="row"><div><label>EDAD:</label><input type="number" id="recEdad" readonly></div><div><label>F. NACIMIENTO:</label><input type="date" id="recNacimiento" readonly></div><div><label>ALERGIAS CONOCIDAS:</label><input type="text" id="recAlergias" readonly></div></div>
-            </fieldset>
-
-            <fieldset><legend><i class="fas fa-heartbeat"></i> SIGNOS VITALES Y DIAGNÓSTICO</legend>
-                <div class="row"><div><label>PESO (KG):</label><input type="number" id="recPeso" step="0.1" oninput="calcularIMCReceta()"></div><div><label>ESTATURA (M):</label><input type="number" id="recEstatura" step="0.01" oninput="calcularIMCReceta()"></div><div><label>IMC:</label><input type="text" id="recIMC" readonly></div></div>
-                <div class="row"><div><label>SpO2 (%):</label><input type="text" id="recSpO2"></div><div><label>FC (lpm):</label><input type="text" id="recFC"></div><div><label>FR (rpm):</label><input type="text" id="recFR"></div></div>
-                <div class="row"><div><label>T.A (Presión Arterial):</label><input type="text" id="recTA" placeholder="0/0"></div><div><label>TEMP (°C):</label><input type="text" id="recTemp"></div></div>
-                <div><label>DIAGNÓSTICO MÉDICO:</label><textarea id="recDiagnostico" rows="2"></textarea></div>
-            </fieldset>
-
-            <fieldset><legend>💊 MEDICAMENTOS E INDICACIONES</legend>
-                <div><label>INDICACIONES Y PRÓXIMA CITA:</label><textarea id="recIndicaciones" rows="3" placeholder="Reposo, dieta, cuidados generales..."></textarea></div>
-                <div><label>PRÓXIMA CITA:</label><input type="date" id="recProxCita"></div>
-            </fieldset>
-
-            <button onclick="guardarRecetaCompleta()"><i class="fas fa-save"></i> GUARDAR RECETA</button>
-            <button onclick="generarRecetaPDF()"><i class="fas fa-file-pdf"></i> Generar PDF</button>
-            <hr><h3>Historial de Recetas</h3><div id="listaRecetas"></div>
-        </div>
-    </div>
-
-    <!-- ==================== PÁGINA: PRESUPUESTO ==================== -->
-    <div id="pagina-presupuesto" class="pagina">
-        <div class="card">
-            <h2><i class="fas fa-file-invoice-dollar"></i> NUEVO PRESUPUESTO</h2>
-            <div><label>Paciente / Prospecto:</label><input type="text" id="presNombre" readonly></div>
-            <div class="row"><div style="flex:3"><label>Añadir Servicio del Catálogo:</label><select id="presServicioSelect"></select></div><div style="flex:1"><button onclick="agregarServicioPresupuesto()" style="margin-top:28px;">+ Añadir Servicio</button></div></div>
-            <div><label>Material o servicio adicional:</label><div class="row"><input type="text" id="extraNombre" placeholder="Material o servicio adicional..."><input type="number" id="extraMonto" placeholder="Monto $"><button onclick="agregarExtraPresupuesto()">+ Añadir Extra</button></div></div>
-            <div id="listaPresupuestoItems"></div>
-            <div class="row"><div><label>Porcentaje de Descuento (%):</label><input type="number" id="presDescuento" value="0" oninput="calcularTotalPresupuesto()"></div><div><label>Vigencia o Nota Extra:</label><input type="text" id="presVigencia" placeholder="Ej: Válido por 15 días"></div></div>
-            <div class="total-presupuesto" id="totalPresupuestoDisplay">Subtotal: $0.00<br>Total: $0.00</div>
-            <button onclick="guardarPresupuesto()">Guardar Presupuesto</button>
-            <button onclick="generarPresupuestoPDF()">Generar Presupuesto PDF</button>
-            <hr><h3>Historial de Presupuestos</h3><div id="listaPresupuestos"></div>
-        </div>
-    </div>
-
-    <!-- ==================== PÁGINA: AGENDA DE CITAS ==================== -->
-    <div id="pagina-citas" class="pagina">
-        <div class="card">
-            <h2><i class="fas fa-calendar-alt"></i> AGENDA DE CITAS</h2>
-            <div class="row"><div><label>PACIENTE:</label><input type="text" id="citaNombre" readonly></div><div><label>TELÉFONO / WhatsApp:</label><input type="text" id="citaTelefono" readonly></div></div>
-            <div class="row"><div><label>FECHA:</label><input type="date" id="citaFecha"></div><div><label>HORA:</label><input type="time" id="citaHora"></div><div><label>DURACIÓN:</label><select id="citaDuracion"><option>15 min</option><option selected>30 min</option><option>45 min</option><option>60 min</option></select></div></div>
-            <div><label>TRATAMIENTO:</label><input type="text" id="citaTratamiento" placeholder="Ej. Limpieza"></div>
-            <button onclick="guardarCita()"><i class="fas fa-save"></i> AGENDAR CITA</button>
-            <hr>
-            <div><label>MOSTRAR CALENDARIO - Filtrar por fecha:</label><input type="date" id="filtroFecha" onchange="mostrarCitasPorFecha()"></div>
-            <h3>PANEL DE CONSULTAS PROGRAMADAS</h3>
-            <div id="listaCitas"></div>
-        </div>
-    </div>
-
-    <!-- ==================== PÁGINA: SERVICIOS Y PRECIOS ==================== -->
-    <div id="pagina-servicios" class="pagina">
-        <div class="card">
-            <h2><i class="fas fa-tooth"></i> Gestión de Servicios y Precios</h2>
-            <div class="row"><div><label>Nombre del Servicio:</label><input type="text" id="servNombre" placeholder="Ej: Extracción Simple"></div><div><label>Monto ($):</label><input type="number" id="servCosto" placeholder="0"></div><div><label>Descripción:</label><input type="text" id="servDesc" placeholder="Breve descripción"></div></div>
-            <button onclick="agregarServicio()">+ REGISTRAR EN CATÁLOGO</button>
-            <hr>
-            <table class="tabla"><thead><tr><th>SERVICIO</th><th>DESCRIPCIÓN</th><th>COSTO</th><th></th></tr></thead>
-            <tbody id="listaServicios"></tbody></table>
-        </div>
-    </div>
-
-    <!-- ==================== PÁGINA: MEDICAMENTOS ==================== -->
-    <div id="pagina-medicamentos" class="pagina">
-        <div class="card">
-            <h2><i class="fas fa-capsules"></i> Catálogo de Medicamentos</h2>
-            <div class="row"><div><label>Nombre del Medicamento:</label><input type="text" id="medNombre" placeholder="Ej: Amoxicilina 500mg"></div><div><label>Categoría Terapéutica:</label><input type="text" id="medCategoria" placeholder="Ej: Antibiótico"></div><div><label>Uso Principal:</label><input type="text" id="medUso" placeholder="Ej: Infecciones"></div></div>
-            <button onclick="agregarMedicamento()">+ REGISTRAR MEDICAMENTO</button>
-            <hr>
-            <table class="tabla"><thead><tr><th>MEDICAMENTO</th><th>CATEGORÍA</th><th>USO PRINCIPAL</th><th></th></tr></thead>
-            <tbody id="listaMedicamentos"></tbody></table>
-        </div>
-    </div>
-
-    <!-- ==================== PÁGINA: CONSENTIMIENTO INFORMADO ==================== -->
-    <div id="pagina-consentimiento" class="pagina">
-        <div class="card">
-            <h2><i class="fas fa-file-signature"></i> CONSENTIMIENTO INFORMADO</h2>
-            <div class="row"><div style="flex:1"><label>Buscar consentimiento por nombre:</label><input type="text" id="buscarConsentimiento" placeholder="Nombre del paciente..."></div><div style="flex:0.5"><button onclick="buscarConsentimiento()" style="margin-top:28px;"><i class="fas fa-search"></i> Buscar</button></div></div>
-            <button onclick="nuevoConsentimiento()">+ NUEVO CONSENTIMIENTO</button>
-            <hr>
-            <div><label>PACIENTE:</label><input type="text" id="consentNombre" readonly></div>
-            <div><label>PROCEDIMIENTO:</label><input type="text" id="consentProcedimiento" placeholder="Ej: Extracción quirúrgica, Ortodoncia"></div>
-            <div><label>TEXTO DEL CONSENTIMIENTO:</label><textarea id="consentTexto" rows="6">Yo, [NOMBRE DEL PACIENTE], autorizo al Dr. [NOMBRE MEDICO] (Cédula [CEDULA]) a realizar el procedimiento de [PROCEDIMIENTO]. He sido informado de los riesgos, beneficios y alternativas del tratamiento.</textarea></div>
-            <button onclick="guardarConsentimiento()">Guardar Consentimiento</button>
-            <button onclick="generarConsentimientoPDF()">Generar PDF</button>
-            <hr><h3>Consentimientos guardados</h3><div id="listaConsentimientos"></div>
-        </div>
-    </div>
-
-    <!-- ==================== PÁGINA: CERTIFICADO MÉDICO ==================== -->
-    <div id="pagina-certificado" class="pagina">
-        <div class="card">
-            <h2><i class="fas fa-certificate"></i> CERTIFICADO MÉDICO</h2>
-            
-            <fieldset><legend>1. Datos del Paciente</legend>
-                <div class="row"><div><label>Nombre Completo:</label><input type="text" id="certNombre" readonly></div><div><label>Edad:</label><input type="number" id="certEdad" readonly></div></div>
-            </fieldset>
-
-            <fieldset><legend>2. Datos Generales</legend>
-                <div class="row"><div><label>Médico que Certifica:</label><select id="certMedico"></select></div><div><label>Lugar de Expedición:</label><input type="text" id="certLugar" placeholder="Ciudad, Estado"></div><div><label>Fecha de Expedición:</label><input type="date" id="certFecha"></div></div>
-            </fieldset>
-
-            <fieldset><legend>3. Información Clínica</legend>
-                <div><label>Diagnóstico:</label><textarea id="certDiagnostico" rows="2" placeholder="Escrito o seleccione diagnóstico..."></textarea></div>
-                <div><label>Procedimiento Realizado:</label><textarea id="certProcedimiento" rows="2" placeholder="Ej: Extracción quirúrgica del órgano dental 38"></textarea></div>
-                <div><label><input type="checkbox" id="certOmitirDiagnostico" onchange="toggleOmitirDiagnostico()"> Omitir (Usar "Por motivos de salud dental")</label></div>
-            </fieldset>
-
-            <fieldset><legend>4. Indicaciones de Reposo</legend>
-                <div class="row"><div><label>Días de Reposo:</label><input type="number" id="certDias" placeholder="Cantidad de días"></div><div><label>Desde:</label><input type="date" id="certDesde"></div><div><label>Hasta:</label><input type="date" id="certHasta"></div></div>
-            </fieldset>
-
-            <fieldset><legend>5. Firmas</legend>
-                <label><input type="checkbox" id="certFirmas"> Incluir espacios para firmas digitales</label>
-            </fieldset>
-
-            <button onclick="guardarCertificadoCompleto()">Guardar Certificado</button>
-            <button onclick="generarCertificadoPDF()">Generar Certificado PDF</button>
-            <hr><h3>Certificados guardados</h3><div id="listaCertificados"></div>
-        </div>
-    </div>
-
-    <!-- ==================== PÁGINA: MI CONSULTORIO ==================== -->
-    <div id="pagina-consultorio" class="pagina">
-        <div class="card">
-            <h2><i class="fas fa-building"></i> Identidad del Consultorio</h2>
-            <div class="alert-info">Configura la imagen profesional y paleta de colores de tus archivos</div>
-            
-            <fieldset><legend>Logo de la Clínica</legend>
-                <input type="file" id="logoClinica" accept="image/*" onchange="cargarLogo(event)">
-                <div id="logoPreview" style="margin-top:10px;"></div>
-            </fieldset>
-
-            <div class="row"><div><label>Nombre de la Clínica:</label><input type="text" id="consultorioNombre" placeholder="Ej: C&C Dental Group" onchange="actualizarHeader()"></div></div>
-            <div><label>Domicilio Fiscal/Consultorio:</label><textarea id="consultorioDomicilio" rows="2" placeholder="Emiliano Zapata 2751 ejido matamoros" onchange="guardarConsultorio()"></textarea></div>
-            <div class="row"><div><label>Teléfono Principal:</label><input type="text" id="consultorioTelefono1" placeholder="6646251897" onchange="guardarConsultorio()"></div><div><label>Teléfono Secundario:</label><input type="text" id="consultorioTelefono2" placeholder="6644933243" onchange="guardarConsultorio()"></div></div>
-            <div><label>Correo Electrónico:</label><input type="email" id="consultorioEmail" placeholder="dentist.alexxx@gmail.com" onchange="guardarConsultorio()"></div>
-
-            <fieldset><legend>Paleta de Colores de Archivos</legend>
-                <div class="row">
-                    <div><label>ENCABEZADO:</label><input type="color" id="colorHeader" onchange="guardarConsultorio()"></div>
-                    <div><label>PIE DE PÁGINA:</label><input type="color" id="colorFooter" onchange="guardarConsultorio()"></div>
-                    <div><label>TABLAS:</label><input type="color" id="colorTablas" onchange="guardarConsultorio()"></div>
-                </div>
-            </fieldset>
-
-            <button onclick="guardarConsultorio()"><i class="fas fa-save"></i> GUARDAR IDENTIDAD DEL NEGOCIO</button>
-        </div>
-    </div>
-
-    <!-- ==================== PÁGINA: PERFILES MÉDICOS ==================== -->
-    <div id="pagina-medicos" class="pagina">
-        <div class="card">
-            <h2><i class="fas fa-user-md"></i> Perfiles Médicos</h2>
-            <div class="alert-info">Registra la información de los odontólogos del consultorio</div>
-            
-            <fieldset><legend>Registrar Nuevo Médico</legend>
-                <div class="row"><div><label>Nombre Completo del Médico:</label><input type="text" id="medicoNombre" placeholder="Dr. Juan Pérez"></div><div><label>Cédula Profesional:</label><input type="text" id="medicoCedula" placeholder="12345678"></div></div>
-                <div><label>Domicilio del Consultorio:</label><input type="text" id="medicoDomicilio" placeholder="Calle, Número, Colonia, Ciudad"></div>
-                <div class="row"><div><label>Teléfono para Citas:</label><input type="text" id="medicoTelefono" placeholder="55 0000 0000"></div><div><label>Especialidad:</label><input type="text" id="medicoEspecialidad" placeholder="Ortodoncia / Cirugía"></div></div>
-                <div><label>Universidad de Egreso:</label><input type="text" id="medicoUniversidad" placeholder="UNAM / UACH"></div>
-                <button onclick="agregarMedico()"><i class="fas fa-plus"></i> REGISTRAR PERFIL MÉDICO</button>
-            </fieldset>
-
-            <hr><h3>Médicos Registrados</h3>
-            <div id="listaMedicos"></div>
-        </div>
-    </div>
+    <div id="configPanel" class="card hidden"><h3>⚙️ Configuración de Google Drive</h3><div class="alert-warning"><strong>Configuración única:</strong><br>1. Ve a <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color:var(--primary);">Google Cloud Console</a><br>2. Crea proyecto → Habilita "Google Drive API"<br>3. Credenciales → ID cliente OAuth → Aplicación web<br>4. Orígenes autorizados: agrega http://localhost y tu dominio<br>5. Copia el Client ID y pégalo aquí</div><input type="text" id="clientIdInput" placeholder="Pega tu Client ID"><button onclick="guardarClientId()">Guardar y Conectar</button><button onclick="cerrarConfig()" style="background:var(--danger);">Cancelar</button></div>
+    
+    <div class="selector-paciente"><div class="row"><div style="flex:2"><label>👤 Paciente actual</label><select id="selectPaciente" onchange="cambiarPaciente()"><option value="">-- Seleccionar paciente --</option></select></div><div style="flex:1"><label>&nbsp;</label><button onclick="crearNuevoPaciente()" style="width:100%"><i class="fas fa-plus"></i> Nuevo</button></div></div><div id="infoPacienteActual" class="info-paciente"></div></div>
+    
+    <button id="btnVolver" class="btn-volver" onclick="irAlMenu()" style="display:none;"><i class="fas fa-arrow-left"></i> Volver al menú</button>
+    
+    <div id="pagina-menu" class="pagina activa"><div class="alert-info"><i class="fas fa-info-circle"></i> Selecciona un paciente arriba y luego el módulo que necesites</div><div class="grid"><div class="modulo" onclick="irAPagina('expediente')"><i class="fas fa-folder-open"></i><h3>Expediente Clínico</h3></div><div class="modulo" onclick="irAPagina('receta')"><i class="fas fa-prescription-bottle"></i><h3>Receta Médica</h3></div><div class="modulo" onclick="irAPagina('presupuesto')"><i class="fas fa-file-invoice-dollar"></i><h3>Presupuesto</h3></div><div class="modulo" onclick="irAPagina('citas')"><i class="fas fa-calendar-alt"></i><h3>Agenda de Citas</h3></div><div class="modulo" onclick="irAPagina('servicios')"><i class="fas fa-tooth"></i><h3>Servicios y Precios</h3></div><div class="modulo" onclick="irAPagina('medicamentos')"><i class="fas fa-capsules"></i><h3>Medicamentos</h3></div><div class="modulo" onclick="irAPagina('consentimiento')"><i class="fas fa-file-signature"></i><h3>Consentimiento</h3></div><div class="modulo" onclick="irAPagina('certificado')"><i class="fas fa-certificate"></i><h3>Certificado Médico</h3></div><div class="modulo" onclick="irAPagina('consultorio')"><i class="fas fa-building"></i><h3>Mi Consultorio</h3></div></div></div>
+    <div id="pagina-expediente" class="pagina"><div class="card"><h2><i class="fas fa-folder-open"></i> EXPEDIENTE CLÍNICO</h2><div id="driveMsg" class="hidden" style="background:var(--primary)20;padding:8px;border-radius:8px;margin-bottom:15px;">✅ Google Drive conectado</div><div class="doctor-fijo"><i class="fas fa-user-md"></i> <strong>Dr. Alejandro Coronado</strong> | Cédula: 9562093 | Ortodoncia/Endodoncia | UABC | Tel: 6646251897 | Email: Dentist.alexxx@gmail.com<br><i class="fas fa-map-marker-alt"></i> Emiliano Zapata 2751, Ejido Matamoros, Tijuana, CP 22204</div><fieldset><legend>👨‍⚕️ Médico Tratante</legend><select id="expMedico"><option value="Dr. Alejandro Coronado|9562093|Ortodoncia/Endodoncia">Dr. Alejandro Coronado</option></select></fieldset><fieldset><legend><i class="fas fa-id-card"></i> Ficha de Identificación</legend><div class="row"><div><label>Nombre Completo:</label><input type="text" id="expNombre" placeholder="Nombre del paciente"></div><div><label>Tutor:</label><input type="text" id="expTutor" placeholder="Nombre del tutor"></div></div><div class="row"><div><label>Fecha Nacimiento:</label><input type="date" id="expFechaNac"></div><div><label>Edad:</label><input type="number" id="expEdad"></div><div><label>Sexo:</label><select id="expSexo"><option>Masculino</option><option>Femenino</option></select></div><div><label>Estado Civil:</label><select id="expEstadoCivil"><option>Soltero/a</option><option>Casado/a</option><option>Divorciado/a</option><option>Viudo/a</option></select></div></div><div class="row"><div><label>Lugar Origen:</label><input type="text" id="expOrigen"></div><div><label>Tipo Sangre:</label><select id="expSangre"><option>O+</option><option>O-</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option></select></div></div><div class="row"><div><label>Teléfono:</label><input type="tel" id="expTelefono"></div><div><label>Correo:</label><input type="email" id="expEmail"></div></div><div><label>Domicilio:</label><textarea id="expDomicilio" rows="2"></textarea></div></fieldset><fieldset><legend><i class="fas fa-dna"></i> Enfermedades Heredofamiliares</legend><textarea id="expHeredo" rows="2" placeholder="Fallecidos y enfermedades hereditarias"></textarea></fieldset><fieldset><legend><i class="fas fa-user-check"></i> Antecedentes no Patológicos</legend><div class="row"><div><label>Higiene Oral:</label><textarea id="expHigiene" rows="2"></textarea></div><div><label>Alimentación:</label><textarea id="expAlimentacion" rows="2"></textarea></div></div><div class="row"><div><label>Sustancias:</label><textarea id="expSustancias" rows="2"></textarea></div><div><label>Vivienda:</label><textarea id="expVivienda" rows="2"></textarea></div></div><div class="row"><div><label>Actividad Física:</label><textarea id="expActividad" rows="2"></textarea></div><div><label>Vacunas:</label><textarea id="expVacunas" rows="2"></textarea></div></div></fieldset><fieldset><legend><i class="fas fa-notes-medical"></i> Antecedentes Patológicos</legend><div class="row"><div><label>Enf. Infancia:</label><textarea id="expInfancia" rows="2"></textarea></div><div><label>Enf. Sistémicas:</label><textarea id="expSistemica" rows="2"></textarea></div></div><div class="row"><div><label>Neoplasias:</label><textarea id="expNeoplasias" rows="2"></textarea></div><div><label>Cirugías:</label><textarea id="expCirugias" rows="2"></textarea></div></div><div class="row"><div><label>Fármacos:</label><textarea id="expFarmacos" rows="2"></textarea></div><div><label>Alergias:</label><textarea id="expAlergias" rows="2"></textarea></div></div><div class="row"><div><label>Traumáticos:</label><textarea id="expTraumaticos" rows="2"></textarea></div><div><label>Transfusiones:</label><textarea id="expTransfusiones" rows="2"></textarea></div></div><div><label>Otras Enfermedades:</label><textarea id="expOtrasEnf" rows="2"></textarea></div></fieldset><fieldset><legend><i class="fas fa-stethoscope"></i> Padecimiento Actual</legend><div><label>Motivo Consulta:</label><textarea id="expMotivo" rows="2"></textarea></div><div><label>Semiología del Dolor:</label><textarea id="expDolor" rows="2"></textarea></div><div><label>Síntomas Acompañantes:</label><div class="sintomas-grid"><label><input type="checkbox" id="sintSangrado"> Sangrado</label><label><input type="checkbox" id="sintDolor"> Dolor</label><label><input type="checkbox" id="sintInmovilidad"> Inmovilidad</label><label><input type="checkbox" id="sintIncapacidad"> Incapacidad</label><label><input type="checkbox" id="sintTension"> Tensión</label><label><input type="checkbox" id="sintInsomnio"> Insomnio</label><label><input type="checkbox" id="sintHinchazon"> Hinchazón</label><label><input type="checkbox" id="sintHalitosis"> Halitosis</label></div></div><div><label>Evolución:</label><textarea id="expEvolucion" rows="2"></textarea></div></fieldset><fieldset><legend><i class="fas fa-heartbeat"></i> Interrogatorio por Aparatos</legend><div class="row"><div><label>Digestivo:</label><textarea id="apaDigestivo" rows="2"></textarea></div><div><label>Cardiovascular:</label><textarea id="apaCardio" rows="2"></textarea></div></div><div class="row"><div><label>Respiratorio:</label><textarea id="apaRespiratorio" rows="2"></textarea></div><div><label>Nervioso:</label><textarea id="apaNervioso" rows="2"></textarea></div></div><div class="row"><div><label>Musculoesquelético:</label><textarea id="apaMusculo" rows="2"></textarea></div><div><label>Genitourinario:</label><textarea id="apaGenitourinario" rows="2"></textarea></div></div><div class="row"><div><label>Endocrino:</label><textarea id="apaEndocrino" rows="2"></textarea></div><div><label>Hematológico:</label><textarea id="apaHematologico" rows="2"></textarea></div></div></fieldset><fieldset><legend><i class="fas fa-heart"></i> Signos Vitales</legend><div class="row"><div><label>Peso (KG):</label><input type="text" id="signosPeso"></div><div><label>Estatura (M):</label><input type="text" id="signosEstatura"></div><div><label>IMC:</label><input type="text" id="signosIMC" readonly></div></div><div class="row"><div><label>P/A:</label><input type="text" id="signosPA"></div><div><label>FC:</label><input type="text" id="signosFC"></div><div><label>FR:</label><input type="text" id="signosFR"></div></div><div class="row"><div><label>Temperatura:</label><input type="text" id="signosTemp"></div><div><label>SpO2:</label><input type="text" id="signosO2"></div></div></fieldset><fieldset><legend><i class="fas fa-clipboard-list"></i> Diagnóstico y Tratamiento</legend><div><label>Diagnóstico:</label><textarea id="expDiagnosticoFinal" rows="2"></textarea></div><div><label>Tratamiento:</label><textarea id="expTratamientos" rows="2"></textarea></div><div><label>Notas:</label><textarea id="expNotas" rows="2"></textarea></div></fieldset><button onclick="guardarExpedienteCompleto()"><i class="fas fa-save"></i> Guardar Expediente</button></div></div>
+    
+    <div id="pagina-receta" class="pagina"><div class="card"><h2><i class="fas fa-prescription-bottle"></i> NUEVA RECETA MÉDICA</h2><div class="doctor-fijo"><i class="fas fa-user-md"></i> <strong>Dr. Alejandro Coronado</strong> | Cédula: 9562093 | Ortodoncia/Endodoncia | Tel: 6646251897 | Email: Dentist.alexxx@gmail.com</div><fieldset><legend>👨‍⚕️ DATOS DEL MÉDICO</legend><select id="recMedico"><option value="Dr. Alejandro Coronado|9562093|Ortodoncia/Endodoncia">Dr. Alejandro Coronado</option></select><div class="info-paciente" style="margin-top:5px;"><i class="fas fa-envelope"></i> Dentist.alexxx@gmail.com | <i class="fas fa-phone"></i> 6646251897</div></fieldset><fieldset><legend>📋 DATOS DEL PACIENTE</legend><div class="row"><div><label>NOMBRE:</label><input type="text" id="recNombre" readonly></div><div><label>TELÉFONO:</label><input type="text" id="recTelefono" readonly></div></div><div class="row"><div><label>EDAD:</label><input type="number" id="recEdad" readonly></div><div><label>ALERGIAS:</label><input type="text" id="recAlergias" readonly></div></div></fieldset><fieldset><legend><i class="fas fa-heartbeat"></i> SIGNOS VITALES</legend><div class="row"><div><label>PESO (KG):</label><input type="number" id="recPeso" step="0.1" oninput="calcularIMCReceta()"></div><div><label>ESTATURA (M):</label><input type="number" id="recEstatura" step="0.01" oninput="calcularIMCReceta()"></div><div><label>IMC:</label><input type="text" id="recIMC" readonly></div></div><div class="row"><div><label>SpO2 (%):</label><input type="text" id="recSpO2"></div><div><label>FC (lpm):</label><input type="text" id="recFC"></div><div><label>FR (rpm):</label><input type="text" id="recFR"></div></div><div class="row"><div><label>T.A:</label><input type="text" id="recTA"></div><div><label>TEMP (°C):</label><input type="text" id="recTemp"></div></div><div><label>DIAGNÓSTICO:</label><textarea id="recDiagnostico" rows="2"></textarea></div></fieldset><fieldset><legend>💊 INDICACIONES</legend><div><label>INDICACIONES:</label><textarea id="recIndicaciones" rows="3"></textarea></div><div><label>PRÓXIMA CITA:</label><input type="date" id="recProxCita"></div></fieldset><button onclick="guardarRecetaCompleta()"><i class="fas fa-save"></i> GUARDAR RECETA</button><button onclick="generarRecetaPDF()"><i class="fas fa-file-pdf"></i> PDF</button><hr><h3>Historial</h3><div id="listaRecetas"></div></div></div>
+    
+    <div id="pagina-presupuesto" class="pagina"><div class="card"><h2><i class="fas fa-file-invoice-dollar"></i> NUEVO PRESUPUESTO</h2><div><label>Paciente:</label><input type="text" id="presNombre" readonly></div><div class="row"><div style="flex:3"><label>Servicio:</label><select id="presServicioSelect"></select></div><div style="flex:1"><button onclick="agregarServicioPresupuesto()" style="margin-top:28px;">+ Añadir</button></div></div><div><label>Extra:</label><div class="row"><input type="text" id="extraNombre" placeholder="Nombre"><input type="number" id="extraMonto" placeholder="$"><button onclick="agregarExtraPresupuesto()">+</button></div></div><div id="listaPresupuestoItems"></div><div class="row"><div><label>Descuento (%):</label><input type="number" id="presDescuento" value="0" oninput="calcularTotalPresupuesto()"></div><div><label>Vigencia:</label><input type="text" id="presVigencia"></div></div><div class="total-presupuesto" id="totalPresupuestoDisplay">Subtotal: $0.00<br>Total: $0.00</div><button onclick="guardarPresupuesto()">Guardar</button><button onclick="generarPresupuestoPDF()">PDF</button><hr><h3>Historial</h3><div id="listaPresupuestos"></div></div></div>
+    
+    <div id="pagina-citas" class="pagina"><div class="card"><h2><i class="fas fa-calendar-alt"></i> AGENDA DE CITAS</h2><div class="row"><div><label>PACIENTE:</label><input type="text" id="citaNombre" readonly></div><div><label>TELÉFONO:</label><input type="text" id="citaTelefono" readonly></div></div><div class="row"><div><label>FECHA:</label><input type="date" id="citaFecha"></div><div><label>HORA:</label><input type="time" id="citaHora"></div><div><label>DURACIÓN:</label><select id="citaDuracion"><option>15 min</option><option selected>30 min</option><option>45 min</option><option>60 min</option></select></div></div><div><label>TRATAMIENTO:</label><input type="text" id="citaTratamiento"></div><button onclick="guardarCita()"><i class="fas fa-save"></i> AGENDAR CITA</button><hr><div><label>Filtrar fecha:</label><input type="date" id="filtroFecha" onchange="mostrarCitasPorFecha()"></div><h3>Citas programadas</h3><div id="listaCitas"></div></div></div>
+    
+    <div id="pagina-servicios" class="pagina"><div class="card"><h2><i class="fas fa-tooth"></i> Servicios y Precios</h2><div class="row"><div><label>Servicio:</label><input type="text" id="servNombre"></div><div><label>Costo ($):</label><input type="number" id="servCosto"></div><div><label>Descripción:</label><input type="text" id="servDesc"></div></div><button onclick="agregarServicio()">+ REGISTRAR</button><hr><table class="tabla"><thead><tr><th>SERVICIO</th><th>DESCRIPCIÓN</th><th>COSTO</th><th></th></tr></thead><tbody id="listaServicios"></tbody></table></div></div>
+    
+    <div id="pagina-medicamentos" class="pagina"><div class="card"><h2><i class="fas fa-capsules"></i> Medicamentos</h2><div class="row"><div><label>Medicamento:</label><input type="text" id="medNombre"></div><div><label>Categoría:</label><input type="text" id="medCategoria"></div><div><label>Uso:</label><input type="text" id="medUso"></div></div><button onclick="agregarMedicamento()">+ REGISTRAR</button><hr><table class="tabla"><thead><tr><th>MEDICAMENTO</th><th>CATEGORÍA</th><th>USO</th><th></th></tr></thead><tbody id="listaMedicamentos"></tbody></table></div></div>
+    
+    <div id="pagina-consentimiento" class="pagina"><div class="card"><h2><i class="fas fa-file-signature"></i> CONSENTIMIENTO</h2><div class="row"><div style="flex:1"><label>Buscar:</label><input type="text" id="buscarConsentimiento"></div><div style="flex:0.5"><button onclick="buscarConsentimiento()" style="margin-top:28px;"><i class="fas fa-search"></i> Buscar</button></div></div><button onclick="nuevoConsentimiento()">+ NUEVO</button><hr><div><label>PACIENTE:</label><input type="text" id="consentNombre" readonly></div><div><label>PROCEDIMIENTO:</label><input type="text" id="consentProcedimiento"></div><div><label>TEXTO:</label><textarea id="consentTexto" rows="6"></textarea></div><button onclick="guardarConsentimiento()">Guardar</button><button onclick="generarConsentimientoPDF()">PDF</button><hr><h3>Historial</h3><div id="listaConsentimientos"></div></div></div>
+    
+    <div id="pagina-certificado" class="pagina"><div class="card"><h2><i class="fas fa-certificate"></i> CERTIFICADO MÉDICO</h2><div class="doctor-fijo"><i class="fas fa-user-md"></i> Dr. Alejandro Coronado - Cédula Profesional: 9562093</div><fieldset><legend>1. Datos del Paciente</legend><div class="row"><div><label>Nombre:</label><input type="text" id="certNombre" readonly></div><div><label>Edad:</label><input type="number" id="certEdad" readonly></div></div></fieldset><fieldset><legend>2. Datos Generales</legend><div class="row"><div><label>Médico:</label><select id="certMedico"><option value="Dr. Alejandro Coronado|9562093">Dr. Alejandro Coronado</option></select></div><div><label>Lugar:</label><input type="text" id="certLugar"></div><div><label>Fecha:</label><input type="date" id="certFecha"></div></div></fieldset><fieldset><legend>3. Información Clínica</legend><div><label>Diagnóstico:</label><textarea id="certDiagnostico" rows="2"></textarea></div><div><label>Procedimiento:</label><textarea id="certProcedimiento" rows="2"></textarea></div><div><label><input type="checkbox" id="certOmitirDiagnostico" onchange="toggleOmitirDiagnostico()"> Omitir (Usar "Por motivos de salud dental")</label></div></fieldset><fieldset><legend>4. Reposo</legend><div class="row"><div><label>Días:</label><input type="number" id="certDias"></div><div><label>Desde:</label><input type="date" id="certDesde"></div><div><label>Hasta:</label><input type="date" id="certHasta"></div></div></fieldset><fieldset><legend>5. Firmas</legend><label><input type="checkbox" id="certFirmas"> Incluir firmas</label></fieldset><button onclick="guardarCertificadoCompleto()">Guardar</button><button onclick="generarCertificadoPDF()">PDF</button><hr><h3>Historial</h3><div id="listaCertificados"></div></div></div>
+    
+    <div id="pagina-consultorio" class="pagina"><div class="card"><h2><i class="fas fa-building"></i> Mi Consultorio</h2><div class="alert-info">Configuración de la clínica - Los datos del Dr. Alejandro Coronado son fijos</div><div class="doctor-fijo"><i class="fas fa-user-md"></i> <strong>DATOS FIJOS DEL DOCTOR:</strong><br>• Nombre: Dr. Alejandro Coronado<br>• Cédula: 9562093<br>• Especialidad: Ortodoncia / Endodoncia<br>• Universidad: UABC<br>• Teléfono: 6646251897<br>• Email: Dentist.alexxx@gmail.com<br>• Domicilio: Emiliano Zapata 2751, Ejido Matamoros, Tijuana, CP 22204</div><fieldset><legend>Logo</legend><input type="file" id="logoClinica" accept="image/*" onchange="cargarLogo(event)"><div id="logoPreview" style="margin-top:10px;"></div></fieldset><div class="row"><div><label>Nombre Clínica:</label><input type="text" id="consultorioNombre" onchange="guardarConsultorio()"></div></div><div><label>Domicilio:</label><textarea id="consultorioDomicilio" rows="2" onchange="guardarConsultorio()"></textarea></div><div class="row"><div><label>Teléfono 1:</label><input type="text" id="consultorioTelefono1" onchange="guardarConsultorio()"></div><div><label>Teléfono 2:</label><input type="text" id="consultorioTelefono2" onchange="guardarConsultorio()"></div></div><div><label>Email:</label><input type="email" id="consultorioEmail" onchange="guardarConsultorio()"></div><fieldset><legend>Colores</legend><div class="row"><div><label>Encabezado:</label><input type="color" id="colorHeader" onchange="guardarConsultorio()"></div><div><label>Pie:</label><input type="color" id="colorFooter" onchange="guardarConsultorio()"></div><div><label>Tablas:</label><input type="color" id="colorTablas" onchange="guardarConsultorio()"></div></div></fieldset><button onclick="guardarConsultorio()">GUARDAR</button></div></div>
 </div>
-
 <script>
-    // ========== VARIABLES GLOBALES ==========
-    let accessToken = null, tokenClient = null, principalFolderId = null;
-    let pacientes = {};
-    let pacienteActual = null;
-    let servicios = [];
-    let medicamentos = [];
-    let medicos = [];
-    let consultorioData = {};
-    let presupuestoItems = [];
-    const CARPETA_PRINCIPAL = 'C&C Dental Group';
+// DATOS FIJOS DEL DOCTOR
+const DOCTOR_FIJO = {
+    nombre: "Dr. Alejandro Coronado",
+    cedula: "9562093",
+    especialidad: "Ortodoncia/Endodoncia",
+    universidad: "UABC",
+    telefono: "6646251897",
+    email: "Dentist.alexxx@gmail.com",
+    domicilio: "Emiliano Zapata 2751, Ejido Matamoros, Tijuana, CP 22204"
+};
 
-    // ========== MODO OSCURO/CLARO ==========
-    function toggleModo() {
-        const body = document.body;
-        const icono = document.getElementById('icono-theme');
-        const texto = document.getElementById('texto-theme');
-        if(body.classList.contains('modo-claro')) {
-            body.classList.remove('modo-claro');
-            icono.className = 'fas fa-moon';
-            texto.textContent = 'Modo Oscuro';
-            localStorage.setItem('modo', 'oscuro');
-        } else {
-            body.classList.add('modo-claro');
-            icono.className = 'fas fa-sun';
-            texto.textContent = 'Modo Claro';
-            localStorage.setItem('modo', 'claro');
-        }
-    }
-    
-    function cargarModo() {
-        const modoGuardado = localStorage.getItem('modo');
-        if(modoGuardado === 'claro') {
-            document.body.classList.add('modo-claro');
-            if(document.getElementById('icono-theme')) {
-                document.getElementById('icono-theme').className = 'fas fa-sun';
-                document.getElementById('texto-theme').textContent = 'Modo Claro';
-            }
-        }
-    }
+let accessToken=null,tokenClient=null,principalFolderId=null,pacientes={},pacienteActual=null,servicios=[],medicamentos=[],presupuestoItems=[],consultorioData={};
+const CARPETA_PRINCIPAL='C&C Dental Group';
 
-    // ========== INICIALIZAR DATOS ==========
-    function inicializarDatos() {
-        // Cargar servicios
-        let serviciosGuardados = localStorage.getItem('servicios');
-        if(serviciosGuardados) servicios = JSON.parse(serviciosGuardados);
-        else servicios = [
-            {nombre:"Extracción simple", costo:950, descripcion:"Sacar muela que no sea del juicio"},
-            {nombre:"Extracción 3ra molar simple", costo:1600, descripcion:"No es cirugía"},
-            {nombre:"Cirugía Alex", costo:2200, descripcion:"Cirugía realizada por Dr. Alex"},
-            {nombre:"Caries", costo:850, descripcion:"Eliminación de caries"},
-            {nombre:"Drenaje pus", costo:550, descripcion:"Drenar pus acumulada"},
-            {nombre:"Endodoncia", costo:3800, descripcion:"Tratamiento de conductos"},
-            {nombre:"Corona zirconia", costo:5500, descripcion:"Corona estética"},
-            {nombre:"Limpieza dental", costo:700, descripcion:"Profilaxis"}
-        ];
-        
-        // Cargar medicamentos
-        let medicamentosGuardados = localStorage.getItem('medicamentos');
-        if(medicamentosGuardados) medicamentos = JSON.parse(medicamentosGuardados);
-        else medicamentos = [
-            {nombre:"Amoxicilina 500mg", categoria:"Antibiótico", uso:"Infecciones bacterianas"},
-            {nombre:"Ibuprofeno 600mg", categoria:"Analgésico", uso:"Dolor e inflamación"},
-            {nombre:"Ketorolaco 10mg", categoria:"Analgésico", uso:"Dolor moderado a severo"}
-        ];
-        
-        // Cargar médicos
-        let medicosGuardados = localStorage.getItem('medicos');
-        if(medicosGuardados) medicos = JSON.parse(medicosGuardados);
-        else medicos = [
-            {nombre:"Dr. Alejandro Coronado", cedula:"9562093", especialidad:"Ortodoncia/Endodoncia", telefono:"6646251897", domicilio:"Emiliano Zapata 2751 ejido matamoros tijuana", universidad:"UABC"},
-            {nombre:"Dr. Juan Pérez", cedula:"12345678", especialidad:"Ortodoncia/Cirugía", telefono:"5550000000", domicilio:"Calle Principal 123", universidad:"UNAM"}
-        ];
-        
-        // Cargar consultorio
-        let consultorioGuardado = localStorage.getItem('consultorio');
-        if(consultorioGuardado) consultorioData = JSON.parse(consultorioGuardado);
-        else consultorioData = { nombre: "C&C Dental Group", domicilio: "Emiliano Zapata 2751 ejido matamoros", telefono1: "6646251897", telefono2: "6644933243", email: "dentist.alexxx@gmail.com", colorHeader: "#2DD4BF", colorFooter: "#2DD4BF", colorTablas: "#2DD4BF" };
-        
-        // Cargar pacientes
-        let pacientesGuardados = localStorage.getItem('pacientes');
-        if(pacientesGuardados) pacientes = JSON.parse(pacientesGuardados);
-        else pacientes = {
-            "uri_gamaliel": {
-                folderId: null, data: { nombre: "Uri Gamaliel", edad: 25, telefono: "6646251897", email: "uri@example.com", alergias: "Ninguna" },
-                recetas: [], presupuestos: [], citas: [], consentimientos: [], certificados: []
-            }
-        };
-        
-        actualizarSelectPacientes();
-        mostrarServicios();
-        mostrarMedicamentos();
-        actualizarSelectServicios();
-        mostrarMedicos();
-        actualizarSelectMedicos();
-        cargarConsultorio();
-        actualizarHeader();
-    }
-    
-    function actualizarSelectMedicos() {
-        let selects = ['expMedico', 'recMedico', 'certMedico'];
-        selects.forEach(id => {
-            let select = document.getElementById(id);
-            if(select) {
-                select.innerHTML = medicos.map(m => `<option value="${m.nombre}|${m.cedula}|${m.especialidad}">${m.nombre} (Cédula ${m.cedula}) - ${m.especialidad}</option>`).join('');
-            }
-        });
-    }
-    
-    function mostrarMedicos() {
-        let div = document.getElementById('listaMedicos');
-        if(div) {
-            div.innerHTML = medicos.map((m,i) => `<div class="medico-item"><strong>${m.nombre}</strong><br><small>Cédula: ${m.cedula} | ${m.especialidad} | ${m.universidad}</small><button onclick="eliminarMedico(${i})">Eliminar</button></div>`).join('');
-        }
-        guardarTodoLocal();
-        actualizarSelectMedicos();
-    }
-    
-    function agregarMedico() {
-        let medico = {
-            nombre: document.getElementById('medicoNombre').value,
-            cedula: document.getElementById('medicoCedula').value,
-            domicilio: document.getElementById('medicoDomicilio').value,
-            telefono: document.getElementById('medicoTelefono').value,
-            especialidad: document.getElementById('medicoEspecialidad').value,
-            universidad: document.getElementById('medicoUniversidad').value
-        };
-        if(medico.nombre) {
-            medicos.push(medico);
-            mostrarMedicos();
-            document.getElementById('medicoNombre').value = '';
-            document.getElementById('medicoCedula').value = '';
-            document.getElementById('medicoDomicilio').value = '';
-            document.getElementById('medicoTelefono').value = '';
-            document.getElementById('medicoEspecialidad').value = '';
-            document.getElementById('medicoUniversidad').value = '';
-            mostrarToast('Médico registrado');
-        }
-    }
-    
-    function eliminarMedico(i) {
-        medicos.splice(i,1);
-        mostrarMedicos();
-    }
-    
-    function cargarConsultorio() {
-        document.getElementById('consultorioNombre').value = consultorioData.nombre || 'C&C Dental Group';
-        document.getElementById('consultorioDomicilio').value = consultorioData.domicilio || '';
-        document.getElementById('consultorioTelefono1').value = consultorioData.telefono1 || '';
-        document.getElementById('consultorioTelefono2').value = consultorioData.telefono2 || '';
-        document.getElementById('consultorioEmail').value = consultorioData.email || '';
-        document.getElementById('colorHeader').value = consultorioData.colorHeader || '#2DD4BF';
-        document.getElementById('colorFooter').value = consultorioData.colorFooter || '#2DD4BF';
-        document.getElementById('colorTablas').value = consultorioData.colorTablas || '#2DD4BF';
-        
-        let logoGuardado = localStorage.getItem('logoClinica');
-        if(logoGuardado) {
-            document.getElementById('logoPreview').innerHTML = `<img src="${logoGuardado}" style="max-width:150px; border-radius:8px;">`;
-        }
-    }
-    
-    function guardarConsultorio() {
-        consultorioData = {
-            nombre: document.getElementById('consultorioNombre').value,
-            domicilio: document.getElementById('consultorioDomicilio').value,
-            telefono1: document.getElementById('consultorioTelefono1').value,
-            telefono2: document.getElementById('consultorioTelefono2').value,
-            email: document.getElementById('consultorioEmail').value,
-            colorHeader: document.getElementById('colorHeader').value,
-            colorFooter: document.getElementById('colorFooter').value,
-            colorTablas: document.getElementById('colorTablas').value
-        };
-        localStorage.setItem('consultorio', JSON.stringify(consultorioData));
-        actualizarHeader();
-        mostrarToast('Configuración guardada');
-    }
-    
-    function actualizarHeader() {
-        let nombreClinica = document.getElementById('consultorioNombre')?.value || consultorioData.nombre || 'C&C Dental Group';
-        document.getElementById('clinicaNombre').textContent = nombreClinica;
-    }
-    
-    function cargarLogo(event) {
-        const file = event.target.files[0];
-        if(file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                localStorage.setItem('logoClinica', e.target.result);
-                document.getElementById('logoPreview').innerHTML = `<img src="${e.target.result}" style="max-width:150px; border-radius:8px;">`;
-            };
-            reader.readAsDataURL(file);
-        }
-    }
-    
-    function actualizarSelectPacientes() {
-        let select = document.getElementById('selectPaciente');
-        select.innerHTML = '<option value="">-- Seleccionar paciente --</option>';
-        Object.keys(pacientes).forEach(key => {
-            let nombre = pacientes[key].data?.nombre || key;
-            select.innerHTML += `<option value="${key}">${nombre}</option>`;
-        });
-    }
-    
-    function cambiarPaciente() {
-        let key = document.getElementById('selectPaciente').value;
-        if(key && pacientes[key]) {
-            pacienteActual = pacientes[key];
-            document.getElementById('infoPacienteActual').innerHTML = `✅ Paciente activo: ${pacienteActual.data.nombre}`;
-            cargarDatosPacienteEnForms();
-        } else {
-            pacienteActual = null;
-            document.getElementById('infoPacienteActual').innerHTML = '';
-        }
-    }
-    
-    function cargarDatosPacienteEnForms() {
-        if(!pacienteActual) return;
-        // Expediente
-        document.getElementById('expNombre').value = pacienteActual.data.nombre || '';
-        document.getElementById('expEdad').value = pacienteActual.data.edad || '';
-        document.getElementById('expTelefono').value = pacienteActual.data.telefono || '';
-        document.getElementById('expEmail').value = pacienteActual.data.email || '';
-        document.getElementById('expAlergias').value = pacienteActual.data.alergias || '';
-        document.getElementById('expHeredo').value = pacienteActual.data.heredo || '';
-        document.getElementById('expHigiene').value = pacienteActual.data.higiene || '';
-        document.getElementById('expAlimentacion').value = pacienteActual.data.alimentacion || '';
-        document.getElementById('expSustancias').value = pacienteActual.data.sustancias || '';
-        document.getElementById('expVivienda').value = pacienteActual.data.vivienda || '';
-        document.getElementById('expActividad').value = pacienteActual.data.actividad || '';
-        document.getElementById('expVacunas').value = pacienteActual.data.vacunas || '';
-        document.getElementById('expInfancia').value = pacienteActual.data.infancia || '';
-        document.getElementById('expSistemica').value = pacienteActual.data.sistemica || '';
-        document.getElementById('expNeoplasias').value = pacienteActual.data.neoplasias || '';
-        document.getElementById('expCirugias').value = pacienteActual.data.cirugias || '';
-        document.getElementById('expFarmacos').value = pacienteActual.data.farmacos || '';
-        document.getElementById('expTraumaticos').value = pacienteActual.data.traumaticos || '';
-        document.getElementById('expTransfusiones').value = pacienteActual.data.transfusiones || '';
-        document.getElementById('expOtrasEnf').value = pacienteActual.data.otrasEnf || '';
-        document.getElementById('expMotivo').value = pacienteActual.data.motivo || '';
-        document.getElementById('expDolor').value = pacienteActual.data.dolor || '';
-        document.getElementById('expEvolucion').value = pacienteActual.data.evolucion || '';
-        document.getElementById('expDiagnosticoFinal').value = pacienteActual.data.diagnosticoFinal || '';
-        document.getElementById('expTratamientos').value = pacienteActual.data.tratamientos || '';
-        
-        // Receta
-        document.getElementById('recNombre').value = pacienteActual.data.nombre || '';
-        document.getElementById('recEdad').value = pacienteActual.data.edad || '';
-        document.getElementById('recTelefono').value = pacienteActual.data.telefono || '';
-        document.getElementById('recAlergias').value = pacienteActual.data.alergias || '';
-        
-        // Presupuesto, Citas, etc.
-        document.getElementById('presNombre').value = pacienteActual.data.nombre || '';
-        document.getElementById('citaNombre').value = pacienteActual.data.nombre || '';
-        document.getElementById('citaTelefono').value = pacienteActual.data.telefono || '';
-        document.getElementById('consentNombre').value = pacienteActual.data.nombre || '';
-        document.getElementById('certNombre').value = pacienteActual.data.nombre || '';
-        document.getElementById('certEdad').value = pacienteActual.data.edad || '';
-        
-        mostrarRecetas();
-        mostrarPresupuestos();
-        mostrarCitas();
-        mostrarConsentimientos();
-        mostrarCertificados();
-    }
-    
-    function crearNuevoPaciente() {
-        let nombre = prompt('Nombre completo del paciente:');
-        if(!nombre) return;
-        let edad = prompt('Edad:');
-        let telefono = prompt('Teléfono:');
-        let key = nombre.toLowerCase().replace(/ /g, '_') + '_' + Date.now();
-        
-        pacientes[key] = {
-            folderId: null, data: { nombre, edad, telefono, email: '', alergias: '' },
-            recetas: [], presupuestos: [], citas: [], consentimientos: [], certificados: []
-        };
-        
-        if(accessToken && principalFolderId) {
-            crearSubcarpeta(principalFolderId, key).then(folderId => { if(folderId) pacientes[key].folderId = folderId; guardarTodoLocal(); });
-        }
-        guardarTodoLocal();
-        actualizarSelectPacientes();
-        document.getElementById('selectPaciente').value = key;
-        cambiarPaciente();
-        mostrarToast(`Paciente ${nombre} creado`);
-    }
-    
-    function guardarTodoLocal() {
-        localStorage.setItem('pacientes', JSON.stringify(pacientes));
-        localStorage.setItem('servicios', JSON.stringify(servicios));
-        localStorage.setItem('medicamentos', JSON.stringify(medicamentos));
-        localStorage.setItem('medicos', JSON.stringify(medicos));
-    }
-    
-    async function guardarArchivoPaciente(nombreArchivo, contenido) {
-        if(accessToken && pacienteActual && pacienteActual.folderId) await guardarArchivoEnDrive(pacienteActual.folderId, nombreArchivo, contenido);
-    }
-    
-    // ========== GOOGLE DRIVE ==========
-    async function conectarGoogle() { 
-        const id = localStorage.getItem('googleClientId'); 
-        if(id) iniciarAuth(id); 
-        else document.getElementById('configPanel').classList.remove('hidden'); 
-    }
-    
-    function guardarClientId() { 
-        const id = document.getElementById('clientIdInput').value.trim(); 
-        if(id) { localStorage.setItem('googleClientId', id); document.getElementById('configPanel').classList.add('hidden'); iniciarAuth(id); } 
-        else mostrarToast('Ingresa Client ID', 'error'); 
-    }
-    
-    function cerrarConfig() { document.getElementById('configPanel').classList.add('hidden'); }
-    
-    async function iniciarAuth(clientId) {
-        tokenClient = google.accounts.oauth2.initTokenClient({
-            client_id: clientId, scope: 'https://www.googleapis.com/auth/drive.file',
-            callback: async (resp) => {
-                if(resp.access_token) {
-                    accessToken = resp.access_token;
-                    localStorage.setItem('driveToken', accessToken);
-                    localStorage.setItem('driveTokenExpiry', Date.now() + (resp.expires_in * 1000));
-                    document.getElementById('googleBtn').classList.add('connected');
-                    document.getElementById('googleText').innerHTML = '✅ Drive OK';
-                    document.getElementById('driveMsg')?.classList.remove('hidden');
-                    mostrarToast('✅ Conectado a Google Drive');
-                    await crearCarpetaPrincipal();
-                }
-            }
-        });
-        const savedToken = localStorage.getItem('driveToken');
-        const savedExpiry = localStorage.getItem('driveTokenExpiry');
-        if(savedToken && savedExpiry && Date.now() < parseInt(savedExpiry)) {
-            accessToken = savedToken;
-            document.getElementById('googleBtn').classList.add('connected');
-            document.getElementById('googleText').innerHTML = '✅ Drive OK';
-            document.getElementById('driveMsg')?.classList.remove('hidden');
-            mostrarToast('✅ Sesión restaurada');
-            await crearCarpetaPrincipal();
-        } else { tokenClient.requestAccessToken({ prompt: 'consent' }); }
-    }
-    
-    async function refrescarToken() {
-        const savedToken = localStorage.getItem('driveToken');
-        const savedExpiry = localStorage.getItem('driveTokenExpiry');
-        if(savedToken && savedExpiry && Date.now() < parseInt(savedExpiry)) return savedToken;
-        if(!tokenClient) return null;
-        return new Promise(r => { tokenClient.callback = resp => { if(resp.access_token) { localStorage.setItem('driveToken', resp.access_token); localStorage.setItem('driveTokenExpiry', Date.now() + (resp.expires_in * 1000)); r(resp.access_token); } else r(null); }; tokenClient.requestAccessToken({prompt: ''}); });
-    }
-    
-    async function crearCarpetaPrincipal() {
-        const token = await refrescarToken(); if(!token) return;
-        try {
-            const buscar = await fetch(`https://www.googleapis.com/drive/v3/files?q=name='${CARPETA_PRINCIPAL}' and mimeType='application/vnd.google-apps.folder' and trashed=false`, { headers: { 'Authorization': `Bearer ${token}` } });
-            const res = await buscar.json();
-            if(res.files && res.files.length > 0) principalFolderId = res.files[0].id;
-            else {
-                const crear = await fetch('https://www.googleapis.com/drive/v3/files', { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ name: CARPETA_PRINCIPAL, mimeType: 'application/vnd.google-apps.folder' }) });
-                const nueva = await crear.json();
-                if(nueva.id) principalFolderId = nueva.id;
-            }
-            await cargarPacientesDesdeDrive();
-        } catch(e) { console.error(e); }
-    }
-    
-    async function crearSubcarpeta(parentId, nombre) {
-        const token = await refrescarToken(); if(!token) return null;
-        try {
-            const buscar = await fetch(`https://www.googleapis.com/drive/v3/files?q=name='${nombre}' and mimeType='application/vnd.google-apps.folder' and '${parentId}' in parents and trashed=false`, { headers: { 'Authorization': `Bearer ${token}` } });
-            const res = await buscar.json();
-            if(res.files && res.files.length > 0) return res.files[0].id;
-            const crear = await fetch('https://www.googleapis.com/drive/v3/files', { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ name: nombre, mimeType: 'application/vnd.google-apps.folder', parents: [parentId] }) });
-            const nueva = await crear.json();
-            return nueva.id || null;
-        } catch(e) { return null; }
-    }
-    
-    async function guardarArchivoEnDrive(folderId, nombreArchivo, contenido) {
-        const token = await refrescarToken(); if(!token) return false;
-        const metadata = { name: nombreArchivo, mimeType: 'application/json', parents: [folderId] };
-        const form = new FormData();
-        form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
-        form.append('file', new Blob([JSON.stringify(contenido, null, 2)], { type: 'application/json' }));
-        try {
-            const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }, body: form });
-            return response.ok;
-        } catch(e) { return false; }
-    }
-    
-    async function cargarPacientesDesdeDrive() {
-        if(!principalFolderId) return;
-        const token = await refrescarToken(); if(!token) return;
-        try {
-            const buscar = await fetch(`https://www.googleapis.com/drive/v3/files?q='${principalFolderId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`, { headers: { 'Authorization': `Bearer ${token}` } });
-            const res = await buscar.json();
-            if(res.files) {
-                for(let folder of res.files) {
-                    if(!pacientes[folder.name]) {
-                        pacientes[folder.name] = { folderId: folder.id, data: {}, recetas: [], presupuestos: [], citas: [], consentimientos: [], certificados: [] };
-                        await cargarDatosPacienteDesdeDrive(folder.name, folder.id);
-                    }
-                }
-                guardarTodoLocal();
-                actualizarSelectPacientes();
-            }
-        } catch(e) {}
-    }
-    
-    async function cargarDatosPacienteDesdeDrive(key, folderId) {
-        const token = await refrescarToken(); if(!token) return;
-        const archivos = ['expediente.json', 'recetas.json', 'presupuestos.json', 'citas.json', 'consentimientos.json', 'certificados.json'];
-        for(let archivo of archivos) {
-            try {
-                const buscar = await fetch(`https://www.googleapis.com/drive/v3/files?q='${folderId}' in parents and name='${archivo}' and trashed=false`, { headers: { 'Authorization': `Bearer ${token}` } });
-                const res = await buscar.json();
-                if(res.files && res.files.length > 0) {
-                    const contenido = await fetch(`https://www.googleapis.com/drive/v3/files/${res.files[0].id}?alt=media`, { headers: { 'Authorization': `Bearer ${token}` } });
-                    const data = await contenido.json();
-                    if(archivo === 'expediente.json') pacientes[key].data = {...pacientes[key].data, ...data};
-                    else if(archivo === 'recetas.json') pacientes[key].recetas = data;
-                    else if(archivo === 'presupuestos.json') pacientes[key].presupuestos = data;
-                    else if(archivo === 'citas.json') pacientes[key].citas = data;
-                    else if(archivo === 'consentimientos.json') pacientes[key].consentimientos = data;
-                    else if(archivo === 'certificados.json') pacientes[key].certificados = data;
-                }
-            } catch(e) {}
-        }
-    }
-    
-    // ========== GUARDAR EXPEDIENTE COMPLETO ==========
-    function guardarExpedienteCompleto() {
-        if(!pacienteActual) { mostrarToast('Selecciona un paciente','error'); return; }
-        
-        let expedienteData = {
-            medico: document.getElementById('expMedico').value,
-            nombre: document.getElementById('expNombre').value, tutor: document.getElementById('expTutor').value,
-            fecha_nacimiento: document.getElementById('expFechaNac').value, edad: document.getElementById('expEdad').value,
-            sexo: document.getElementById('expSexo').value, estado_civil: document.getElementById('expEstadoCivil').value,
-            lugar_origen: document.getElementById('expOrigen').value, tipo_sangre: document.getElementById('expSangre').value,
-            telefono: document.getElementById('expTelefono').value, email: document.getElementById('expEmail').value, domicilio: document.getElementById('expDomicilio').value,
-            heredo: document.getElementById('expHeredo').value, higiene: document.getElementById('expHigiene').value,
-            alimentacion: document.getElementById('expAlimentacion').value, sustancias: document.getElementById('expSustancias').value,
-            vivienda: document.getElementById('expVivienda').value, actividad: document.getElementById('expActividad').value,
-            vacunas: document.getElementById('expVacunas').value, infancia: document.getElementById('expInfancia').value,
-            sistemica: document.getElementById('expSistemica').value, neoplasias: document.getElementById('expNeoplasias').value,
-            cirugias: document.getElementById('expCirugias').value, farmacos: document.getElementById('expFarmacos').value,
-            alergias: document.getElementById('expAlergias').value, traumaticos: document.getElementById('expTraumaticos').value,
-            transfusiones: document.getElementById('expTransfusiones').value, otrasEnf: document.getElementById('expOtrasEnf').value,
-            motivo: document.getElementById('expMotivo').value, dolor: document.getElementById('expDolor').value,
-            evolucion: document.getElementById('expEvolucion').value, diagnosticoFinal: document.getElementById('expDiagnosticoFinal').value,
-            tratamientos: document.getElementById('expTratamientos').value, notas: document.getElementById('expNotas').value,
-            sintomas: {
-                sangrado: document.getElementById('sintSangrado').checked, dolor: document.getElementById('sintDolor').checked,
-                inmovilidad: document.getElementById('sintInmovilidad').checked, incapacidad: document.getElementById('sintIncapacidad').checked,
-                tension: document.getElementById('sintTension').checked, insomnio: document.getElementById('sintInsomnio').checked,
-                hinchazon: document.getElementById('sintHinchazon').checked, halitosis: document.getElementById('sintHalitosis').checked
-            },
-            aparatos: {
-                digestivo: document.getElementById('apaDigestivo').value, cardiovascular: document.getElementById('apaCardio').value,
-                respiratorio: document.getElementById('apaRespiratorio').value, nervioso: document.getElementById('apaNervioso').value,
-                musculo: document.getElementById('apaMusculo').value, genitourinario: document.getElementById('apaGenitourinario').value,
-                endocrino: document.getElementById('apaEndocrino').value, hematologico: document.getElementById('apaHematologico').value
-            },
-            signos: {
-                peso: document.getElementById('signosPeso').value, estatura: document.getElementById('signosEstatura').value,
-                imc: document.getElementById('signosIMC').value, pa: document.getElementById('signosPA').value,
-                fc: document.getElementById('signosFC').value, fr: document.getElementById('signosFR').value,
-                temp: document.getElementById('signosTemp').value, spo2: document.getElementById('signosO2').value
-            },
-            ultima_actualizacion: new Date().toISOString()
-        };
-        
-        pacienteActual.data = {...pacienteActual.data, ...expedienteData};
-        guardarTodoLocal();
-        if(accessToken && pacienteActual.folderId) guardarArchivoEnDrive(pacienteActual.folderId, 'expediente.json', expedienteData);
-        mostrarToast('Expediente guardado');
-    }
-    
-    // ========== RECETA COMPLETA ==========
-    function calcularIMCReceta() {
-        let peso = parseFloat(document.getElementById('recPeso').value);
-        let estatura = parseFloat(document.getElementById('recEstatura').value);
-        if(peso > 0 && estatura > 0) document.getElementById('recIMC').value = (peso / (estatura * estatura)).toFixed(1);
-        else document.getElementById('recIMC').value = '';
-    }
-    
-    function guardarRecetaCompleta() {
-        if(!pacienteActual) { mostrarToast('Selecciona un paciente','error'); return; }
-        let receta = {
-            fecha: new Date().toLocaleString(), medico: document.getElementById('recMedico').value,
-            diagnostico: document.getElementById('recDiagnostico').value, indicaciones: document.getElementById('recIndicaciones').value,
-            prox_cita: document.getElementById('recProxCita').value, peso: document.getElementById('recPeso').value,
-            estatura: document.getElementById('recEstatura').value, imc: document.getElementById('recIMC').value,
-            spo2: document.getElementById('recSpO2').value, fc: document.getElementById('recFC').value,
-            fr: document.getElementById('recFR').value, ta: document.getElementById('recTA').value,
-            temp: document.getElementById('recTemp').value
-        };
-        pacienteActual.recetas.push(receta);
-        guardarTodoLocal();
-        guardarArchivoPaciente('recetas.json', pacienteActual.recetas);
-        mostrarRecetas();
-        mostrarToast('Receta guardada');
-        document.getElementById('recDiagnostico').value = '';
-        document.getElementById('recIndicaciones').value = '';
-    }
-    
-    function mostrarRecetas() {
-        let div = document.getElementById('listaRecetas');
-        if(!div || !pacienteActual) return;
-        if(pacienteActual.recetas.length === 0) div.innerHTML = '<div class="exp-item">No hay recetas</div>';
-        else div.innerHTML = pacienteActual.recetas.map((r,i) => `<div class="exp-item">📄 ${r.fecha}<br><small>${r.diagnostico}</small><button onclick="eliminarReceta(${i})">X</button></div>`).join('');
-    }
-    
-    function eliminarReceta(i) { pacienteActual.recetas.splice(i,1); guardarTodoLocal(); guardarArchivoPaciente('recetas.json', pacienteActual.recetas); mostrarRecetas(); }
-    
-    // ========== CITAS ==========
-    function guardarCita() {
-        if(!pacienteActual) { mostrarToast('Selecciona un paciente','error'); return; }
-        let cita = { fecha: document.getElementById('citaFecha').value, hora: document.getElementById('citaHora').value, duracion: document.getElementById('citaDuracion').value, tratamiento: document.getElementById('citaTratamiento').value };
-        pacienteActual.citas.push(cita);
-        guardarTodoLocal();
-        guardarArchivoPaciente('citas.json', pacienteActual.citas);
-        mostrarCitas();
-        mostrarToast('Cita agendada');
-        document.getElementById('citaFecha').value = ''; document.getElementById('citaHora').value = ''; document.getElementById('citaTratamiento').value = '';
-    }
-    
-    function mostrarCitas() {
-        let div = document.getElementById('listaCitas');
-        if(!div || !pacienteActual) return;
-        if(pacienteActual.citas.length === 0) div.innerHTML = '<div class="exp-item">No hay citas</div>';
-        else div.innerHTML = pacienteActual.citas.map((c,i) => `<div class="cita-item">📅 ${c.fecha} ${c.hora} - ${c.tratamiento}<button onclick="eliminarCita(${i})">X</button></div>`).join('');
-    }
-    
-    function eliminarCita(i) { pacienteActual.citas.splice(i,1); guardarTodoLocal(); guardarArchivoPaciente('citas.json', pacienteActual.citas); mostrarCitas(); }
-    function mostrarCitasPorFecha() { let f=document.getElementById('filtroFecha').value; if(f&&pacienteActual) document.getElementById('listaCitas').innerHTML = pacienteActual.citas.filter(c=>c.fecha===f).map(c=>`<div>📅 ${c.hora} - ${c.tratamiento}</div>`).join('')||'<div>No hay citas</div>'; else mostrarCitas(); }
-    
-    // ========== CONSENTIMIENTO ==========
-    function guardarConsentimiento() {
-        if(!pacienteActual) { mostrarToast('Selecciona un paciente','error'); return; }
-        let cons = { fecha: new Date().toLocaleString(), procedimiento: document.getElementById('consentProcedimiento').value, texto: document.getElementById('consentTexto').value };
-        pacienteActual.consentimientos.push(cons);
-        guardarTodoLocal();
-        guardarArchivoPaciente('consentimientos.json', pacienteActual.consentimientos);
-        mostrarConsentimientos();
-        mostrarToast('Consentimiento guardado');
-    }
-    
-    function mostrarConsentimientos() {
-        let div = document.getElementById('listaConsentimientos');
-        if(!div || !pacienteActual) return;
-        if(pacienteActual.consentimientos.length === 0) div.innerHTML = '<div class="exp-item">No hay consentimientos</div>';
-        else div.innerHTML = pacienteActual.consentimientos.map((c,i) => `<div class="exp-item">📝 ${c.fecha} - ${c.procedimiento}<button onclick="eliminarConsentimiento(${i})">X</button></div>`).join('');
-    }
-    
-    function eliminarConsentimiento(i) { pacienteActual.consentimientos.splice(i,1); guardarTodoLocal(); guardarArchivoPaciente('consentimientos.json', pacienteActual.consentimientos); mostrarConsentimientos(); }
-    function buscarConsentimiento() { let b=document.getElementById('buscarConsentimiento').value.toLowerCase(); if(!b||!pacienteActual) mostrarConsentimientos(); else { let f=pacienteActual.consentimientos.filter(c=>c.procedimiento?.toLowerCase().includes(b)); document.getElementById('listaConsentimientos').innerHTML=f.map((c,i)=>`<div class="exp-item">📝 ${c.fecha} - ${c.procedimiento}</div>`).join('')||'<div>No encontrado</div>'; } }
-    function nuevoConsentimiento() { document.getElementById('consentProcedimiento').value = ''; document.getElementById('consentTexto').value = `Yo, ${pacienteActual?.data?.nombre || '[NOMBRE]'}, autorizo al Dr. a realizar [PROCEDIMIENTO]. He sido informado de los riesgos, beneficios y alternativas.`; mostrarToast('Nuevo consentimiento listo'); }
-    
-    // ========== CERTIFICADO ==========
-    function toggleOmitirDiagnostico() { let omitir=document.getElementById('certOmitirDiagnostico').checked; document.getElementById('certDiagnostico').disabled=omitir; if(omitir) document.getElementById('certDiagnostico').placeholder='(Se usará "Por motivos de salud dental")'; else document.getElementById('certDiagnostico').placeholder='Escrito o seleccione diagnóstico...'; }
-    
-    function guardarCertificadoCompleto() {
-        if(!pacienteActual) { mostrarToast('Selecciona un paciente','error'); return; }
-        let omitir = document.getElementById('certOmitirDiagnostico').checked;
-        let cert = {
-            fecha: new Date().toLocaleString(), medico: document.getElementById('certMedico').value,
-            lugar: document.getElementById('certLugar').value, fecha_expedicion: document.getElementById('certFecha').value,
-            diagnostico: omitir ? "Por motivos de salud dental" : document.getElementById('certDiagnostico').value,
-            procedimiento: document.getElementById('certProcedimiento').value, dias_reposo: document.getElementById('certDias').value,
-            desde: document.getElementById('certDesde').value, hasta: document.getElementById('certHasta').value, firmas: document.getElementById('certFirmas').checked
-        };
-        pacienteActual.certificados.push(cert);
-        guardarTodoLocal();
-        guardarArchivoPaciente('certificados.json', pacienteActual.certificados);
-        mostrarCertificados();
-        mostrarToast('Certificado guardado');
-    }
-    
-    function mostrarCertificados() {
-        let div = document.getElementById('listaCertificados');
-        if(!div || !pacienteActual) return;
-        if(pacienteActual.certificados.length === 0) div.innerHTML = '<div class="exp-item">No hay certificados</div>';
-        else div.innerHTML = pacienteActual.certificados.map((c,i) => `<div class="exp-item">📜 ${c.fecha}<br><small>${c.diagnostico}</small><button onclick="eliminarCertificado(${i})">X</button></div>`).join('');
-    }
-    
-    function eliminarCertificado(i) { pacienteActual.certificados.splice(i,1); guardarTodoLocal(); guardarArchivoPaciente('certificados.json', pacienteActual.certificados); mostrarCertificados(); }
-    
-    // ========== SERVICIOS ==========
-    function mostrarServicios() {
-        let tbody = document.getElementById('listaServicios');
-        if(tbody) tbody.innerHTML = servicios.map((s,i) => `<tr><td>${s.nombre}</td><td>${s.descripcion||''}</td><td>$${s.costo}</td><td><button onclick="eliminarServicio(${i})">X</button></td></tr>`).join('');
-        actualizarSelectServicios();
-        guardarTodoLocal();
-    }
-    
-    function agregarServicio() { let n=document.getElementById('servNombre').value.trim(); let c=parseFloat(document.getElementById('servCosto').value); if(n&&c>0){ servicios.push({nombre:n, costo:c, descripcion:document.getElementById('servDesc').value}); mostrarServicios(); document.getElementById('servNombre').value=''; document.getElementById('servCosto').value=''; document.getElementById('servDesc').value=''; mostrarToast('Servicio agregado'); } }
-    function eliminarServicio(i) { servicios.splice(i,1); mostrarServicios(); }
-    function actualizarSelectServicios() { let s=document.getElementById('presServicioSelect'); if(s) s.innerHTML=servicios.map(s=>`<option value="${s.nombre}|${s.costo}">${s.nombre} - $${s.costo}</option>`).join(''); }
-    
-    // ========== MEDICAMENTOS ==========
-    function mostrarMedicamentos() {
-        let tbody = document.getElementById('listaMedicamentos');
-        if(tbody) tbody.innerHTML = medicamentos.map((m,i) => `<tr><td>${m.nombre}</td><td>${m.categoria||''}
+function toggleModo(){document.body.classList.toggle('modo-claro');let i=document.getElementById('icono-theme'),t=document.getElementById('texto-theme');if(document.body.classList.contains('modo-claro')){i.className='fas fa-sun';t.textContent='Modo Claro';localStorage.setItem('modo','claro')}else{i.className='fas fa-moon';t.textContent='Modo Oscuro';localStorage.setItem('modo','oscuro')}}
+function cargarModo(){if(localStorage.getItem('modo')==='claro'){document.body.classList.add('modo-claro');if(document.getElementById('icono-theme')){document.getElementById('icono-theme').className='fas fa-sun';document.getElementById('texto-theme').textContent='Modo Claro'}}}
+function guardarTodoLocal(){localStorage.setItem('pacientes',JSON.stringify(pacientes));localStorage.setItem('servicios',JSON.stringify(servicios));localStorage.setItem('medicamentos',JSON.stringify(medicamentos));localStorage.setItem('consultorio',JSON.stringify(consultorioData))}
+function inicializarDatos(){
+    let sg=localStorage.getItem('servicios');if(sg)servicios=JSON.parse(sg);else servicios=[{nombre:"Extracción simple",costo:950,descripcion:"Sacar muela"},{nombre:"Extracción 3ra molar",costo:1600,descripcion:"Muela del juicio"},{nombre:"Cirugía",costo:2200,descripcion:"Cirugía oral"},{nombre:"Caries",costo:850,descripcion:"Eliminación"},{nombre:"Endodoncia",costo:3800,descripcion:"Conductos"},{nombre:"Corona zirconia",costo:5500,descripcion:"Estética"},{nombre:"Limpieza",costo:700,descripcion:"Profilaxis"}];
+    let mg=localStorage.getItem('medicamentos');if(mg)medicamentos=JSON.parse(mg);else medicamentos=[{nombre:"Amoxicilina 500mg",categoria:"Antibiótico",uso:"Infecciones"},{nombre:"Ibuprofeno 600mg",categoria:"Analgésico",uso:"Dolor"},{nombre:"Ketorolaco 10mg",categoria:"Analgésico",uso:"Dolor moderado"}];
+    let cg=localStorage.getItem('consultorio');if(cg)consultorioData=JSON.parse(cg);else consultorioData={nombre:"C&C Dental Group",domicilio:DOCTOR_FIJO.domicilio,telefono1:DOCTOR_FIJO.telefono,telefono2:"6644933243",email:DOCTOR_FIJO.email};
+    let pg=localStorage.getItem('pacientes');if(pg)pacientes=JSON.parse(pg);else pacientes={ejemplo_uri:{folderId:null,data:{nombre:"Uri Gamaliel",edad:25,telefono:"6646251897",email:"uri@example.com",alergias:"Ninguna"},recetas:[],presupuestos:[],citas:[],consentimientos:[],certificados:[]}};
+    actualizarSelectPacientes();mostrarServicios();mostrarMedicamentos();actualizarSelectServicios();cargarConsultorio();actualizarHeader()
+}
+function actualizarSelectPacientes(){let s=document.getElementById('selectPaciente');s.innerHTML='<option value="">-- Seleccionar paciente --</option>';Object.keys(pacientes).forEach(k=>{let n=pacientes[k].data?.nombre||k;s.innerHTML+=`<option value="${k}">${n}</option>`})}
+function cambiarPaciente(){let k=document.getElementById('selectPaciente').value;if(k&&pacientes[k]){pacienteActual=pacientes[k];document.getElementById('infoPacienteActual').innerHTML=`✅ Paciente activo: ${pacienteActual.data.nombre}`;cargarDatosPacienteEnForms()}else{pacienteActual=null;document.getElementById('infoPacienteActual').innerHTML=''}}
+function cargarDatosPacienteEnForms(){if(!pacienteActual)return;
+    document.getElementById('expNombre').value=pacienteActual.data.nombre||'';document.getElementById('expEdad').value=pacienteActual.data.edad||'';document.getElementById('expTelefono').value=pacienteActual.data.telefono||'';document.getElementById('expEmail').value=pacienteActual.data.email||'';document.getElementById('expAlergias').value=pacienteActual.data.alergias||'';
+    document.getElementById('recNombre').value=pacienteActual.data.nombre||'';document.getElementById('recEdad').value=pacienteActual.data.edad||'';document.getElementById('recTelefono').value=pacienteActual.data.telefono||'';document.getElementById('recAlergias').value=pacienteActual.data.alergias||'';
+    document.getElementById('presNombre').value=pacienteActual.data.nombre||'';document.getElementById('citaNombre').value=pacienteActual.data.nombre||'';document.getElementById('citaTelefono').value=pacienteActual.data.telefono||'';document.getElementById('consentNombre').value=pacienteActual.data.nombre||'';document.getElementById('certNombre').value=pacienteActual.data.nombre||'';document.getElementById('certEdad').value=pacienteActual.data.edad||'';
+    mostrarRecetas();mostrarPresupuestos();mostrarCitas();mostrarConsentimientos();mostrarCertificados()}
+function crearNuevoPaciente(){let n=prompt('Nombre completo:');if(!n)return;let e=prompt('Edad:');let t=prompt('Teléfono:');let k=n.toLowerCase().replace(/ /g,'_')+'_'+Date.now();pacientes[k]={folderId:null,data:{nombre:n,edad:e,telefono:t,email:'',alergias:''},recetas:[],presupuestos:[],citas:[],consentimientos:[],certificados:[]};if(accessToken&&principalFolderId){crearSubcarpeta(principalFolderId,k).then(fid=>{if(fid)pacientes[k].folderId=fid;guardarTodoLocal()})}guardarTodoLocal();actualizarSelectPacientes();document.getElementById('selectPaciente').value=k;cambiarPaciente();mostrarToast(`Paciente ${n} creado`)}
+async function guardarArchivoPaciente(n,c){if(accessToken&&pacienteActual&&pacienteActual.folderId)await guardarArchivoEnDrive(pacienteActual.folderId,n,c)}
+async function conectarGoogle(){let id=localStorage.getItem('googleClientId');if(id)iniciarAuth(id);else document.getElementById('configPanel').classList.remove('hidden')}
+function guardarClientId(){let id=document.getElementById('clientIdInput').value.trim();if(id){localStorage.setItem('googleClientId',id);document.getElementById('configPanel').classList.add('hidden');iniciarAuth(id)}else mostrarToast('Ingresa Client ID','error')}
+function cerrarConfig(){document.getElementById('configPanel').classList.add('hidden')}
+async function iniciarAuth(clientId){tokenClient=google.accounts.oauth2.initTokenClient({client_id:clientId,scope:'https://www.googleapis.com/auth/drive.file',callback:async(resp)=>{if(resp.access_token){accessToken=resp.access_token;localStorage.setItem('driveToken',accessToken);localStorage.setItem('driveTokenExpiry',Date.now()+(resp.expires_in*1000));document.getElementById('googleBtn').classList.add('connected');document.getElementById('googleText').innerHTML='✅ Drive OK';document.getElementById('driveMsg')?.classList.remove('hidden');mostrarToast('✅ Conectado a Google Drive');await crearCarpetaPrincipal()}}});let st=localStorage.getItem('driveToken'),se=localStorage.getItem('driveTokenExpiry');if(st&&se&&Date.now()<parseInt(se)){accessToken=st;document.getElementById('googleBtn').classList.add('connected');document.getElementById('googleText').innerHTML='✅ Drive OK';document.getElementById('driveMsg')?.classList.remove('hidden');mostrarToast('✅ Sesión restaurada');await crearCarpetaPrincipal()}else{tokenClient.requestAccessToken({prompt:'consent'})}}
+async function refrescarToken(){let st=localStorage.getItem('driveToken'),se=localStorage.getItem('driveTokenExpiry');if(st&&se&&Date.now()<parseInt(se))return st;if(!tokenClient)return null;return new Promise(r=>{tokenClient.callback=resp=>{if(resp.access_token){localStorage.setItem('driveToken',resp.access_token);localStorage.setItem('driveTokenExpiry',Date.now()+(resp.expires_in*1000));r(resp.access_token)}else r(null)};tokenClient.requestAccessToken({prompt:''})})}
+async function crearCarpetaPrincipal(){let t=await refrescarToken();if(!t)return;try{let b=await fetch(`https://www.googleapis.com/drive/v3/files?q=name='${CARPETA_PRINCIPAL}' and mimeType='application/vnd.google-apps.folder' and trashed=false`,{headers:{'Authorization':`Bearer ${t}`}});let r=await b.json();if(r.files&&r.files.length>0)principalFolderId=r.files[0].id;else{let c=await fetch('https://www.googleapis.com/drive/v3/files',{method:'POST',headers:{'Authorization':`Bearer ${t}`,'Content-Type':'application/json'},body:JSON.stringify({name:CARPETA_PRINCIPAL,mimeType:'application/vnd.google-apps.folder'})});let n=await c.json();if(n.id)principalFolderId=n.id}await cargarPacientesDesdeDrive()}catch(e){console.error(e)}}
+async function crearSubcarpeta(pId,n){let t=await refrescarToken();if(!t)return null;try{let b=await fetch(`https://www.googleapis.com/drive/v3/files?q=name='${n}' and mimeType='application/vnd.google-apps.folder' and '${pId}' in parents and trashed=false`,{headers:{'Authorization':`Bearer ${t}`}});let r=await b.json();if(r.files&&r.files.length>0)return r.files[0].id;let c=await fetch('https://www.googleapis.com/drive/v3/files',{method:'POST',headers:{'Authorization':`Bearer ${t}`,'Content-Type':'application/json'},body:JSON.stringify({name:n,mimeType:'application/vnd.google-apps.folder',parents:[pId]})});let nw=await c.json();return nw.id||null}catch(e){return null}}
+async function guardarArchivoEnDrive(fId,n,c){let t=await refrescarToken();if(!t)return false;let metadata={name:n,mimeType:'application/json',parents:[fId]};let fd=new FormData();fd.append('metadata',new Blob([JSON.stringify(metadata)],{type:'application/json'}));fd.append('file',new Blob([JSON.stringify(c,null,2)],{type:'application/json'}));try{let r=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',{method:'POST',headers:{'Authorization':`Bearer ${t}`},body:fd});return r.ok}catch(e){return false}}
+async function cargarPacientesDesdeDrive(){if(!principalFolderId)return;let t=await refrescarToken();if(!t)return;try{let b=await fetch(`https://www.googleapis.com/drive/v3/files?q='${principalFolderId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`,{headers:{'Authorization':`Bearer ${t}`}});let r=await b.json();if(r.files){for(let f of r.files){if(!pacientes[f.name]){pacientes[f.name]={folderId:f.id,data:{},recetas:[],presupuestos:[],citas:[],consentimientos:[],certificados:[]};await cargarDatosPacienteDesdeDrive(f.name,f.id)}}guardarTodoLocal();actualizarSelectPacientes()}}catch(e){}}
+async function cargarDatosPacienteDesdeDrive(k,fId){let t=await refrescarToken();if(!t)return;let archivos=['expediente.json','recetas.json','presupuestos.json','citas.json','consentimientos.json','certificados.json'];for(let a of archivos){try{let b=await fetch(`https://www.googleapis.com/drive/v3/files?q='${fId}' in parents and name='${a}' and trashed=false`,{headers:{'Authorization':`Bearer ${t}`}});let r=await b.json();if(r.files&&r.files.length>0){let c=await fetch(`https://www.googleapis.com/drive/v3/files/${r.files[0].id}?alt=media`,{headers:{'Authorization':`Bearer ${t}`}});let d=await c.json();if(a==='expediente.json')pacientes[k].data={...pacientes[k].data,...d};else if(a==='recetas.json')pacientes[k].recetas=d;else if(a==='presupuestos.json')pacientes[k].presupuestos=d;else if(a==='citas.json')pacientes[k].citas=d;else if(a==='consentimientos.json')pacientes[k].consentimientos=d;else if(a==='certificados.json')pacientes[k].certificados=d}}catch(e){}}}
+function guardarExpedienteCompleto(){if(!pacienteActual){mostrarToast('Selecciona un paciente','error');return}let ed={medico:document.getElementById('expMedico').value,nombre:document.getElementById('expNombre').value,tutor:document.getElementById('expTutor').value,fecha_nacimiento:document.getElementById('expFechaNac').value,edad:document.getElementById('expEdad').value,sexo:document.getElementById('expSexo').value,estado_civil:document.getElementById('expEstadoCivil').value,lugar_origen:document.getElementById('expOrigen').value,tipo_sangre:document.getElementById('expSangre').value,telefono:document.getElementById('expTelefono').value,email:document.getElementById('expEmail').value,domicilio:document.getElementById('expDomicilio').value,heredo:document.getElementById('expHeredo').value,higiene:document.getElementById('expHigiene').value,alimentacion:document.getElementById('expAlimentacion').value,sustancias:document.getElementById('expSustancias').value,vivienda:document.getElementById('expVivienda').value,actividad:document.getElementById('expActividad').value,vacunas:document.getElementById('expVacunas').value,infancia:document.getElementById('expInfancia').value,sistemica:document.getElementById('expSistemica').value,neoplasias:document.getElementById('expNeoplasias').value,cirugias:document.getElementById('expCirugias').value,farmacos:document.getElementById('expFarmacos').value,alergias:document.getElementById('expAlergias').value,traumaticos:document.getElementById('expTraumaticos').value,transfusiones:document.getElementById('expTransfusiones').value,otrasEnf:document.getElementById('expOtrasEnf').value,motivo:document.getElementById('expMotivo').value,dolor:document.getElementById('expDolor').value,evolucion:document.getElementById('expEvolucion').value,diagnosticoFinal:document.getElementById('expDiagnosticoFinal').value,tratamientos:document.getElementById('expTratamientos').value,notas:document.getElementById('expNotas').value,sintomas:{sangrado:document.getElementById('sintSangrado').checked,dolor:document.getElementById('sintDolor').checked,inmovilidad:document.getElementById('sintInmovilidad').checked,incapacidad:document.getElementById('sintIncapacidad').checked,tension:document.getElementById('sintTension').checked,insomnio:document.getElementById('sintInsomnio').checked,hinchazon:document.getElementById('sintHinchazon').checked,halitosis:document.getElementById('sintHalitosis').checked},aparatos:{digestivo:document.getElementById('apaDigestivo').value,cardiovascular:document.getElementById('apaCardio').value,respiratorio:document.getElementById('apaRespiratorio').value,nervioso:document.getElementById('apaNervioso').value,musculo:document.getElementById('apaMusculo').value,genitourinario:document.getElementById('apaGenitourinario').value,endocrino:document.getElementById('apaEndocrino').value,hematologico:document.getElementById('apaHematologico').value},signos:{peso:document.getElementById('signosPeso').value,estatura:document.getElementById('signosEstatura').value,imc:document.getElementById('signosIMC').value,pa:document.getElementById('signosPA').value,fc:document.getElementById('signosFC').value,fr:document.getElementById('signosFR').value,temp:document.getElementById('signosTemp').value,spo2:document.getElementById('signosO2').value},ultima_actualizacion:new Date().toISOString()};pacienteActual.data={...pacienteActual.data,...ed};guardarTodoLocal();if(accessToken&&pacienteActual.folderId)guardarArchivoEnDrive(pacienteActual.folderId,'expediente.json',ed);mostrarToast('Expediente guardado')}
+function calcularIMCReceta(){let p=parseFloat(document.getElementById('recPeso').value),e=parseFloat(document.getElementById('recEstatura').value);if(p>0&&e>0)document.getElementById('recIMC').value=(p/(e*e)).toFixed(1);else document.getElementById('recIMC').value=''}
+function guardarRecetaCompleta(){if(!pacienteActual){mostrarToast('Selecciona un paciente','error');return}let r={fecha:new Date().toLocaleString(),medico:document.getElementById('recMedico').value,diagnostico:document.getElementById('recDiagnostico').value,indicaciones:document.getElementById('recIndicaciones').value,prox_cita:document.getElementById('recProxCita').value,peso:document.getElementById('recPeso').value,estatura:document.getElementById('recEstatura').value,imc:document.getElementById('recIMC').value,spo2:document.getElementById('recSpO2').value,fc:document.getElementById('recFC').value,fr:document.getElementById('recFR').value,ta:document.getElementById('recTA').value,temp:document.getElementById('recTemp').value};pacienteActual.recetas.push(r);guardarTodoLocal();guardarArchivoPaciente('recetas.json',pacienteActual.recetas);mostrarRecetas();mostrarToast('Receta guardada');document.getElementById('recDiagnostico').value='';document.getElementById('recIndicaciones').value=''}
+function mostrarRecetas(){let d=document.getElementById('listaRecetas');if(!d||!pacienteActual)return;if(pacienteActual.recetas.length===0)d.innerHTML='<div class="exp-item">No hay recetas</div>';else d.innerHTML=pacienteActual.recetas.map((r,i)=>`<div class="exp-item">📄 ${r.fecha}<br><small>${r.diagnostico}</small><button onclick="eliminarReceta(${i})">X</button></div>`).join('')}
+function eliminarReceta(i){pacienteActual.recetas.splice(i,1);guardarTodoLocal();guardarArchivoPaciente('recetas.json',pacienteActual.recetas);mostrarRecetas()}
+function guardarCita(){if(!pacienteActual){mostrarToast('Selecciona un paciente','error');return}let c={fecha:document.getElementById('citaFecha').value,hora:document.getElementById('citaHora').value,duracion:document.getElementById('citaDuracion').value,tratamiento:document.getElementById('citaTratamiento').value};pacienteActual.citas.push(c);guardarTodoLocal();guardarArchivoPaciente('citas.json',pacienteActual.citas);mostrarCitas();mostrarToast('Cita agendada');document.getElementById('citaFecha').value='';document.getElementById('citaHora').value='';document.getElementById('citaTratamiento').value=''}
+function mostrarCitas(){let d=document.getElementById('listaCitas');if(!d||!pacienteActual)return;if(pacienteActual.citas.length===0)d.innerHTML='<div class="exp-item">No hay citas</div>';else d.innerHTML=pacienteActual.citas.map((c,i)=>`<div class="cita-item">📅 ${c.fecha} ${c.hora} - ${c.tratamiento}<button onclick="eliminarCita(${i})">X</button></div>`).join('')}
+function eliminarCita(i){pacienteActual.citas.splice(i,1);guardarTodoLocal();guardarArchivoPaciente('citas.json',pacienteActual.citas);mostrarCitas()}
+function mostrarCitasPorFecha(){let f=document.getElementById('filtroFecha').value;if(f&&pacienteActual)document.getElementById('listaCitas').innerHTML=pacienteActual.citas.filter(c=>c.fecha===f).map(c=>`<div>📅 ${c.hora} - ${c.tratamiento}</div>`).join('')||'<div>No hay citas</div>';else mostrarCitas()}
+function guardarConsentimiento(){if(!pacienteActual){mostrarToast('Selecciona un paciente','error');return}let c={fecha:new Date().toLocaleString(),procedimiento:document.getElementById('consentProcedimiento').value,texto:document.getElementById('consentTexto').value};pacienteActual.consentimientos.push(c);guardarTodoLocal();guardarArchivoPaciente('consentimientos.json',pacienteActual.consentimientos);mostrarConsentimientos();mostrarToast('Consentimiento guardado')}
+function mostrarConsentimientos(){let d=document.getElementById('listaConsentimientos');if(!d||!pacienteActual)return;if(pacienteActual.consentimientos.length===0)d.innerHTML='<div class="exp-item">No hay consentimientos</div>';else d.innerHTML=pacienteActual.consentimientos.map((c,i)=>`<div class="exp-item">📝 ${c.fecha} - ${c.procedimiento}<button onclick="eliminarConsentimiento(${i})">X</button></div>`).join('')}
+function eliminarConsentimiento(i){pacienteActual.consentimientos.splice(i,1);guardarTodoLocal();guardarArchivoPaciente('consentimientos.json',pacienteActual.consentimientos);mostrarConsentimientos()}
+function buscarConsentimiento(){let b=document.getElementById('buscarConsentimiento').value.toLowerCase();if(!b||!pacienteActual)mostrarConsentimientos();else{let f=pacienteActual.consentimientos.filter(c=>c.procedimiento?.toLowerCase().includes(b));document.getElementById('listaConsentimientos').innerHTML=f.map((c,i)=>`<div class="exp-item">📝 ${c.fecha} - ${c.procedimiento}</div>`).join('')||'<div>No encontrado</div>'}}
+function nuevoConsentimiento(){document.getElementById('consentProcedimiento').value='';document.getElementById('consentTexto').value=`Yo, ${pacienteActual?.data?.nombre||'[NOMBRE]'}, autorizo al Dr. Alejandro Coronado (Cédula 9562093) a realizar [PROCEDIMIENTO]. He sido informado de los riesgos, beneficios y alternativas.`;mostrarToast('Nuevo consentimiento listo')}
+function toggleOmitirDiagnostico(){let o=document.getElementById('certOmitirDiagnostico').checked;document.getElementById('certDiagnostico').disabled=o;if(o)document.getElementById('certDiagnostico').placeholder='(Se usará "Por motivos de salud dental")';else document.getElementById('certDiagnostico').placeholder='Escriba diagnóstico...'}
+function guardarCertificadoCompleto(){if(!pacienteActual){mostrarToast('Selecciona un paciente','error');return}let o=document.getElementById('certOmitirDiagnostico').checked;let c={fecha:new Date().toLocaleString(),medico:document.getElementById('certMedico').value,lugar:document.getElementById('certLugar').value,fecha_expedicion:document.getElementById('certFecha').value,diagnostico:o?"Por motivos de salud dental":document.getElementById('certDiagnostico').value,procedimiento:document.getElementById('certProcedimiento').value,dias_reposo:document.getElementById('certDias').value,desde:document.getElementById('certDesde').value,hasta:document.getElementById('certHasta').value,firmas:document.getElementById('certFirmas').checked};pacienteActual.certificados.push(c);guardarTodoLocal();guardarArchivoPaciente('certificados.json',pacienteActual.certificados);mostrarCertificados();mostrarToast('Certificado guardado')}
+function mostrarCertificados(){let d=document.getElementById('listaCertificados');if(!d||!pacienteActual)return;if(pacienteActual.certificados.length===0)d.innerHTML='<div class="exp-item">No hay certificados</div>';else d.innerHTML=pacienteActual.certificados.map((c,i)=>`<div class="exp-item">📜 ${c.fecha}<br><small>${c.diagnostico}</small><button onclick="eliminarCertificado(${i})">X</button></div>`).join('')}
+function eliminarCertificado(i){pacienteActual.certificados.splice(i,1);guardarTodoLocal();guardarArchivoPaciente('certificados.json',pacienteActual.certificados);mostrarCertificados()}
+function mostrarServicios(){let t=document.getElementById('listaServicios');if(t)t.innerHTML=servicios.map((s,i)=>`<tr><td>${s.nombre}</td><td>${s.descripcion||''}</td><td>$${s.costo}</td><td><button onclick="eliminarServicio(${i})">X</button></td></tr>`).join('');actualizarSelectServicios();guardarTodoLocal()}
+function agregarServicio(){let n=document.getElementById('servNombre').value.trim(),c=parseFloat(document.getElementById('servCosto').value);if(n&&c>0){servicios.push({nombre:n,costo:c,descripcion:document.getElementById('servDesc').value});mostrarServicios();document.getElementById('servNombre').value='';document.getElementById('servCosto').value='';document.getElementById('servDesc').value='';mostrarToast('Servicio agregado')}}
+function eliminarServicio(i){servicios.splice(i,1);mostrarServicios()}
+function actualizarSelectServicios(){let s=document.getElementById('presServicioSelect');if(s)s.innerHTML=servicios.map(s=>`<option value="${s.nombre}|${s.costo}">${s.nombre} - $${s.costo}</option>`).join('')}
+function mostrarMedicamentos(){let t=document.getElementById('listaMedicamentos');if(t)t.innerHTML=medicamentos.map((m,i)=>`<tr><td>${m.nombre}</td><td>${m.categoria||''}</td><td>${m.uso||''}</td><td><button onclick="eliminarMedicamento(${i})">X</button></td></tr>`).join('');guardarTodoLocal()}
+function agregarMedicamento(){let n=document.getElementById('medNombre').value.trim();if(n){medicamentos.push({nombre:n,categoria:document.getElementById('medCategoria').value,uso:document.getElementById('medUso').value});mostrarMedicamentos();document.getElementById('medNombre').value='';document.getElementById('medCategoria').value='';document.getElementById('medUso').value='';mostrarToast('Medicamento agregado')}}
+function eliminarMedicamento(i){medicamentos.splice(i,1);mostrarMedicamentos()}
+function agregarServicioPresupuesto(){let v=document.getElementById('presServicioSelect').value;if(v){let[n,c]=v.split('|');presupuestoItems.push({nombre:n,costo:parseFloat(c)});renderPresupuestoItems();calcularTotalPresupuesto()}}
+function agregarExtraPresupuesto(){let n=document.getElementById('extraNombre').value.trim(),m=parseFloat(document.getElementById('extraMonto').value);if(n&&m>0){presupuestoItems.push({nombre:n,costo:m});renderPresupuestoItems();calcularTotalPresupuesto();document.getElementById('extraNombre').value='';document.getElementById('extraMonto').value=''}}
+function renderPresupuestoItems(){let d=document.getElementById('listaPresupuestoItems');if(presupuestoItems.length===0)d.innerHTML='<div class="exp-item">No hay servicios</div>';else d.innerHTML=presupuestoItems.map((i,idx)=>`<div class="presupuesto-item">${i.nombre} - $${i.costo}<button onclick="eliminarItemPresupuesto(${idx})">X</button></div>`).join('')}
+function eliminarItemPresupuesto(i){presupuestoItems.splice(i,1);renderPresupuestoItems();calcularTotalPresupuesto()}
+function calcularTotalPresupuesto(){let s=presupuestoItems.reduce((a,b)=>a+b.costo,0),d=parseFloat(document.getElementById('presDescuento').value)||0,t=s*(1-d/100);document.getElementById('totalPresupuestoDisplay').innerHTML=`Subtotal: $${s.toFixed(2)}<br>Total: $${t.toFixed(2)}`}
+function guardarPresupuesto(){if(!pacienteActual){mostrarToast('Selecciona un paciente','error');return}if(presupuestoItems.length===0){mostrarToast('Agrega servicios','error');return}let s=presupuestoItems.reduce((a,b)=>a+b.costo,0),d=parseFloat(document.getElementById('presDescuento').value)||0;let p={fecha:new Date().toLocaleString(),items:[...presupuestoItems],descuento:d,subtotal:s,total:s*(1-d/100),vigencia:document.getElementById('presVigencia').value};pacienteActual.presupuestos.push(p);guardarTodoLocal();guardarArchivoPaciente('presupuestos.json',pacienteActual.presupuestos);mostrarPresupuestos();presupuestoItems=[];renderPresupuestoItems();document.getElementById('presDescuento').value=0;document.getElementById('presVigencia').value='';calcularTotalPresupuesto();mostrarToast('Presupuesto guardado')}
+function mostrarPresupuestos(){let d=document.getElementById('listaPresupuestos');if(!d||!pacienteActual)return;if(pacienteActual.presupuestos.length===0)d.innerHTML='<div class="exp-item">No hay presupuestos</div>';else d.innerHTML=pacienteActual.presupuestos.map((p,i)=>`<div class="exp-item">💰 ${p.fecha} - Total: $${p.total.toFixed(2)}<button onclick="eliminarPresupuesto(${i})">X</button></div>`).join('')}
+function eliminarPresupuesto(i){pacienteActual.presupuestos.splice(i,1);guardarTodoLocal();guardarArchivoPaciente('presupuestos.json',pacienteActual.presupuestos);mostrarPresupuestos()}
+function generarRecetaPDF(){const{jsPDF}=window.jspdf;const d=new jsPDF();d.text("C&C Dental Group - Receta Médica",20,20);d.text(`Dr. ${DOCTOR_FIJO.nombre} - Cédula: ${DOCTOR_FIJO.cedula}`,20,30);d.text(`Email: ${DOCTOR_FIJO.email} - Tel: ${DOCTOR_FIJO.telefono}`,20,38);d.text(`Paciente: ${pacienteActual?.data?.nombre||''}`,20,55);d.text(`Diagnóstico: ${document.getElementById('recDiagnostico').value}`,20,75);d.text("Indicaciones:",20,95);d.text(document.getElementById('recIndicaciones').value,20,105,{maxWidth:170});d.save(`receta_${pacienteActual?.data?.nombre||'paciente'}.pdf`);mostrarToast('PDF generado')}
+function generarPresupuestoPDF(){const{jsPDF}=window.jspdf;const d=new jsPDF();d.text("C&C Dental Group - Presupuesto",20,20);d.text(`Dr. ${DOCTOR_FIJO.nombre} - Cédula: ${DOCTOR_FIJO.cedula}`,20,30);d.text(`Paciente: ${pacienteActual?.data?.nombre||''}`,20,45);let y=65;presupuestoItems.forEach(i=>{d.text(`${i.nombre}: $${i.costo}`,20,y);y+=10});let total=presupuestoItems.reduce((a,b)=>a+b.costo,0)*(1-(parseFloat(document.getElementById('presDescuento').value)||0)/100);d.text(`Total: $${total.toFixed(2)}`,20,y+10);d.save(`presupuesto_${pacienteActual?.data?.nombre||'paciente'}.pdf`);mostrarToast('PDF generado')}
+function generarCertificadoPDF(){const{jsPDF}=window.jspdf;const d=new jsPDF();d.text("C&C Dental Group - Certificado Médico",20,20);d.text(`Dr. ${DOCTOR_FIJO.nombre} - Cédula: ${DOCTOR_FIJO.cedula}`,20,30);d.text(`Paciente: ${pacienteActual?.data?.nombre||''}`,20,50);let diag=document.getElementById('certOmitirDiagnostico').checked?"Por motivos de salud dental":document.getElementById('certDiagnostico').value;d.text(`Diagnóstico: ${diag}`,20,70);d.text(`Reposo: ${document.getElementById('certDias').value||0} días`,20,90);d.save(`certificado_${pacienteActual?.data?.nombre||'paciente'}.pdf`);mostrarToast('PDF generado')}
+function generarConsentimientoPDF(){const{jsPDF}=window.jspdf;const d=new jsPDF();d.text("C&C Dental Group - Consentimiento Informado",20,20);d.text(`Dr. ${DOCTOR_FIJO.nombre} - Cédula: ${DOCTOR_FIJO.cedula}`,20,30);d.text(`Paciente: ${pacienteActual?.data?.nombre||''}`,20,50);d.text(`Procedimiento: ${document.getElementById('consentProcedimiento').value}`,20,70);d.save(`consentimiento_${pacienteActual?.data?.nombre||'paciente'}.pdf`);mostrarToast('PDF generado')}
+function cargarConsultorio(){document.getElementById('consultorioNombre').value=consultorioData.nombre||'C&C Dental Group';document.getElementById('consultorioDomicilio').value=consultorioData.domicilio||DOCTOR_FIJO.domicilio;document.getElementById('consultorioTelefono1').value=consultorioData.telefono1||DOCTOR_FIJO.telefono;document.getElementById('consultorioTelefono2').value=consultorioData.telefono2||'6644933243';document.getElementById('consultorioEmail').value=consultorioData.email||DOCTOR_FIJO.email;let lg=localStorage.getItem('logoClinica');if(lg)document.getElementById('logoPreview').innerHTML=`<img src="${lg}" style="max-width:150px;border-radius:8px;">`}
+function guardarConsultorio(){consultorioData={nombre:document.getElementById('consultorioNombre').value,domicilio:document.getElementById('consultorioDomicilio').value,telefono1:document.getElementById('consultorioTelefono1').value,telefono2:document.getElementById('consultorioTelefono2').value,email:document.getElementById('consultorioEmail').value};localStorage.setItem('consultorio',JSON.stringify(consultorioData));actualizarHeader();mostrarToast('Configuración guardada')}
+function actualizarHeader(){let nc=document.getElementById('consultorioNombre')?.value||consultorioData.nombre||'C&C Dental Group';document.getElementById('clinicaNombre').textContent=nc}
+function cargarLogo(e){let f=e.target.files[0];if(f){let r=new FileReader();r.onload=function(ev){localStorage.setItem('logoClinica',ev.target.result);document.getElementById('logoPreview').innerHTML=`<img src="${ev.target.result}" style="max-width:150px;border-radius:8px;">`};r.readAsDataURL(f)}}
+function irAPagina(p){window.location.hash=p;mostrarPagina(p)}
+function irAlMenu(){window.location.hash='';mostrarPagina('menu')}
+function mostrarPagina(p){document.querySelectorAll('.pagina').forEach(pg=>pg.classList.remove('activa'));if(p==='menu'||p===''){document.getElementById('pagina-menu').classList.add('activa');document.getElementById('btnVolver').style.display='none'}else{let el=document.getElementById(`pagina-${p}`);if(el){el.classList.add('activa');document.getElementById('btnVolver').style.display='inline-flex'}else{document.getElementById('pagina-menu').classList.add('activa');document.getElementById('btnVolver').style.display='none'}}}
+window.addEventListener('hashchange',()=>{let h=window.location.hash.substring(1);if(h&&['expediente','receta','presupuesto','citas','servicios','medicamentos','consentimiento','certificado','consultorio'].includes(h))mostrarPagina(h);else mostrarPagina('menu')});
+function mostrarToast(m){let t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),3000)}
+inicializarDatos();cargarModo();let hi=window.location.hash.substring(1);if(hi&&['expediente','receta','presupuesto','citas','servicios','medicamentos','consentimiento','certificado','consultorio'].includes(hi)){mostrarPagina(hi);document.getElementById('btnVolver').style.display='inline-flex'}
+let idG=localStorage.getItem('googleClientId');if(idG)setTimeout(()=>{if(!accessToken)conectarGoogle()},500);
+</script>
+</body>
+</html>
