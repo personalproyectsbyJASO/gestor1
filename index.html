@@ -28,7 +28,7 @@
             --hover-card: #2D3748;
         }
         
-        /* MODO CLARO - CORREGIDO (fondo claro, texto oscuro) */
+        /* MODO CLARO - CORREGIDO */
         body.modo-claro {
             --bg-body: #EFF6FF;
             --bg-card: #FFFFFF;
@@ -194,7 +194,7 @@ const DOCTOR_FIJO = {
     email: "Dentist.alexxx@gmail.com"
 };
 
-// LOGO OFICIAL en formato base64 (SVG pequeño para PDF)
+// LOGO OFICIAL
 const LOGO_OFICIAL = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 40'%3E%3Ctext x='5' y='28' font-family='Arial, sans-serif' font-weight='bold' font-size='22' fill='%232DD4BF'%3EC%26C%3C/text%3E%3Ctext x='55' y='28' font-family='Arial, sans-serif' font-weight='normal' font-size='14' fill='%2394A3B8'%3EDental Group%3C/text%3E%3C/svg%3E";
 
 let accessToken=null, tokenClient=null, principalFolderId=null;
@@ -417,7 +417,7 @@ function guardarPresupuesto(){
 function mostrarPresupuestos(){let d=document.getElementById('listaPresupuestos');if(!d||!pacienteActual)return;d.innerHTML=pacienteActual.presupuestos.map((p,i)=>`<div class="exp-item">💰 ${p.fecha} - Total: $${p.total.toFixed(2)}<button onclick="eliminarPresupuesto(${i})">X</button></div>`).join('')||'<div>No hay presupuestos</div>';}
 function eliminarPresupuesto(i){pacienteActual.presupuestos.splice(i,1);guardarTodoLocal();if(accessToken && pacienteActual.folderId) guardarArchivoEnDrive(pacienteActual.folderId, 'presupuestos.json', pacienteActual.presupuestos);mostrarPresupuestos();actualizarEstadisticas();}
 
-// FUNCIONES PDF CON LOGO PEQUEÑO ARRIBA A LA IZQUIERDA
+// FUNCIONES PDF CON LOGO
 function generarRecetaPDF(){
     const { jsPDF } = window.jspdf; const doc = new jsPDF();
     try { doc.addImage(LOGO_OFICIAL, 'SVG', 10, 10, 40, 15); } catch(e){}
