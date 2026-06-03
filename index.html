@@ -15,9 +15,9 @@
         .container{max-width:1200px;margin:0 auto}
         .header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:20px}
         .logo{display:flex;align-items:center;gap:10px}
-        .logo img{height:55px;width:auto}
-        .logo h1{color:var(--primary);font-size:1.3rem;margin:0}
-        .logo p{font-size:.7rem;color:var(--text-muted,#94A3B8);margin:0}
+        .logo i{font-size:2rem;color:var(--primary)}
+        .logo h1{color:var(--primary);font-size:1.3rem}
+        .logo p{font-size:.7rem;color:var(--text-muted,#94A3B8)}
         .btn-google,.btn-theme{background:var(--card);padding:8px 14px;border-radius:50px;cursor:pointer;display:flex;align-items:center;gap:8px;border:1px solid var(--border);font-size:.8rem;color:var(--text)}
         .btn-google{border-left:3px solid #EF4444}
         .btn-google.connected{border-left-color:#10B981}
@@ -51,12 +51,11 @@
         .alert-info{background:rgba(45,212,191,0.1);border:1px solid var(--primary);padding:10px;border-radius:12px;margin-bottom:20px;text-align:center;font-size:.85rem}
         .alert-warning{background:rgba(245,158,11,0.1);border:1px solid #F59E0B;color:#F59E0B;padding:12px;border-radius:12px;margin-bottom:20px;font-size:.8rem}
         .doctor-fijo{background:rgba(45,212,191,0.1);border-radius:8px;padding:10px;margin-bottom:15px;font-size:.75rem;border-left:3px solid var(--primary)}
-        .disabled-field{opacity:0.6;pointer-events:none}
         .chart-container{background:var(--card);border-radius:12px;padding:15px;margin-bottom:15px;text-align:center;border:1px solid var(--border)}
         .stat-number{font-size:2rem;color:var(--primary);font-weight:bold}
         hr{margin:12px 0;border-color:var(--border)}
         
-        /* ESTILOS RECETA PROFESIONAL */
+        /* ESTILOS RECETA PROFESIONAL - COPIADO TEXTUALMENTE DE TU HTML */
         .receta-profesional {
             font-family: 'Inter', 'Segoe UI', Georgia, serif;
             color: #1e2a32;
@@ -147,33 +146,40 @@
 <div class="container">
     <div class="header">
         <div class="logo">
-            <img id="logoHeader" src="data:image/svg+xml,%3Csvg width='229' height='193' version='1.1' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%232DD4BF' d='M206.5 7 L202.5 12 L200 10.5 L201.5 11 L206.5 7Z'/%3E%3Cpath fill='%232DD4BF' d='M181.5 8 L183 8.5 L180.5 10 L181.5 8Z'/%3E%3Cpath fill='%232DD4BF' d='M185.5 11 L187 13.5 L186 13.5 L185.5 11Z'/%3E%3C/svg%3E" style="height:50px">
-            <div><h1>C&C Dental Group</h1><p>Gestión Clínica Dental</p></div>
+            <i class="fas fa-tooth"></i>
+            <div><h1>C&C Dental Group</h1><p>Gestión Clínica Dental con Respaldo en Google Drive</p></div>
         </div>
         <div style="display:flex;gap:10px">
-            <div class="btn-google" id="googleBtn" onclick="conectarGoogle()"><i class="fab fa-google"></i><span>Drive</span></div>
+            <div class="btn-google" id="googleBtn" onclick="conectarGoogle()"><i class="fab fa-google"></i><span>Conectar Drive</span></div>
             <div class="btn-theme" onclick="toggleModo()"><i class="fas fa-moon"></i><span>Modo</span></div>
         </div>
     </div>
     
+    <!-- PANEL CONFIGURACIÓN GOOGLE DRIVE -->
     <div id="configPanel" class="card hidden">
-        <h3>⚙️ Configurar Google Drive</h3>
+        <h3>⚙️ Configuración de Google Drive</h3>
         <div class="alert-warning">
-            <strong>Configuración única:</strong><br>
-            1. Ve a <a href="https://console.cloud.google.com/apis/credentials" target="_blank">Google Cloud Console</a><br>
-            2. Crea proyecto → Habilita "Drive API"<br>
-            3. Credenciales → ID cliente OAuth → Aplicación web<br>
-            4. Orígenes autorizados: https://personalproyectsyjaso.github.io y http://localhost<br>
-            5. Copia el Client ID y pégalo aquí
+            <strong>Configuración única (5 minutos)</strong><br><br>
+            1. Ve a <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color:var(--primary);">Google Cloud Console</a><br>
+            2. Crea un proyecto o selecciona uno existente<br>
+            3. Habilita "Google Drive API" (buscar en biblioteca)<br>
+            4. Ve a "Credenciales" → "Crear credenciales" → "ID de cliente OAuth"<br>
+            5. Tipo de aplicación: "Aplicación web"<br>
+            6. Nombre: "C&C Dental Group"<br>
+            7. Orígenes autorizados de JavaScript: agrega:<br>
+               - `https://personalproyectsyjaso.github.io`<br>
+               - `http://localhost`<br>
+            8. Copia el "ID de cliente" y pégalo abajo<br>
+            9. Haz clic en "Guardar y Conectar"
         </div>
-        <input type="text" id="clientIdInput" placeholder="Pega tu Client ID">
+        <input type="text" id="clientIdInput" placeholder="Pega tu Client ID aquí">
         <button onclick="guardarClientId()">Guardar y Conectar</button>
-        <button onclick="cerrarConfig()" style="background:#EF4444;">Cancelar</button>
+        <button onclick="cerrarConfig()" style="background:var(--danger,#EF4444);">Cancelar</button>
     </div>
     
     <div class="selector-paciente"><div class="row"><select id="selectPaciente" onchange="cambiarPaciente()"><option value="">-- Seleccionar paciente --</option></select><button onclick="crearNuevoPaciente()">+ Nuevo</button></div><div id="infoPacienteActual" style="font-size:.7rem;color:var(--primary);margin-top:8px"></div></div>
     
-    <button id="btnVolver" class="btn-volver" onclick="irAlMenu()" style="display:none"><i class="fas fa-arrow-left"></i> Volver</button>
+    <button id="btnVolver" class="btn-volver" onclick="irAlMenu()" style="display:none"><i class="fas fa-arrow-left"></i> Volver al menú</button>
     
     <div id="pagina-menu" class="pagina activa"><div class="alert-info"><i class="fas fa-info-circle"></i> Selecciona un paciente y luego el módulo</div><div class="grid">
         <div class="modulo" onclick="irAPagina('expediente')"><i class="fas fa-folder-open"></i><h3>Expediente</h3></div>
@@ -189,55 +195,58 @@
     </div></div>
 
     <!-- EXPEDIENTE -->
-    <div id="pagina-expediente" class="pagina"><div class="card"><h2>📋 Expediente</h2><div class="doctor-fijo">Dr. Alejandro Coronado | Cédula: 9562093</div><fieldset><legend>Datos del Paciente</legend><div class="row"><div><label>Nombre:</label><input type="text" id="expNombre"></div><div><label>Edad:</label><input type="number" id="expEdad"></div></div><div class="row"><div><label>Teléfono:</label><input type="text" id="expTelefono"></div><div><label>Email:</label><input type="email" id="expEmail"></div></div><div><label>Alergias:</label><textarea id="expAlergias" rows="2"></textarea></div><div><label>Antecedentes:</label><textarea id="expAntecedentes" rows="3"></textarea></div></fieldset><button onclick="guardarExpediente()">Guardar</button></div></div>    <!-- RECETA PROFESIONAL -->
-    <div id="pagina-receta" class="pagina"><div class="card"><h2>📄 Receta Médica</h2>
+    <div id="pagina-expediente" class="pagina"><div class="card"><h2>📋 Expediente Clínico</h2><div class="doctor-fijo"><i class="fas fa-user-md"></i> Dr. Alejandro Coronado | Cédula: 9562093</div><fieldset><legend>Datos del Paciente</legend><div class="row"><div><label>Nombre:</label><input type="text" id="expNombre"></div><div><label>Edad:</label><input type="number" id="expEdad"></div></div><div class="row"><div><label>Teléfono:</label><input type="text" id="expTelefono"></div><div><label>Email:</label><input type="email" id="expEmail"></div></div><div><label>Alergias:</label><textarea id="expAlergias" rows="2"></textarea></div><div><label>Antecedentes:</label><textarea id="expAntecedentes" rows="3"></textarea></div></fieldset><button onclick="guardarExpediente()">Guardar</button></div></div>
+
+    <!-- RECETA PROFESIONAL - COPIADA DE TU HTML -->
+    <div id="pagina-receta" class="pagina"><div class="card"><h2>📄 Receta Médica Profesional</h2>
         <div class="doctor-fijo">Dr. Alejandro Coronado - Cédula 9562093</div>
         
-        <fieldset><legend>Datos Clínica</legend>
-            <div class="row"><div><label>Nombre:</label><input type="text" id="clinicaNombre" value="C&C Dental Group"></div></div>
+        <fieldset><legend>Datos de la Clínica</legend>
+            <div class="row"><div><label>Nombre Clínica:</label><input type="text" id="clinicaNombre" value="C&C Dental Group"></div></div>
         </fieldset>
         
-        <fieldset><legend>Datos Médico</legend>
+        <fieldset><legend>Datos del Médico</legend>
             <div class="row"><div><label>Doctor:</label><input type="text" id="doctorNombre" value="Dr. Alejandro Coronado"></div><div><label>Cédula:</label><input type="text" id="doctorCedula" value="9562093"></div></div>
             <div class="row"><div><label>Teléfono:</label><input type="text" id="telefono" value="6646251897"></div><div><label>Email:</label><input type="text" id="email" value="Dentist.alexxx@gmail.com"></div></div>
             <div class="row"><div><label>Dirección:</label><input type="text" id="direccion" value="Emiliano Zapata 2751, Ejido Matamoros"></div><div><label>Municipio:</label><input type="text" id="municipio" value="Tijuana"></div></div>
+            <div><label>Fecha:</label><input type="date" id="fechaReceta"></div>
         </fieldset>
         
-        <fieldset><legend>Datos Paciente</legend>
-            <div class="row"><div><label>Nombre:</label><input type="text" id="recNombre"></div><div><label>Edad:</label><input type="text" id="recEdad"></div><div><label>Sexo:</label><select id="recSexo"><option>Masculino</option><option>Femenino</option></select></div></div>
-            <div class="row"><div><label>Expediente:</label><input type="text" id="expediente"></div><div><label>Alergias:</label><input type="text" id="recAlergias"></div></div>
-            <div><label>Diagnóstico:</label><textarea id="diagnostico" rows="2"></textarea></div>
+        <fieldset><legend>Datos del Paciente</legend>
+            <div class="row"><div><label>Nombre:</label><input type="text" id="recNombre" placeholder="Nombre del paciente"></div><div><label>Edad:</label><input type="text" id="recEdad" placeholder="Edad"></div><div><label>Sexo:</label><select id="recSexo"><option>Masculino</option><option>Femenino</option></select></div></div>
+            <div class="row"><div><label>Expediente:</label><input type="text" id="expediente" placeholder="DEN-0000"></div><div><label>Alergias:</label><input type="text" id="recAlergias" placeholder="Ej: Penicilina"></div></div>
+            <div><label>Diagnóstico:</label><textarea id="diagnostico" rows="2" placeholder="Pulpitis irreversible en órgano dentario 36"></textarea></div>
         </fieldset>
         
         <fieldset><legend>Medicamentos</legend>
             <div id="medicamentosContainer"></div>
-            <button type="button" onclick="agregarMedicamentoReceta()" style="width:100%">+ Agregar medicamento</button>
+            <button type="button" onclick="agregarMedicamentoReceta()" style="width:100%; margin-top:10px;">+ Agregar medicamento</button>
             <button type="button" onclick="cargarEjemploMedicamentos()" style="width:100%; margin-top:5px; background:#548c7a;">📋 Cargar ejemplo</button>
         </fieldset>
         
         <fieldset><legend>Indicaciones</legend>
-            <textarea id="indicacionesGenerales" rows="3"></textarea>
+            <textarea id="indicacionesGenerales" rows="3" placeholder="Reposo, dieta, cuidados..."></textarea>
         </fieldset>
         
-        <fieldset><legend>Info Adicional</legend>
-            <div class="row"><div><label>Próxima cita:</label><input type="text" id="proximaCita"></div></div>
-            <div><label>Notas:</label><textarea id="notasExtra" rows="2"></textarea></div>
-            <div><label>Folio:</label><input type="text" id="folioReceta"></div>
+        <fieldset><legend>Información Adicional</legend>
+            <div class="row"><div><label>Próxima cita:</label><input type="text" id="proximaCita" placeholder="Ej: 10 de junio de 2026"></div></div>
+            <div><label>Notas adicionales:</label><textarea id="notasExtra" rows="2" placeholder="Información adicional..."></textarea></div>
+            <div><label>Folio/Número de receta:</label><input type="text" id="folioReceta" placeholder="Ej: RX-2026-001"></div>
         </fieldset>
         
         <div style="display:flex; gap:10px; margin-top:15px;">
             <button onclick="guardarRecetaProfesional()" style="flex:1"><i class="fas fa-save"></i> Guardar</button>
-            <button onclick="generarRecetaPDFProfesional()" style="flex:1"><i class="fas fa-file-pdf"></i> PDF</button>
+            <button onclick="generarRecetaPDFProfesional()" style="flex:1"><i class="fas fa-file-pdf"></i> Generar PDF</button>
             <button onclick="imprimirRecetaProfesional()" style="flex:1"><i class="fas fa-print"></i> Imprimir</button>
         </div>
-        <hr><h3>Historial</h3><div id="listaRecetas"></div>
+        <hr><h3>Historial de Recetas</h3><div id="listaRecetas"></div>
     </div></div>
 
     <!-- PRESUPUESTO -->
-    <div id="pagina-presupuesto" class="pagina"><div class="card"><h2>💰 Presupuesto</h2><div><label>Paciente:</label><input type="text" id="presNombre"></div><div class="row"><div style="flex:3"><select id="presServicioSelect"></select></div><div><button onclick="agregarServicioPresupuesto()">+</button></div></div><div class="row"><div><input type="text" id="extraNombre" placeholder="Extra"></div><div><input type="number" id="extraMonto" placeholder="$"></div><div><button onclick="agregarExtraPresupuesto()">+</button></div></div><div id="listaPresupuestoItems"></div><div class="row"><div><label>Descuento %:</label><input type="number" id="presDescuento" value="0" oninput="calcularTotalPresupuesto()"></div><div><label>Vigencia:</label><input type="text" id="presVigencia"></div></div><div class="total-presupuesto" id="totalPresupuestoDisplay">Total: $0.00</div><button onclick="guardarPresupuesto()">Guardar</button><button onclick="generarPresupuestoPDF()">PDF</button><hr><h3>Historial</h3><div id="listaPresupuestos"></div></div></div>
+    <div id="pagina-presupuesto" class="pagina"><div class="card"><h2>💰 Presupuesto</h2><div><label>Paciente:</label><input type="text" id="presNombre"></div><div class="row"><div style="flex:3"><select id="presServicioSelect"></select></div><div><button onclick="agregarServicioPresupuesto()">+</button></div></div><div class="row"><div><input type="text" id="extraNombre" placeholder="Extra"></div><div><input type="number" id="extraMonto" placeholder="$"></div><div><button onclick="agregarExtraPresupuesto()">+</button></div></div><div id="listaPresupuestoItems"></div><div class="row"><div><label>Descuento %:</label><input type="number" id="presDescuento" value="0" oninput="calcularTotalPresupuesto()"></div><div><label>Vigencia/Nota:</label><input type="text" id="presVigencia"></div></div><div class="total-presupuesto" id="totalPresupuestoDisplay">Total: $0.00</div><button onclick="guardarPresupuesto()">Guardar</button><button onclick="generarPresupuestoPDF()">PDF</button><hr><h3>Historial</h3><div id="listaPresupuestos"></div></div></div>
 
     <!-- CITAS -->
-    <div id="pagina-citas" class="pagina"><div class="card"><h2>📅 Agenda</h2><div class="row"><div><label>Paciente:</label><input type="text" id="citaNombre"></div><div><label>Teléfono:</label><input type="text" id="citaTelefono"></div></div><div class="row"><div><label>Fecha:</label><input type="date" id="citaFecha"></div><div><label>Hora:</label><input type="time" id="citaHora"></div></div><div><label>Tratamiento:</label><input type="text" id="citaTratamiento"></div><button onclick="guardarCita()">Agendar</button><hr><h3>Citas</h3><div id="listaCitas"></div></div></div>
+    <div id="pagina-citas" class="pagina"><div class="card"><h2>📅 Agenda de Citas</h2><div class="alert-info"><i class="fas fa-google"></i> Conecta Google Drive para respaldo</div><div class="row"><div><label>Paciente:</label><input type="text" id="citaNombre"></div><div><label>Teléfono:</label><input type="text" id="citaTelefono"></div></div><div class="row"><div><label>Fecha:</label><input type="date" id="citaFecha"></div><div><label>Hora:</label><input type="time" id="citaHora"></div></div><div><label>Tratamiento:</label><input type="text" id="citaTratamiento"></div><button onclick="guardarCita()">Agendar</button><hr><h3>Citas</h3><div id="listaCitas"></div></div></div>
 
     <!-- SERVICIOS -->
     <div id="pagina-servicios" class="pagina"><div class="card"><h2>🦷 Servicios</h2><div class="row"><div><input type="text" id="servNombre" placeholder="Servicio"></div><div><input type="number" id="servCosto" placeholder="$"></div><div><input type="text" id="servDesc" placeholder="Descripción"></div></div><button onclick="agregarServicio()">Registrar</button><hr><table class="tabla"><thead><tr><th>Servicio</th><th>Descripción</th><th>Costo</th><th></th></tr></thead><tbody id="listaServicios"></tbody></table></div></div>
@@ -246,24 +255,24 @@
     <div id="pagina-medicamentos" class="pagina"><div class="card"><h2>💊 Medicamentos</h2><div class="row"><div><input type="text" id="medNombre" placeholder="Medicamento"></div><div><input type="text" id="medCategoria" placeholder="Categoría"></div><div><input type="text" id="medUso" placeholder="Uso"></div></div><button onclick="agregarMedicamento()">Registrar</button><hr><table class="tabla"><thead><tr><th>Medicamento</th><th>Categoría</th><th>Uso</th><th></th></tr></thead><tbody id="listaMedicamentos"></tbody></table></div></div>
 
     <!-- CONSENTIMIENTO -->
-    <div id="pagina-consentimiento" class="pagina"><div class="card"><h2>📝 Consentimiento</h2><div><label>Paciente:</label><input type="text" id="consentNombre"></div><div><label>Procedimiento:</label><input type="text" id="consentProcedimiento"></div><div><label>Texto:</label><textarea id="consentTexto" rows="6">Yo, [NOMBRE], autorizo al Dr. Alejandro Coronado a realizar [PROCEDIMIENTO].</textarea></div><button onclick="guardarConsentimiento()">Guardar</button><button onclick="generarConsentimientoPDF()">PDF</button><hr><h3>Historial</h3><div id="listaConsentimientos"></div></div></div>
+    <div id="pagina-consentimiento" class="pagina"><div class="card"><h2>📝 Consentimiento</h2><div><label>Paciente:</label><input type="text" id="consentNombre"></div><div><label>Procedimiento:</label><input type="text" id="consentProcedimiento"></div><div><label>Texto:</label><textarea id="consentTexto" rows="6">Yo, [NOMBRE], autorizo al Dr. Alejandro Coronado a realizar [PROCEDIMIENTO]. He sido informado de los riesgos y beneficios.</textarea></div><button onclick="guardarConsentimiento()">Guardar</button><button onclick="generarConsentimientoPDF()">PDF</button><hr><h3>Historial</h3><div id="listaConsentimientos"></div></div></div>
 
     <!-- CERTIFICADO -->
     <div id="pagina-certificado" class="pagina"><div class="card"><h2>📜 Certificado</h2><div class="doctor-fijo">Dr. Alejandro Coronado</div><div class="row"><div><label>Paciente:</label><input type="text" id="certNombre"></div><div><label>Edad:</label><input type="text" id="certEdad"></div></div><div class="row"><div><label>Lugar:</label><input type="text" id="certLugar"></div><div><label>Fecha:</label><input type="date" id="certFecha"></div></div><div><label>Diagnóstico:</label><textarea id="certDiagnostico" rows="2"></textarea></div><div class="row"><div><label>Días reposo:</label><input type="number" id="certDias"></div><div><label>Desde:</label><input type="date" id="certDesde"></div><div><label>Hasta:</label><input type="date" id="certHasta"></div></div><label><input type="checkbox" id="certOmitir"> Omitir diagnóstico</label><br><br><button onclick="guardarCertificado()">Guardar</button><button onclick="generarCertificadoPDF()">PDF</button><hr><h3>Historial</h3><div id="listaCertificados"></div></div></div>
 
     <!-- MI CONSULTORIO -->
     <div id="pagina-consultorio" class="pagina"><div class="card"><h2>🏢 Mi Consultorio</h2><div class="doctor-fijo"><strong>DATOS FIJOS</strong><br>Dr. Alejandro Coronado | Cédula: 9562093<br>Tel: 6646251897 | Email: Dentist.alexxx@gmail.com</div>
-        <fieldset><legend>Logo</legend><div style="text-align:center;padding:20px"><i class="fas fa-tooth" style="font-size:4rem;color:var(--primary)"></i><p>C&C Dental Group</p></div></fieldset>
+        <fieldset><legend>Logo Oficial</legend><div style="text-align:center;padding:20px;background:var(--input);border-radius:12px"><i class="fas fa-tooth" style="font-size:4rem;color:var(--primary)"></i><p style="margin-top:10px">C&C Dental Group</p></div></fieldset>
+        <div class="disabled-field"><fieldset><legend>Nombre</legend><input value="C&C Dental Group" disabled></fieldset></div>
+        <div class="disabled-field"><fieldset><legend>Dirección</legend><textarea rows="2" disabled>Emiliano Zapata 2751, Ejido Matamoros, Tijuana, CP 22204</textarea></fieldset></div>
     </div></div>
 
     <!-- ESTADÍSTICAS -->
-    <div id="pagina-estadisticas" class="pagina"><div class="card"><h2>📊 Estadísticas</h2><div class="row"><div class="chart-container"><div class="stat-number" id="totalPacientes">0</div><div>Pacientes</div></div><div class="chart-container"><div class="stat-number" id="totalCitas">0</div><div>Citas</div></div><div class="chart-container"><div class="stat-number" id="totalRecetas">0</div><div>Recetas</div></div><div class="chart-container"><div class="stat-number" id="totalPresupuestos">0</div><div>Presupuestos</div></div></div><button onclick="exportarReporte()">Exportar</button></div></div>
+    <div id="pagina-estadisticas" class="pagina"><div class="card"><h2>📊 Estadísticas</h2><div class="row"><div class="chart-container"><div class="stat-number" id="totalPacientes">0</div><div>Pacientes</div></div><div class="chart-container"><div class="stat-number" id="totalCitas">0</div><div>Citas</div></div><div class="chart-container"><div class="stat-number" id="totalRecetas">0</div><div>Recetas</div></div><div class="chart-container"><div class="stat-number" id="totalPresupuestos">0</div><div>Presupuestos</div></div></div><button onclick="exportarReporte()"><i class="fas fa-download"></i> Exportar</button></div></div>
 </div>
 
 <script>
-// LOGO OFICIAL
-const LOGO_OFICIAL = "data:image/svg+xml,%3Csvg width='229' height='193' version='1.1' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%232DD4BF' d='M206.5 7 L202.5 12 L200 10.5 L201.5 11 L206.5 7Z'/%3E%3Cpath fill='%232DD4BF' d='M181.5 8 L183 8.5 L180.5 10 L181.5 8Z'/%3E%3Cpath fill='%232DD4BF' d='M185.5 11 L187 13.5 L186 13.5 L185.5 11Z'/%3E%3C/svg%3E";
-
+// DATOS FIJOS
 const DOCTOR = {nombre:"Dr. Alejandro Coronado",cedula:"9562093",telefono:"6646251897",email:"Dentist.alexxx@gmail.com"};
 
 let accessToken=null, tokenClient=null, principalFolderId=null;
@@ -286,10 +295,10 @@ function guardarTodoLocal(){
 function inicializarDatos(){
     let sg=localStorage.getItem('servicios');
     if(sg) servicios=JSON.parse(sg);
-    else servicios=[{nombre:"Extracción simple",costo:950},{nombre:"Caries",costo:850},{nombre:"Endodoncia",costo:3800},{nombre:"Limpieza",costo:700}];
+    else servicios=[{nombre:"Extracción simple",costo:950,descripcion:"Sacar muela"},{nombre:"Caries",costo:850,descripcion:"Eliminación"},{nombre:"Endodoncia",costo:3800,descripcion:"Conductos"},{nombre:"Limpieza",costo:700,descripcion:"Profilaxis"},{nombre:"Corona zirconia",costo:5500,descripcion:"Estética"}];
     let mg=localStorage.getItem('medicamentos');
     if(mg) medicamentos=JSON.parse(mg);
-    else medicamentos=[{nombre:"Amoxicilina",categoria:"Antibiótico",uso:"Infecciones"}];
+    else medicamentos=[{nombre:"Amoxicilina",categoria:"Antibiótico",uso:"Infecciones"},{nombre:"Ibuprofeno",categoria:"Analgésico",uso:"Dolor"},{nombre:"Ketorolaco",categoria:"Analgésico",uso:"Dolor moderado"}];
     let pg=localStorage.getItem('pacientes');
     if(pg) pacientes=JSON.parse(pg);
     else pacientes={};
@@ -298,7 +307,8 @@ function inicializarDatos(){
     mostrarMedicamentos();
     actualizarSelectServicios();
     actualizarEstadisticas();
-    if(localStorage.getItem('modo')==='claro') document.body.classList.add('modo-claro');
+    let modo=localStorage.getItem('modo');
+    if(modo==='claro') document.body.classList.add('modo-claro');
 }
 
 function actualizarEstadisticas(){
@@ -379,24 +389,33 @@ function guardarExpediente(){
     mostrarToast('Expediente guardado');
 }
 
-// RECETA
+// RECETA PROFESIONAL - FUNCIONES
 function renderizarMedicamentosReceta(){
     let container = document.getElementById('medicamentosContainer');
     if(!container) return;
     if(recetaMedicamentos.length === 0){
-        container.innerHTML = '<div style="padding:20px;text-align:center">No hay medicamentos</div>';
+        container.innerHTML = '<div style="background:#f4f7fa; padding:20px; text-align:center; border-radius:12px;">📋 No hay medicamentos. Toque "+ Agregar medicamento"</div>';
         return;
     }
     let html = '';
     recetaMedicamentos.forEach((med, idx) => {
-        html += `<div style="border:1px solid #dee5ec; border-radius:16px; margin-bottom:12px; padding:12px;">
-            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                <span>Medicamento ${idx+1}</span>
-                <button onclick="eliminarMedicamentoReceta(${idx})" style="background:#f0e6e6; color:#a13e3e;">Eliminar</button>
+        html += `<div style="background:#fafcfd; border:1px solid #dee5ec; border-radius:16px; margin-bottom:12px; padding:12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1px solid #e6edf2; padding-bottom:8px;">
+                <span style="font-weight:bold;">Medicamento ${idx+1}</span>
+                <button type="button" onclick="eliminarMedicamentoReceta(${idx})" style="background:#f0e6e6; color:#a13e3e; padding:4px 12px;">✕ Eliminar</button>
             </div>
-            <div class="row"><div><label>Nombre:</label><input type="text" id="medNombre_${idx}" value="${med.nombre||''}"></div><div><label>Presentación:</label><input type="text" id="medPresentacion_${idx}" value="${med.presentacion||''}"></div></div>
-            <div class="row"><div><label>Dosis:</label><input type="text" id="medDosis_${idx}" value="${med.dosis||''}"></div><div><label>Frecuencia:</label><input type="text" id="medFrecuencia_${idx}" value="${med.frecuencia||''}"></div></div>
-            <div class="row"><div><label>Duración:</label><input type="text" id="medDuracion_${idx}" value="${med.duracion||''}"></div><div><label>Indicación extra:</label><input type="text" id="medIndicacion_${idx}" value="${med.indicacionExtra||''}"></div></div>
+            <div class="row">
+                <div><label>Nombre:</label><input type="text" id="medNombre_${idx}" value="${escapeHtml(med.nombre||'')}" placeholder="Ej: Amoxicilina 500 mg"></div>
+                <div><label>Presentación:</label><input type="text" id="medPresentacion_${idx}" value="${escapeHtml(med.presentacion||'')}" placeholder="Ej: Cápsulas"></div>
+            </div>
+            <div class="row">
+                <div><label>Dosis:</label><input type="text" id="medDosis_${idx}" value="${escapeHtml(med.dosis||'')}" placeholder="Ej: 1 cápsula"></div>
+                <div><label>Frecuencia:</label><input type="text" id="medFrecuencia_${idx}" value="${escapeHtml(med.frecuencia||'')}" placeholder="Ej: Cada 8 horas"></div>
+            </div>
+            <div class="row">
+                <div><label>Duración:</label><input type="text" id="medDuracion_${idx}" value="${escapeHtml(med.duracion||'')}" placeholder="Ej: 7 días"></div>
+                <div><label>Indicación extra:</label><input type="text" id="medIndicacion_${idx}" value="${escapeHtml(med.indicacionExtra||'')}" placeholder="Ej: Completar tratamiento"></div>
+            </div>
         </div>`;
     });
     container.innerHTML = html;
@@ -410,48 +429,177 @@ function renderizarMedicamentosReceta(){
     });
 }
 
-function agregarMedicamentoReceta(){ recetaMedicamentos.push({}); renderizarMedicamentosReceta(); }
-function eliminarMedicamentoReceta(idx){ recetaMedicamentos.splice(idx,1); renderizarMedicamentosReceta(); }
-function cargarEjemploMedicamentos(){ recetaMedicamentos = [{nombre:"Amoxicilina 500 mg",presentacion:"Cápsulas",dosis:"1 cápsula",frecuencia:"Cada 8 horas",duracion:"7 días",indicacionExtra:"Completar tratamiento"}]; renderizarMedicamentosReceta(); }
+function agregarMedicamentoReceta(){
+    recetaMedicamentos.push({nombre:"",presentacion:"",dosis:"",frecuencia:"",duracion:"",indicacionExtra:""});
+    renderizarMedicamentosReceta();
+}
+
+function eliminarMedicamentoReceta(index){
+    recetaMedicamentos.splice(index,1);
+    renderizarMedicamentosReceta();
+}
+
+function cargarEjemploMedicamentos(){
+    recetaMedicamentos = [{nombre:"Amoxicilina 500 mg",presentacion:"Cápsulas",dosis:"1 cápsula",frecuencia:"Cada 8 horas",duracion:"7 días",indicacionExtra:"Completar tratamiento"}];
+    renderizarMedicamentosReceta();
+    mostrarToast('Ejemplo de medicamento cargado');
+}
+
+function escapeHtml(str){
+    if(!str) return '';
+    return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+}
 
 function getRecetaHTML(){
-    let html = `<div class="receta-profesional"><div class="receta-header"><img src="${LOGO_OFICIAL}" class="header-logo"><div class="clinica-nombre">${document.getElementById('clinicaNombre')?.value||'C&C Dental Group'}</div></div>`;
-    html += `<div class="doctor-info"><span><strong>Médico:</strong> ${document.getElementById('doctorNombre')?.value||DOCTOR.nombre}</span><span><strong>Cédula:</strong> ${document.getElementById('doctorCedula')?.value||DOCTOR.cedula}</span><span><strong>Teléfono:</strong> ${document.getElementById('telefono')?.value||DOCTOR.telefono}</span></div>`;
-    html += `<div style="display:flex;flex-wrap:wrap;gap:10px;font-size:0.65rem;margin:12px 0;padding:6px 4px;border-bottom:1px solid #ecf1f5;"><span><strong>Email:</strong> ${document.getElementById('email')?.value||DOCTOR.email}</span><span><strong>Dirección:</strong> ${document.getElementById('direccion')?.value||''}</span><span><strong>Municipio:</strong> ${document.getElementById('municipio')?.value||''}</span><span><strong>Fecha:</strong> ${new Date().toLocaleDateString()}</span></div>`;
-    html += `<div class="patient-box"><div style="display:flex;flex-wrap:wrap;gap:8px 16px;margin-bottom:6px;"><span><strong>PACIENTE:</strong> ${document.getElementById('recNombre')?.value||''}</span><span><strong>Edad:</strong> ${document.getElementById('recEdad')?.value||''}</span><span><strong>Sexo:</strong> ${document.getElementById('recSexo')?.value||''}</span><span><strong>Expediente:</strong> ${document.getElementById('expediente')?.value||''}</span></div><div><strong>Diagnóstico:</strong> ${document.getElementById('diagnostico')?.value||''}</div>`;
-    if(document.getElementById('recAlergias')?.value) html += `<div style="margin-top:6px;"><strong>Alergias:</strong> ${document.getElementById('recAlergias')?.value}</div>`;
-    html += `</div>`;
-    if(recetaMedicamentos.filter(m=>m.nombre).length>0){
-        html += `<div class="section-title">PRESCRIPCIÓN DE MEDICAMENTOS</div>`;
-        recetaMedicamentos.filter(m=>m.nombre).forEach((m,i)=>{html+=`<div class="med-item-preview"><div class="med-name-preview">${i+1}. ${m.nombre}</div><div class="med-instruction">${m.dosis||''} ${m.presentacion||''} ${m.frecuencia?'Frecuencia: '+m.frecuencia:''} ${m.duracion?'Duración: '+m.duracion:''} ${m.indicacionExtra||''}</div></div>`;});
+    let clinica = document.getElementById('clinicaNombre')?.value || 'C&C Dental Group';
+    let doctor = document.getElementById('doctorNombre')?.value || DOCTOR.nombre;
+    let cedula = document.getElementById('doctorCedula')?.value || DOCTOR.cedula;
+    let telefono = document.getElementById('telefono')?.value || DOCTOR.telefono;
+    let email = document.getElementById('email')?.value || DOCTOR.email;
+    let direccion = document.getElementById('direccion')?.value || '';
+    let municipio = document.getElementById('municipio')?.value || '';
+    let fecha = document.getElementById('fechaReceta')?.value || new Date().toLocaleDateString();
+    let paciente = document.getElementById('recNombre')?.value || '';
+    let edad = document.getElementById('recEdad')?.value || '';
+    let sexo = document.getElementById('recSexo')?.value || '';
+    let expediente = document.getElementById('expediente')?.value || '';
+    let diagnostico = document.getElementById('diagnostico')?.value || '';
+    let indicaciones = document.getElementById('indicacionesGenerales')?.value || '';
+    let alergias = document.getElementById('recAlergias')?.value || '';
+    let proximaCita = document.getElementById('proximaCita')?.value || '';
+    let notasExtra = document.getElementById('notasExtra')?.value || '';
+    let folio = document.getElementById('folioReceta')?.value || '';
+    let medsActivos = recetaMedicamentos.filter(m => m.nombre && m.nombre.trim());
+    
+    let medsHtml = '';
+    if(medsActivos.length > 0){
+        medsHtml = `<div class="section-title">PRESCRIPCIÓN DE MEDICAMENTOS</div>`;
+        medsActivos.forEach((m,i) => {
+            let instruccion = [];
+            if(m.dosis) instruccion.push(m.dosis);
+            if(m.presentacion) instruccion.push(m.presentacion);
+            let frecuenciaDur = '';
+            if(m.frecuencia) frecuenciaDur += `Frecuencia: ${m.frecuencia}`;
+            if(m.duracion) frecuenciaDur += ` · Duración: ${m.duracion}`;
+            medsHtml += `<div class="med-item-preview">
+                <div class="med-name-preview">${i+1}. ${escapeHtml(m.nombre)}</div>
+                <div class="med-instruction">${instruccion.join(' · ')} ${instruccion.length ? '·' : ''} ${frecuenciaDur} ${m.indicacionExtra ? '· ' + escapeHtml(m.indicacionExtra) : ''}</div>
+            </div>`;
+        });
     }
-    if(document.getElementById('indicacionesGenerales')?.value) html += `<div class="section-title">INDICACIONES Y RECOMENDACIONES</div><div class="indicaciones-text">${document.getElementById('indicacionesGenerales')?.value}</div>`;
-    if(document.getElementById('proximaCita')?.value||document.getElementById('notasExtra')?.value) html += `<div class="info-footer">${document.getElementById('proximaCita')?.value?`<div><strong>Próxima cita:</strong> ${document.getElementById('proximaCita')?.value}</div>`:''}${document.getElementById('notasExtra')?.value?`<div><strong>Notas:</strong> ${document.getElementById('notasExtra')?.value}</div>`:''}</div>`;
-    html += `<div class="firma-section"><div>Firma y sello del médico</div><div>${document.getElementById('doctorNombre')?.value||DOCTOR.nombre} · Cédula ${document.getElementById('doctorCedula')?.value||DOCTOR.cedula}</div></div><div class="validez">Documento de prescripción válido por 30 días</div></div>`;
-    return html;
+    
+    return `<div class="receta-profesional">
+        ${folio ? `<div class="folio-badge">Folio: ${escapeHtml(folio)}</div>` : ''}
+        <div class="receta-header">
+            <i class="fas fa-tooth" style="font-size:3rem; color:#2c6e5c;"></i>
+            <div class="clinica-nombre">${escapeHtml(clinica)}</div>
+        </div>
+        <div class="doctor-info">
+            <span><strong>Médico:</strong> ${escapeHtml(doctor)}</span>
+            <span><strong>Cédula:</strong> ${escapeHtml(cedula)}</span>
+            <span><strong>Teléfono:</strong> ${escapeHtml(telefono)}</span>
+        </div>
+        ${(email || direccion || municipio || fecha) ? `<div style="display:flex; flex-wrap:wrap; gap:10px; font-size:0.65rem; margin-bottom:12px; padding:6px 4px; border-bottom:1px solid #ecf1f5;">
+            ${email ? `<span><strong>Email:</strong> ${escapeHtml(email)}</span>` : ''}
+            ${direccion ? `<span><strong>Dirección:</strong> ${escapeHtml(direccion)}</span>` : ''}
+            ${municipio ? `<span><strong>Municipio:</strong> ${escapeHtml(municipio)}</span>` : ''}
+            <span><strong>Fecha:</strong> ${escapeHtml(fecha)}</span>
+        </div>` : ''}
+        <div class="patient-box">
+            <div style="display:flex; flex-wrap:wrap; gap:8px 16px; font-size:0.8rem; margin-bottom:6px;">
+                <span><strong>PACIENTE:</strong> ${escapeHtml(paciente)}</span>
+                <span><strong>Edad:</strong> ${escapeHtml(edad)}</span>
+                <span><strong>Sexo:</strong> ${escapeHtml(sexo)}</span>
+                <span><strong>Expediente:</strong> ${escapeHtml(expediente)}</span>
+            </div>
+            <div><strong>Diagnóstico:</strong> ${escapeHtml(diagnostico)}</div>
+            ${alergias ? `<div style="margin-top:6px;"><strong>Alergias:</strong> ${escapeHtml(alergias)}</div>` : ''}
+        </div>
+        ${medsHtml}
+        ${indicaciones ? `<div class="section-title">INDICACIONES Y RECOMENDACIONES</div><div class="indicaciones-text">${escapeHtml(indicaciones)}</div>` : ''}
+        ${(proximaCita || notasExtra) ? `<div class="info-footer">
+            ${proximaCita ? `<div><strong>Próxima cita:</strong> ${escapeHtml(proximaCita)}</div>` : ''}
+            ${notasExtra ? `<div><strong>Notas:</strong> ${escapeHtml(notasExtra)}</div>` : ''}
+        </div>` : ''}
+        <div class="firma-section">
+            <div>Firma y sello del médico</div>
+            <div style="margin-top:4px;">${escapeHtml(doctor)} · Cédula ${escapeHtml(cedula)}</div>
+        </div>
+        <div class="validez">Documento de prescripción válido por 30 días</div>
+    </div>`;
 }
 
 function guardarRecetaProfesional(){
-    if(!pacienteActual){mostrarToast('Selecciona paciente');return}
-    let receta = {fecha:new Date().toLocaleString(),paciente:document.getElementById('recNombre')?.value,diagnostico:document.getElementById('diagnostico')?.value,indicaciones:document.getElementById('indicacionesGenerales')?.value,medicamentos:JSON.parse(JSON.stringify(recetaMedicamentos))};
+    if(!pacienteActual){mostrarToast('Selecciona un paciente primero'); return;}
+    let receta = {
+        fecha: new Date().toLocaleString(),
+        clinica: document.getElementById('clinicaNombre')?.value,
+        paciente: document.getElementById('recNombre')?.value,
+        edad: document.getElementById('recEdad')?.value,
+        sexo: document.getElementById('recSexo')?.value,
+        expediente: document.getElementById('expediente')?.value,
+        diagnostico: document.getElementById('diagnostico')?.value,
+        indicaciones: document.getElementById('indicacionesGenerales')?.value,
+        alergias: document.getElementById('recAlergias')?.value,
+        proximaCita: document.getElementById('proximaCita')?.value,
+        notasExtra: document.getElementById('notasExtra')?.value,
+        folio: document.getElementById('folioReceta')?.value,
+        medicamentos: JSON.parse(JSON.stringify(recetaMedicamentos))
+    };
     pacienteActual.recetas.push(receta);
     guardarTodoLocal();
-    if(accessToken&&pacienteActual.folderId) guardarArchivoEnDrive(pacienteActual.folderId,'recetas.json',pacienteActual.recetas);
+    if(accessToken && pacienteActual.folderId) guardarArchivoEnDrive(pacienteActual.folderId, 'recetas.json', pacienteActual.recetas);
     mostrarRecetas();
     actualizarEstadisticas();
     mostrarToast('Receta guardada');
 }
 
-function mostrarRecetas(){let d=document.getElementById('listaRecetas');if(!d||!pacienteActual)return;d.innerHTML=pacienteActual.recetas.map((r,i)=>`<div class="exp-item">📄 ${r.fecha}<br>${r.paciente||''}<button onclick="eliminarReceta(${i})">X</button></div>`).join('')||'<div>No hay recetas</div>';}
-function eliminarReceta(i){pacienteActual.recetas.splice(i,1);guardarTodoLocal();if(accessToken&&pacienteActual.folderId) guardarArchivoEnDrive(pacienteActual.folderId,'recetas.json',pacienteActual.recetas);mostrarRecetas();actualizarEstadisticas();}
+function mostrarRecetas(){
+    let d=document.getElementById('listaRecetas');
+    if(!d||!pacienteActual) return;
+    d.innerHTML = pacienteActual.recetas.map((r,i)=>`<div class="exp-item">📄 ${r.fecha}<br>${r.paciente || ''}<button onclick="eliminarReceta(${i})">X</button></div>`).join('') || '<div>No hay recetas</div>';
+}
+
+function eliminarReceta(i){
+    pacienteActual.recetas.splice(i,1);
+    guardarTodoLocal();
+    if(accessToken && pacienteActual.folderId) guardarArchivoEnDrive(pacienteActual.folderId, 'recetas.json', pacienteActual.recetas);
+    mostrarRecetas();
+    actualizarEstadisticas();
+}
 
 function generarRecetaPDFProfesional(){
-    const w=window.open('','_blank');
-    w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>${document.querySelector('style').innerHTML}</style></head><body>${getRecetaHTML()}<script>window.onload=()=>{setTimeout(()=>{window.print();window.close()},500)}<\/script></body></html>`);
-    w.document.close();
-    mostrarToast('Abriendo vista previa');
+    const ventana = window.open('', '_blank');
+    const htmlContent = getRecetaHTML();
+    const styles = `
+        <style>
+            body { font-family: 'Segoe UI', Arial, sans-serif; padding: 20px; margin: 0; }
+            .receta-profesional { max-width: 700px; margin: 0 auto; }
+            .receta-header { text-align: center; border-bottom: 2px solid #2c6e5c; padding-bottom: 12px; margin-bottom: 16px; display: flex; align-items: center; justify-content: center; gap: 12px; }
+            .clinica-nombre { font-size: 1.3rem; font-weight: 700; color: #1c4e44; }
+            .doctor-info { display: flex; flex-wrap: wrap; justify-content: space-between; background: #f4f8fb; padding: 10px; border-radius: 12px; margin: 12px 0; font-size: 0.7rem; }
+            .patient-box { background: #fefaf0; padding: 12px; border-radius: 12px; margin: 14px 0; border-left: 4px solid #2c6e5c; }
+            .section-title { font-weight: 700; font-size: 0.85rem; text-transform: uppercase; margin: 16px 0 10px 0; color: #1e6f5c; border-left: 3px solid #2c6e5c; padding-left: 10px; }
+            .med-item-preview { border-bottom: 1px solid #e6edf2; padding: 10px 0; }
+            .med-name-preview { font-weight: 700; font-size: 0.8rem; color: #1d4e43; }
+            .med-instruction { font-size: 0.7rem; color: #3a5e6b; margin-left: 12px; margin-top: 4px; }
+            .indicaciones-text { background: #f9fbfd; padding: 10px; border-radius: 12px; font-size: 0.75rem; margin: 8px 0; border: 1px solid #eef3f7; white-space: pre-line; }
+            .info-footer { display: flex; flex-wrap: wrap; justify-content: space-between; background: #f3f7f9; padding: 10px; border-radius: 12px; margin: 16px 0 12px; font-size: 0.65rem; }
+            .firma-section { margin-top: 24px; padding-top: 12px; border-top: 1px dashed #bcccd6; text-align: center; }
+            .validez { font-size: 0.55rem; text-align: center; margin-top: 10px; color: #6f8f9c; }
+            .folio-badge { font-size: 0.65rem; color: #6f8f9c; text-align: right; margin-bottom: 8px; }
+            @media print { body { margin: 0; padding: 0; } }
+        </style>
+    `;
+    ventana.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">${styles}</head><body>${htmlContent}</body></html>`);
+    ventana.document.close();
+    ventana.print();
+    mostrarToast('Abriendo vista previa para imprimir');
 }
-function imprimirRecetaProfesional(){ generarRecetaPDFProfesional(); }
+
+function imprimirRecetaProfesional(){
+    generarRecetaPDFProfesional();
+}
 
 // CITAS
 function guardarCita(){
@@ -495,13 +643,13 @@ function mostrarCertificados(){let d=document.getElementById('listaCertificados'
 function eliminarCertificado(i){pacienteActual.certificados.splice(i,1);guardarTodoLocal();if(accessToken&&pacienteActual.folderId) guardarArchivoEnDrive(pacienteActual.folderId,'certificados.json',pacienteActual.certificados);mostrarCertificados();}
 
 // SERVICIOS
-function mostrarServicios(){let t=document.getElementById('listaServicios');t.innerHTML=servicios.map((s,i)=>`<tr><td>${s.nombre}${s.descripcion||''}${s.costo}${i}`).join('');actualizarSelectServicios();guardarTodoLocal();}
+function mostrarServicios(){let t=document.getElementById('listaServicios');t.innerHTML=servicios.map((s,i)=>`<tr><td>${s.nombre}</td><td>${s.descripcion||''}</td><td>$${s.costo}</td><td><button onclick="eliminarServicio(${i})">X</button></td></tr>`).join('');actualizarSelectServicios();guardarTodoLocal();}
 function agregarServicio(){let n=document.getElementById('servNombre').value,c=parseFloat(document.getElementById('servCosto').value);if(n&&c){servicios.push({nombre:n,costo:c,descripcion:document.getElementById('servDesc').value});mostrarServicios();mostrarToast('Servicio agregado')}}
 function eliminarServicio(i){servicios.splice(i,1);mostrarServicios()}
 function actualizarSelectServicios(){let s=document.getElementById('presServicioSelect');if(s)s.innerHTML=servicios.map(s=>`<option value="${s.nombre}|${s.costo}">${s.nombre} - $${s.costo}</option>`).join('')}
 
-// MEDICAMENTOS (catálogo)
-function mostrarMedicamentos(){let t=document.getElementById('listaMedicamentos');t.innerHTML=medicamentos.map((m,i)=>`<tr><td>${m.nombre}${m.categoria||''}${m.uso||''}${i}`).join('');guardarTodoLocal();}
+// MEDICAMENTOS
+function mostrarMedicamentos(){let t=document.getElementById('listaMedicamentos');t.innerHTML=medicamentos.map((m,i)=>`<tr><td>${m.nombre}</td><td>${m.categoria||''}</td><td>${m.uso||''}</td><td><button onclick="eliminarMedicamento(${i})">X</button></td></tr>`).join('');guardarTodoLocal();}
 function agregarMedicamento(){let n=document.getElementById('medNombre').value;if(n){medicamentos.push({nombre:n,categoria:document.getElementById('medCategoria').value,uso:document.getElementById('medUso').value});mostrarMedicamentos();mostrarToast('Medicamento agregado')}}
 function eliminarMedicamento(i){medicamentos.splice(i,1);mostrarMedicamentos()}
 
@@ -526,10 +674,10 @@ function guardarPresupuesto(){
 function mostrarPresupuestos(){let d=document.getElementById('listaPresupuestos');if(!d||!pacienteActual)return;d.innerHTML=pacienteActual.presupuestos.map((p,i)=>`<div class="exp-item">💰 ${p.fecha} - Total: $${p.total.toFixed(2)}<button onclick="eliminarPresupuesto(${i})">X</button></div>`).join('')||'<div>No hay presupuestos</div>';}
 function eliminarPresupuesto(i){pacienteActual.presupuestos.splice(i,1);guardarTodoLocal();if(accessToken&&pacienteActual.folderId) guardarArchivoEnDrive(pacienteActual.folderId,'presupuestos.json',pacienteActual.presupuestos);mostrarPresupuestos();actualizarEstadisticas();}
 
-// PDFs básicos
+// PDFS BASICOS
 function generarPresupuestoPDF(){
     const{jsPDF}=window.jspdf;const doc=new jsPDF();
-    doc.text("C&C Dental Group - Presupuesto",20,20);
+    doc.setFontSize(16);doc.text("C&C Dental Group - Presupuesto",20,20);
     doc.text(`Dr. ${DOCTOR.nombre}`,20,30);
     doc.text(`Paciente: ${document.getElementById('presNombre').value||''}`,20,45);
     let y=65;presupuestoItems.forEach(i=>{doc.text(`${i.nombre}: $${i.costo}`,20,y);y+=10});
@@ -539,7 +687,7 @@ function generarPresupuestoPDF(){
 }
 function generarCertificadoPDF(){
     const{jsPDF}=window.jspdf;const doc=new jsPDF();
-    doc.text("C&C Dental Group - Certificado Médico",20,20);
+    doc.setFontSize(16);doc.text("C&C Dental Group - Certificado Médico",20,20);
     doc.text(`Dr. ${DOCTOR.nombre} - Cédula: ${DOCTOR.cedula}`,20,35);
     doc.text(`Paciente: ${document.getElementById('certNombre').value||''}`,20,55);
     let diag=document.getElementById('certOmitir').checked?"Por motivos de salud dental":document.getElementById('certDiagnostico').value;
@@ -549,7 +697,7 @@ function generarCertificadoPDF(){
 }
 function generarConsentimientoPDF(){
     const{jsPDF}=window.jspdf;const doc=new jsPDF();
-    doc.text("C&C Dental Group - Consentimiento Informado",20,20);
+    doc.setFontSize(16);doc.text("C&C Dental Group - Consentimiento Informado",20,20);
     doc.text(`Paciente: ${document.getElementById('consentNombre').value||''}`,20,45);
     doc.text(`Procedimiento: ${document.getElementById('consentProcedimiento').value||''}`,20,65);
     doc.save('consentimiento.pdf');mostrarToast('PDF generado');
