@@ -55,7 +55,7 @@
         .stat-number{font-size:2rem;color:var(--primary);font-weight:bold}
         hr{margin:12px 0;border-color:var(--border)}
         
-        /* ESTILOS RECETA PROFESIONAL - SOLO HEADER CON FONDO TRANSPARENTE */
+        /* ESTILOS RECETA PROFESIONAL */
         .receta-profesional {
             font-family: 'Inter', 'Segoe UI', Georgia, serif;
             color: #1e2a32;
@@ -79,7 +79,7 @@
             justify-content: center;
             gap: 12px;
             flex-wrap: wrap;
-            background: transparent; /* SOLO ESTO CAMBIÓ: fondo transparente en lugar de degradado oscuro */
+            background: transparent; /* SOLO ESTO: fondo transparente en lugar de degradado oscuro */
         }
         .header-logo { width: 80px; height: auto; object-fit: contain; }
         .clinica-nombre { font-size: 1.3rem; font-weight: 700; color: #1c4e44; text-transform: uppercase; }
@@ -156,7 +156,6 @@
         </div>
     </div>
     
-    <!-- PANEL CONFIGURACIÓN GOOGLE DRIVE -->
     <div id="configPanel" class="card hidden">
         <h3>⚙️ Configuración de Google Drive</h3>
         <div class="alert-warning">
@@ -195,10 +194,8 @@
         <div class="modulo" onclick="irAPagina('estadisticas')"><i class="fas fa-chart-line"></i><h3>Estadísticas</h3></div>
     </div></div>
 
-    <!-- EXPEDIENTE -->
     <div id="pagina-expediente" class="pagina"><div class="card"><h2>📋 Expediente Clínico</h2><div class="doctor-fijo"><i class="fas fa-user-md"></i> Dr. Alejandro Coronado | Cédula: 9562093</div><fieldset><legend>Datos del Paciente</legend><div class="row"><div><label>Nombre:</label><input type="text" id="expNombre"></div><div><label>Edad:</label><input type="number" id="expEdad"></div></div><div class="row"><div><label>Teléfono:</label><input type="text" id="expTelefono"></div><div><label>Email:</label><input type="email" id="expEmail"></div></div><div><label>Alergias:</label><textarea id="expAlergias" rows="2"></textarea></div><div><label>Antecedentes:</label><textarea id="expAntecedentes" rows="3"></textarea></div></fieldset><button onclick="guardarExpediente()">Guardar</button></div></div>
 
-    <!-- RECETA PROFESIONAL -->
     <div id="pagina-receta" class="pagina"><div class="card"><h2>📄 Receta Médica Profesional</h2>
         <div class="doctor-fijo">Dr. Alejandro Coronado - Cédula 9562093</div>
         
@@ -243,32 +240,24 @@
         <hr><h3>Historial de Recetas</h3><div id="listaRecetas"></div>
     </div></div>
 
-    <!-- PRESUPUESTO -->
     <div id="pagina-presupuesto" class="pagina"><div class="card"><h2>💰 Presupuesto</h2><div><label>Paciente:</label><input type="text" id="presNombre"></div><div class="row"><div style="flex:3"><select id="presServicioSelect"></select></div><div><button onclick="agregarServicioPresupuesto()">+</button></div></div><div class="row"><div><input type="text" id="extraNombre" placeholder="Extra"></div><div><input type="number" id="extraMonto" placeholder="$"></div><div><button onclick="agregarExtraPresupuesto()">+</button></div></div><div id="listaPresupuestoItems"></div><div class="row"><div><label>Descuento %:</label><input type="number" id="presDescuento" value="0" oninput="calcularTotalPresupuesto()"></div><div><label>Vigencia/Nota:</label><input type="text" id="presVigencia"></div></div><div class="total-presupuesto" id="totalPresupuestoDisplay">Total: $0.00</div><button onclick="guardarPresupuesto()">Guardar</button><button onclick="generarPresupuestoPDF()">PDF</button><hr><h3>Historial</h3><div id="listaPresupuestos"></div></div></div>
 
-    <!-- CITAS -->
     <div id="pagina-citas" class="pagina"><div class="card"><h2>📅 Agenda de Citas</h2><div class="alert-info"><i class="fas fa-google"></i> Conecta Google Drive para respaldo</div><div class="row"><div><label>Paciente:</label><input type="text" id="citaNombre"></div><div><label>Teléfono:</label><input type="text" id="citaTelefono"></div></div><div class="row"><div><label>Fecha:</label><input type="date" id="citaFecha"></div><div><label>Hora:</label><input type="time" id="citaHora"></div></div><div><label>Tratamiento:</label><input type="text" id="citaTratamiento"></div><button onclick="guardarCita()">Agendar</button><hr><h3>Citas</h3><div id="listaCitas"></div></div></div>
 
-    <!-- SERVICIOS -->
     <div id="pagina-servicios" class="pagina"><div class="card"><h2>🦷 Servicios</h2><div class="row"><div><input type="text" id="servNombre" placeholder="Servicio"></div><div><input type="number" id="servCosto" placeholder="$"></div><div><input type="text" id="servDesc" placeholder="Descripción"></div></div><button onclick="agregarServicio()">Registrar</button><hr><table class="tabla"><thead><tr><th>Servicio</th><th>Descripción</th><th>Costo</th><th></th></tr></thead><tbody id="listaServicios"></tbody></table></div></div>
 
-    <!-- MEDICAMENTOS -->
     <div id="pagina-medicamentos" class="pagina"><div class="card"><h2>💊 Medicamentos</h2><div class="row"><div><input type="text" id="medNombre" placeholder="Medicamento"></div><div><input type="text" id="medCategoria" placeholder="Categoría"></div><div><input type="text" id="medUso" placeholder="Uso"></div></div><button onclick="agregarMedicamento()">Registrar</button><hr><table class="tabla"><thead><tr><th>Medicamento</th><th>Categoría</th><th>Uso</th><th></th></tr></thead><tbody id="listaMedicamentos"></tbody></table></div></div>
 
-    <!-- CONSENTIMIENTO -->
     <div id="pagina-consentimiento" class="pagina"><div class="card"><h2>📝 Consentimiento</h2><div><label>Paciente:</label><input type="text" id="consentNombre"></div><div><label>Procedimiento:</label><input type="text" id="consentProcedimiento"></div><div><label>Texto:</label><textarea id="consentTexto" rows="6">Yo, [NOMBRE], autorizo al Dr. Alejandro Coronado a realizar [PROCEDIMIENTO]. He sido informado de los riesgos y beneficios.</textarea></div><button onclick="guardarConsentimiento()">Guardar</button><button onclick="generarConsentimientoPDF()">PDF</button><hr><h3>Historial</h3><div id="listaConsentimientos"></div></div></div>
 
-    <!-- CERTIFICADO -->
     <div id="pagina-certificado" class="pagina"><div class="card"><h2>📜 Certificado</h2><div class="doctor-fijo">Dr. Alejandro Coronado</div><div class="row"><div><label>Paciente:</label><input type="text" id="certNombre"></div><div><label>Edad:</label><input type="text" id="certEdad"></div></div><div class="row"><div><label>Lugar:</label><input type="text" id="certLugar"></div><div><label>Fecha:</label><input type="date" id="certFecha"></div></div><div><label>Diagnóstico:</label><textarea id="certDiagnostico" rows="2"></textarea></div><div class="row"><div><label>Días reposo:</label><input type="number" id="certDias"></div><div><label>Desde:</label><input type="date" id="certDesde"></div><div><label>Hasta:</label><input type="date" id="certHasta"></div></div><label><input type="checkbox" id="certOmitir"> Omitir diagnóstico</label><br><br><button onclick="guardarCertificado()">Guardar</button><button onclick="generarCertificadoPDF()">PDF</button><hr><h3>Historial</h3><div id="listaCertificados"></div></div></div>
 
-    <!-- MI CONSULTORIO -->
     <div id="pagina-consultorio" class="pagina"><div class="card"><h2>🏢 Mi Consultorio</h2><div class="doctor-fijo"><strong>DATOS FIJOS</strong><br>Dr. Alejandro Coronado | Cédula: 9562093<br>Tel: 6646251897 | Email: Dentist.alexxx@gmail.com</div>
         <fieldset><legend>Logo Oficial</legend><div style="text-align:center;padding:20px;background:var(--input);border-radius:12px"><i class="fas fa-tooth" style="font-size:4rem;color:var(--primary)"></i><p style="margin-top:10px">C&C Dental Group</p></div></fieldset>
         <div class="disabled-field"><fieldset><legend>Nombre</legend><input value="C&C Dental Group" disabled></fieldset></div>
         <div class="disabled-field"><fieldset><legend>Dirección</legend><textarea rows="2" disabled>Emiliano Zapata 2751, Ejido Matamoros, Tijuana, CP 22204</textarea></fieldset></div>
     </div></div>
 
-    <!-- ESTADÍSTICAS -->
     <div id="pagina-estadisticas" class="pagina"><div class="card"><h2>📊 Estadísticas</h2><div class="row"><div class="chart-container"><div class="stat-number" id="totalPacientes">0</div><div>Pacientes</div></div><div class="chart-container"><div class="stat-number" id="totalCitas">0</div><div>Citas</div></div><div class="chart-container"><div class="stat-number" id="totalRecetas">0</div><div>Recetas</div></div><div class="chart-container"><div class="stat-number" id="totalPresupuestos">0</div><div>Presupuestos</div></div></div><button onclick="exportarReporte()"><i class="fas fa-download"></i> Exportar</button></div></div>
 </div>
 
@@ -620,7 +609,6 @@ function guardarCita(){
 function mostrarCitas(){let d=document.getElementById('listaCitas');if(!d||!pacienteActual)return;d.innerHTML=pacienteActual.citas.map((c,i)=>`<div class="cita-item">📅 ${c.fecha} ${c.hora}<br>${c.tratamiento}<button onclick="eliminarCita(${i})">X</button></div>`).join('')||'<div>No hay citas</div>';}
 function eliminarCita(i){pacienteActual.citas.splice(i,1);guardarTodoLocal();if(accessToken&&pacienteActual.folderId) guardarArchivoEnDrive(pacienteActual.folderId,'citas.json',pacienteActual.citas);mostrarCitas();actualizarEstadisticas();}
 
-// CONSENTIMIENTO
 function guardarConsentimiento(){
     if(!pacienteActual){mostrarToast('Selecciona paciente');return}
     let c={fecha:new Date().toLocaleString(),procedimiento:document.getElementById('consentProcedimiento').value,texto:document.getElementById('consentTexto').value};
@@ -633,7 +621,6 @@ function guardarConsentimiento(){
 function mostrarConsentimientos(){let d=document.getElementById('listaConsentimientos');if(!d||!pacienteActual)return;d.innerHTML=pacienteActual.consentimientos.map((c,i)=>`<div class="exp-item">📝 ${c.fecha}<br>${c.procedimiento}<button onclick="eliminarConsentimiento(${i})">X</button></div>`).join('')||'<div>No hay consentimientos</div>';}
 function eliminarConsentimiento(i){pacienteActual.consentimientos.splice(i,1);guardarTodoLocal();if(accessToken&&pacienteActual.folderId) guardarArchivoEnDrive(pacienteActual.folderId,'consentimientos.json',pacienteActual.consentimientos);mostrarConsentimientos();}
 
-// CERTIFICADO
 function guardarCertificado(){
     if(!pacienteActual){mostrarToast('Selecciona paciente');return}
     let o=document.getElementById('certOmitir').checked;
@@ -647,18 +634,15 @@ function guardarCertificado(){
 function mostrarCertificados(){let d=document.getElementById('listaCertificados');if(!d||!pacienteActual)return;d.innerHTML=pacienteActual.certificados.map((c,i)=>`<div class="exp-item">📜 ${c.fecha}<br>${c.diagnostico}<button onclick="eliminarCertificado(${i})">X</button></div>`).join('')||'<div>No hay certificados</div>';}
 function eliminarCertificado(i){pacienteActual.certificados.splice(i,1);guardarTodoLocal();if(accessToken&&pacienteActual.folderId) guardarArchivoEnDrive(pacienteActual.folderId,'certificados.json',pacienteActual.certificados);mostrarCertificados();}
 
-// SERVICIOS
-function mostrarServicios(){let t=document.getElementById('listaServicios');t.innerHTML=servicios.map((s,i)=>`<tr><td>${s.nombre}</td><td>${s.descripcion||''}</td><td>$${s.costo}</td><td><button onclick="eliminarServicio(${i})">X</button>NonNull} None`).join('');actualizarSelectServicios();guardarTodoLocal();}
+function mostrarServicios(){let t=document.getElementById('listaServicios');t.innerHTML=servicios.map((s,i)=>`<tr><td>${s.nombre}</td><td>${s.descripcion||''}</td><td>$${s.costo}</td><td><button onclick="eliminarServicio(${i})">X</button></td></tr>`).join('');actualizarSelectServicios();guardarTodoLocal();}
 function agregarServicio(){let n=document.getElementById('servNombre').value,c=parseFloat(document.getElementById('servCosto').value);if(n&&c){servicios.push({nombre:n,costo:c,descripcion:document.getElementById('servDesc').value});mostrarServicios();mostrarToast('Servicio agregado')}}
 function eliminarServicio(i){servicios.splice(i,1);mostrarServicios()}
 function actualizarSelectServicios(){let s=document.getElementById('presServicioSelect');if(s)s.innerHTML=servicios.map(s=>`<option value="${s.nombre}|${s.costo}">${s.nombre} - $${s.costo}</option>`).join('')}
 
-// MEDICAMENTOS
-function mostrarMedicamentos(){let t=document.getElementById('listaMedicamentos');t.innerHTML=medicamentos.map((m,i)=>`<tr><td>${m.nombre}</td><td>${m.categoria||''}</td><td>${m.uso||''}</td><td><button onclick="eliminarMedicamento(${i})">X</button>NonNull} None`).join('');guardarTodoLocal();}
+function mostrarMedicamentos(){let t=document.getElementById('listaMedicamentos');t.innerHTML=medicamentos.map((m,i)=>`<tr><td>${m.nombre}</td><td>${m.categoria||''}</td><td>${m.uso||''}</td><td><button onclick="eliminarMedicamento(${i})">X</button></td></tr>`).join('');guardarTodoLocal();}
 function agregarMedicamento(){let n=document.getElementById('medNombre').value;if(n){medicamentos.push({nombre:n,categoria:document.getElementById('medCategoria').value,uso:document.getElementById('medUso').value});mostrarMedicamentos();mostrarToast('Medicamento agregado')}}
 function eliminarMedicamento(i){medicamentos.splice(i,1);mostrarMedicamentos()}
 
-// PRESUPUESTO
 function agregarServicioPresupuesto(){let v=document.getElementById('presServicioSelect').value;if(v){let[n,c]=v.split('|');presupuestoItems.push({nombre:n,costo:parseFloat(c)});renderPresupuestoItems();calcularTotalPresupuesto()}}
 function agregarExtraPresupuesto(){let n=document.getElementById('extraNombre').value,m=parseFloat(document.getElementById('extraMonto').value);if(n&&m){presupuestoItems.push({nombre:n,costo:m});renderPresupuestoItems();calcularTotalPresupuesto()}}
 function renderPresupuestoItems(){let d=document.getElementById('listaPresupuestoItems');d.innerHTML=presupuestoItems.map((i,idx)=>`<div class="presupuesto-item">${i.nombre} - $${i.costo}<button onclick="eliminarItemPresupuesto(${idx})">X</button></div>`).join('')||'<div>No hay servicios</div>';}
@@ -679,7 +663,6 @@ function guardarPresupuesto(){
 function mostrarPresupuestos(){let d=document.getElementById('listaPresupuestos');if(!d||!pacienteActual)return;d.innerHTML=pacienteActual.presupuestos.map((p,i)=>`<div class="exp-item">💰 ${p.fecha} - Total: $${p.total.toFixed(2)}<button onclick="eliminarPresupuesto(${i})">X</button></div>`).join('')||'<div>No hay presupuestos</div>';}
 function eliminarPresupuesto(i){pacienteActual.presupuestos.splice(i,1);guardarTodoLocal();if(accessToken&&pacienteActual.folderId) guardarArchivoEnDrive(pacienteActual.folderId,'presupuestos.json',pacienteActual.presupuestos);mostrarPresupuestos();actualizarEstadisticas();}
 
-// PDFS BASICOS
 function generarPresupuestoPDF(){
     const{jsPDF}=window.jspdf;const doc=new jsPDF();
     doc.setFontSize(16);doc.text("C&C Dental Group - Presupuesto",20,20);
@@ -708,7 +691,6 @@ function generarConsentimientoPDF(){
     doc.save('consentimiento.pdf');mostrarToast('PDF generado');
 }
 
-// GOOGLE DRIVE
 async function conectarGoogle(){let id=localStorage.getItem('googleClientId');if(id)iniciarAuth(id);else document.getElementById('configPanel').classList.remove('hidden');}
 function guardarClientId(){let id=document.getElementById('clientIdInput').value;if(id){localStorage.setItem('googleClientId',id);document.getElementById('configPanel').classList.add('hidden');iniciarAuth(id)}}
 function cerrarConfig(){document.getElementById('configPanel').classList.add('hidden')}
