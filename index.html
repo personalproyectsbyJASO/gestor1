@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>C&C Dental Group - Sistema Dental</title>
+    <title>C&C Dental Group - Sistema Dental Completo</title>
     <script src="https://accounts.google.com/gsi/client"></script>
     <script src="https://apis.google.com/js/api.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -210,8 +210,10 @@
         <div class="modulo" onclick="irAPagina('estadisticas')"><i class="fas fa-chart-line"></i><h3>Estadísticas</h3></div>
     </div></div>
 
-    <div id="pagina-expediente" class="pagina"><div class="card"><h2>📋 Expediente Clínico</h2><div class="doctor-fijo"><i class="fas fa-user-md"></i> Dr. Alejandro Coronado | Cédula: 9562093</div><fieldset><legend>Datos del Paciente</legend><div class="row"><div><label>Nombre:</label><input type="text" id="expNombre"></div><div><label>Edad:</label><input type="number" id="expEdad"></div></div><div class="row"><div><label>Teléfono:</label><input type="text" id="expTelefono"></div><div><label>Email:</label><input type="email" id="expEmail"></div></div><div><label>Alergias:</label><textarea id="expAlergias" rows="2"></textarea></div><div><label>Antecedentes:</label><textarea id="expAntecedentes" rows="3"></textarea></div></fieldset><button onclick="guardarExpediente()">Guardar</button></div></div>
+    <!-- EXPEDIENTE -->
+    <div id="pagina-expediente" class="pagina"><div class="card"><h2>📋 Expediente Clínico</h2><div class="doctor-fijo"><i class="fas fa-user-md"></i> Dr. Alejandro Coronado | Cédula: 9562093</div><fieldset><legend>Datos del Paciente</legend><div class="row"><div><label>Nombre:</label><input type="text" id="expNombre"></div><div><label>Edad:</label><input type="number" id="expEdad"></div></div><div class="row"><div><label>Teléfono:</label><input type="text" id="expTelefono"></div><div><label>Email:</label><input type="email" id="expEmail" placeholder="correo@ejemplo.com (para invitaciones a Calendar)"></div></div><div><label>Alergias:</label><textarea id="expAlergias" rows="2"></textarea></div><div><label>Antecedentes:</label><textarea id="expAntecedentes" rows="3"></textarea></div></fieldset><button onclick="guardarExpediente()">Guardar</button></div></div>
 
+    <!-- RECETA -->
     <div id="pagina-receta" class="pagina"><div class="card"><h2>📄 Receta Médica Profesional</h2>
         <div class="doctor-fijo">Dr. Alejandro Coronado - Cédula 9562093</div>
         <fieldset><legend>🏥 Datos de la Clínica (Fijos)</legend>
@@ -275,11 +277,14 @@
         <hr><h3>Historial de Recetas</h3><div id="listaRecetas"></div>
     </div></div>
 
+    <!-- PRESUPUESTO -->
     <div id="pagina-presupuesto" class="pagina"><div class="card"><h2>💰 Presupuesto</h2><div><label>Paciente:</label><input type="text" id="presNombre"></div><div class="row"><div style="flex:3"><select id="presServicioSelect"></select></div><div><button onclick="agregarServicioPresupuesto()">+</button></div></div><div class="row"><div><input type="text" id="extraNombre" placeholder="Extra"></div><div><input type="number" id="extraMonto" placeholder="$"></div><div><button onclick="agregarExtraPresupuesto()">+</button></div></div><div id="listaPresupuestoItems"></div><div class="row"><div><label>Descuento %:</label><input type="number" id="presDescuento" value="0" oninput="calcularTotalPresupuesto()"></div><div><label>Vigencia/Nota:</label><input type="text" id="presVigencia"></div></div><div class="total-presupuesto" id="totalPresupuestoDisplay">Total: $0.00</div><button onclick="guardarPresupuesto()">Guardar</button><button onclick="generarPresupuestoPDF()">PDF</button><hr><h3>Historial</h3><div id="listaPresupuestos"></div></div></div>
 
+    <!-- CITAS CON INVITACIONES A CALENDAR -->
     <div id="pagina-citas" class="pagina"><div class="card"><h2>📅 Agenda de Citas <i class="fab fa-google" style="font-size:0.9rem;"></i> <span id="calendarStatus" style="font-size:0.7rem; color:#10B981;"></span></h2>
-        <div class="alert-info"><i class="fas fa-google"></i> Las citas se sincronizan automáticamente con Google Calendar</div>
-        <div class="row"><div><label>Paciente:</label><input type="text" id="citaNombre"></div><div><label>Teléfono:</label><input type="text" id="citaTelefono"></div></div>
+        <div class="alert-info"><i class="fas fa-google"></i> Las citas se sincronizan con Google Calendar. Si el paciente tiene correo Gmail, recibirá invitación.</div>
+        <div class="row"><div><label>Paciente:</label><input type="text" id="citaNombre" readonly disabled style="background:var(--input); opacity:0.8;"></div><div><label>Teléfono:</label><input type="text" id="citaTelefono" readonly disabled style="background:var(--input); opacity:0.8;"></div></div>
+        <div class="row"><div><label>Correo del paciente:</label><input type="email" id="citaEmail" readonly disabled style="background:var(--input); opacity:0.8;"></div></div>
         <div class="row"><div><label>Fecha:</label><input type="date" id="citaFecha"></div><div><label>Hora:</label><input type="time" id="citaHora"></div></div>
         <div><label>Tratamiento:</label><input type="text" id="citaTratamiento"></div>
         <div><label>Notas de la cita:</label><textarea id="citaNotas" rows="2" placeholder="Información adicional..."></textarea></div>
@@ -289,10 +294,13 @@
         <button onclick="sincronizarCalendario()" style="background:#0D9488; margin-top:10px;"><i class="fas fa-sync-alt"></i> Sincronizar con Calendar</button>
     </div></div>
 
+    <!-- SERVICIOS -->
     <div id="pagina-servicios" class="pagina"><div class="card"><h2>🦷 Servicios</h2><div class="row"><div><input type="text" id="servNombre" placeholder="Servicio"></div><div><input type="number" id="servCosto" placeholder="$"></div><div><input type="text" id="servDesc" placeholder="Descripción"></div></div><button onclick="agregarServicio()">Registrar</button><hr><table style="width:100%"><thead><tr><th>Servicio</th><th>Descripción</th><th>Costo</th><th></th></tr></thead><tbody id="listaServicios"></tbody></table></div></div>
 
+    <!-- MEDICAMENTOS -->
     <div id="pagina-medicamentos" class="pagina"><div class="card"><h2>💊 Medicamentos</h2><div class="row"><div><input type="text" id="medNombre" placeholder="Medicamento"></div><div><input type="text" id="medCategoria" placeholder="Categoría"></div><div><input type="text" id="medUso" placeholder="Uso"></div></div><button onclick="agregarMedicamento()">Registrar</button><hr><table style="width:100%"><thead><tr><th>Medicamento</th><th>Categoría</th><th>Uso</th><th></th></tr></thead><tbody id="listaMedicamentos"></tbody></table></div></div>
 
+    <!-- CONSENTIMIENTO -->
     <div id="pagina-consentimiento" class="pagina"><div class="card"><h2>📝 Consentimiento Informado</h2>
         <div><label>Paciente:</label><input type="text" id="consentNombre"></div>
         <div><label>Procedimiento:</label><input type="text" id="consentProcedimiento"></div>
@@ -316,14 +324,17 @@
         <div id="listaConsentimientos"></div>
     </div></div>
 
+    <!-- CERTIFICADO -->
     <div id="pagina-certificado" class="pagina"><div class="card"><h2>📜 Certificado</h2><div class="doctor-fijo">Dr. Alejandro Coronado</div><div class="row"><div><label>Paciente:</label><input type="text" id="certNombre"></div><div><label>Edad:</label><input type="text" id="certEdad"></div></div><div class="row"><div><label>Lugar:</label><input type="text" id="certLugar"></div><div><label>Fecha:</label><input type="date" id="certFecha"></div></div><div><label>Diagnóstico:</label><textarea id="certDiagnostico" rows="2"></textarea></div><div class="row"><div><label>Días reposo:</label><input type="number" id="certDias"></div><div><label>Desde:</label><input type="date" id="certDesde"></div><div><label>Hasta:</label><input type="date" id="certHasta"></div></div><label><input type="checkbox" id="certOmitir"> Omitir diagnóstico</label><br><br><button onclick="guardarCertificado()">Guardar</button><button onclick="generarCertificadoPDF()">PDF</button><hr><h3>Historial</h3><div id="listaCertificados"></div></div></div>
 
+    <!-- MI CONSULTORIO -->
     <div id="pagina-consultorio" class="pagina"><div class="card"><h2>🏢 Mi Consultorio</h2><div class="doctor-fijo"><strong>DATOS FIJOS</strong><br>Dr. Alejandro Coronado | Cédula: 9562093<br>Tel: 6646251897 | Email: Dentist.alexxx@gmail.com</div>
         <fieldset><legend>Logo Oficial</legend><div style="text-align:center;padding:20px;background:var(--input);border-radius:12px"><i class="fas fa-tooth" style="font-size:4rem;color:var(--primary)"></i><p style="margin-top:10px">C&C Dental Group</p></div></fieldset>
         <div><fieldset><legend>Nombre</legend><input value="C&C Dental Group" disabled></fieldset></div>
         <div><fieldset><legend>Dirección</legend><textarea rows="2" disabled>Emiliano Zapata 2751, Ejido Matamoros, Tijuana, CP 22204</textarea></fieldset></div>
     </div></div>
 
+    <!-- ESTADÍSTICAS -->
     <div id="pagina-estadisticas" class="pagina"><div class="card"><h2>📊 Estadísticas</h2><div class="row"><div class="chart-container"><div class="stat-number" id="totalPacientes">0</div><div>Pacientes</div></div><div class="chart-container"><div class="stat-number" id="totalCitas">0</div><div>Citas</div></div><div class="chart-container"><div class="stat-number" id="totalRecetas">0</div><div>Recetas</div></div><div class="chart-container"><div class="stat-number" id="totalPresupuestos">0</div><div>Presupuestos</div></div></div><button onclick="exportarReporte()"><i class="fas fa-download"></i> Exportar</button></div></div>
 </div>
 
@@ -446,6 +457,7 @@ function importarExpedienteJSON(){
                 document.getElementById('presNombre').value = pacienteActual.data.nombre;
                 document.getElementById('citaNombre').value = pacienteActual.data.nombre;
                 document.getElementById('citaTelefono').value = pacienteActual.data.telefono;
+                document.getElementById('citaEmail').value = pacienteActual.data.email || '';
                 document.getElementById('consentNombre').value = pacienteActual.data.nombre;
                 document.getElementById('certNombre').value = pacienteActual.data.nombre;
                 document.getElementById('certEdad').value = pacienteActual.data.edad;
@@ -530,6 +542,7 @@ function cambiarPaciente(){
         document.getElementById('presNombre').value=pacienteActual.data.nombre||'';
         document.getElementById('citaNombre').value=pacienteActual.data.nombre||'';
         document.getElementById('citaTelefono').value=pacienteActual.data.telefono||'';
+        document.getElementById('citaEmail').value=pacienteActual.data.email||'';
         document.getElementById('consentNombre').value=pacienteActual.data.nombre||'';
         document.getElementById('certNombre').value=pacienteActual.data.nombre||'';
         document.getElementById('certEdad').value=pacienteActual.data.edad||'';
@@ -540,9 +553,9 @@ function cambiarPaciente(){
 
 function crearNuevoPaciente(){
     let n=prompt('Nombre completo:'); if(!n) return;
-    let e=prompt('Edad:'); let t=prompt('Teléfono:');
+    let e=prompt('Edad:'); let t=prompt('Teléfono:'); let c=prompt('Correo electrónico (opcional):');
     let k=n.toLowerCase().replace(/ /g,'_')+Date.now();
-    pacientes[k]={data:{nombre:n,edad:e,telefono:t,email:'',alergias:'',antecedentes:''},recetas:[],presupuestos:[],citas:[],consentimientos:[],certificados:[],folderId:null};
+    pacientes[k]={data:{nombre:n,edad:e,telefono:t,email:c||'',alergias:'',antecedentes:''},recetas:[],presupuestos:[],citas:[],consentimientos:[],certificados:[],folderId:null};
     if(accessToken&&principalFolderId) crearSubcarpeta(principalFolderId,k).then(fid=>{if(fid)pacientes[k].folderId=fid;guardarTodoLocal()});
     guardarTodoLocal();
     actualizarSelectPacientes();
@@ -681,7 +694,6 @@ function inicializarFirmaDoctor() {
     firmaDoctorCanvas.addEventListener('touchmove', (e) => { e.preventDefault(); if(firmandoDoctor) dibujarFirmaDoctorMoveTouch(e, firmaDoctorCanvas, firmaDoctorCtx); });
     firmaDoctorCanvas.addEventListener('touchend', () => { firmandoDoctor = false; firmaDoctorCtx.beginPath(); });
 }
-
 function dibujarFirmaDoctorStart(e, canvas, ctx) {
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
@@ -972,35 +984,90 @@ function generarRecetaPDFProfesional(){
 }
 function imprimirRecetaProfesional(){ generarRecetaPDFProfesional(); }
 
-// ========== CALENDAR ==========
-async function crearEventoCalendar(pacienteNombre, fecha, hora, tratamiento, telefono, notas) {
+// ========== CALENDAR CON INVITACIONES ==========
+async function crearEventoCalendar(pacienteNombre, fecha, hora, tratamiento, telefono, correoPaciente, notas) {
     if(!accessToken) return null;
     try {
         let fechaTime = new Date(`${fecha}T${hora}:00`);
         let fechaFin = new Date(fechaTime.getTime() + 60 * 60 * 1000);
-        let evento = { summary: `🦷 Cita Dental - ${pacienteNombre}`, description: `Paciente: ${pacienteNombre}\nTeléfono: ${telefono}\nTratamiento: ${tratamiento}\n${notas ? `Notas: ${notas}` : ''}`, start: { dateTime: fechaTime.toISOString(), timeZone: 'America/Tijuana' }, end: { dateTime: fechaFin.toISOString(), timeZone: 'America/Tijuana' }, reminders: { useDefault: true } };
-        let response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', { method: 'POST', headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify(evento) });
+        
+        let evento = {
+            summary: `🦷 Cita Dental - ${pacienteNombre}`,
+            description: `Paciente: ${pacienteNombre}\nTeléfono: ${telefono}\nTratamiento: ${tratamiento}\n${notas ? `Notas: ${notas}` : ''}\n\nCita agendada desde C&C Dental Group`,
+            start: { dateTime: fechaTime.toISOString(), timeZone: 'America/Tijuana' },
+            end: { dateTime: fechaFin.toISOString(), timeZone: 'America/Tijuana' },
+            reminders: { useDefault: true }
+        };
+        
+        // Si el paciente tiene correo Y es de Gmail, agregar como invitado
+        if(correoPaciente && correoPaciente.trim() !== '' && correoPaciente.toLowerCase().includes('@gmail.com')) {
+            evento.attendees = [{ email: correoPaciente.trim() }];
+            evento.sendUpdates = 'all';
+            console.log(`📧 Invitación enviada a: ${correoPaciente}`);
+        } else if(correoPaciente && correoPaciente.trim() !== '') {
+            console.log(`📧 Correo detectado (no Gmail): ${correoPaciente} - no se envía invitación automática`);
+        }
+        
+        let response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(evento)
+        });
+        
         let data = await response.json();
-        if(data.id) return data;
+        if(data.id) {
+            console.log("✅ Evento creado en Calendar:", data.htmlLink);
+            return data;
+        }
         return null;
-    } catch(e) { return null; }
+    } catch(e) {
+        console.log("❌ Error en Calendar:", e);
+        return null;
+    }
 }
-async function actualizarEventoCalendar(eventoId, pacienteNombre, fecha, hora, tratamiento, telefono, notas) {
+
+async function actualizarEventoCalendar(eventoId, pacienteNombre, fecha, hora, tratamiento, telefono, correoPaciente, notas) {
     if(!accessToken || !eventoId) return null;
     try {
         let fechaTime = new Date(`${fecha}T${hora}:00`);
         let fechaFin = new Date(fechaTime.getTime() + 60 * 60 * 1000);
-        let evento = { summary: `🦷 Cita Dental - ${pacienteNombre}`, description: `Paciente: ${pacienteNombre}\nTeléfono: ${telefono}\nTratamiento: ${tratamiento}\n${notas ? `Notas: ${notas}` : ''}\n\nActualizado desde C&C Dental Group`, start: { dateTime: fechaTime.toISOString(), timeZone: 'America/Tijuana' }, end: { dateTime: fechaFin.toISOString(), timeZone: 'America/Tijuana' }, reminders: { useDefault: true } };
-        let response = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventoId}`, { method: 'PUT', headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify(evento) });
+        
+        let evento = {
+            summary: `🦷 Cita Dental - ${pacienteNombre}`,
+            description: `Paciente: ${pacienteNombre}\nTeléfono: ${telefono}\nTratamiento: ${tratamiento}\n${notas ? `Notas: ${notas}` : ''}\n\nActualizado desde C&C Dental Group`,
+            start: { dateTime: fechaTime.toISOString(), timeZone: 'America/Tijuana' },
+            end: { dateTime: fechaFin.toISOString(), timeZone: 'America/Tijuana' },
+            reminders: { useDefault: true }
+        };
+        
+        if(correoPaciente && correoPaciente.trim() !== '' && correoPaciente.toLowerCase().includes('@gmail.com')) {
+            evento.attendees = [{ email: correoPaciente.trim() }];
+            evento.sendUpdates = 'all';
+        }
+        
+        let response = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventoId}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(evento)
+        });
+        
         let data = await response.json();
         if(data.id) return data;
         return null;
     } catch(e) { return null; }
 }
+
 async function eliminarEventoCalendar(eventoId) {
     if(!accessToken || !eventoId) return false;
     try { let response = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventoId}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${accessToken}` } }); return response.ok; } catch(e) { return false; }
 }
+
 async function sincronizarCalendario() {
     if(!pacienteActual) { mostrarToast('Selecciona paciente'); return; }
     if(!accessToken) { mostrarToast('Conecta Drive primero'); return; }
@@ -1010,7 +1077,7 @@ async function sincronizarCalendario() {
     for(let i = 0; i < citas.length; i++) {
         let cita = citas[i];
         if(!cita.eventoId) {
-            let evento = await crearEventoCalendar(pacienteActual.data.nombre || 'Paciente', cita.fecha, cita.hora, cita.tratamiento, pacienteActual.data.telefono || '', cita.notas || '');
+            let evento = await crearEventoCalendar(pacienteActual.data.nombre || 'Paciente', cita.fecha, cita.hora, cita.tratamiento, pacienteActual.data.telefono || '', pacienteActual.data.email || '', cita.notas || '');
             if(evento && evento.id) { cita.eventoId = evento.id; cita.eventoLink = evento.htmlLink; actualizadas++; }
         }
     }
@@ -1019,6 +1086,7 @@ async function sincronizarCalendario() {
     mostrarCitas();
     mostrarToast(`✅ ${actualizadas} citas sincronizadas`);
 }
+
 function guardarCita(){
     if(!pacienteActual){mostrarToast('Selecciona paciente');return}
     let fecha = document.getElementById('citaFecha').value;
@@ -1026,20 +1094,26 @@ function guardarCita(){
     let tratamiento = document.getElementById('citaTratamiento').value;
     let notas = document.getElementById('citaNotas').value;
     if(!fecha || !hora) { mostrarToast('Selecciona fecha y hora'); return; }
+    
+    let correoPaciente = pacienteActual.data.email || '';
+    
     let citaExistente = null;
     let citaIndex = -1;
     if(pacienteActual.citas) {
         citaIndex = pacienteActual.citas.findIndex(c => c.fecha === fecha && c.hora === hora);
         if(citaIndex !== -1) citaExistente = pacienteActual.citas[citaIndex];
     }
+    
     let cita = { fecha: fecha, hora: hora, tratamiento: tratamiento, notas: notas, fechaModificacion: new Date().toISOString() };
+    
     if(citaExistente) {
         cita.eventoId = citaExistente.eventoId;
         cita.eventoLink = citaExistente.eventoLink;
         cita.fechaCreacion = citaExistente.fechaCreacion;
+        
         if(accessToken && cita.eventoId) {
             mostrarToast('📅 Actualizando evento...');
-            actualizarEventoCalendar(cita.eventoId, pacienteActual.data.nombre || 'Paciente', fecha, hora, tratamiento, pacienteActual.data.telefono || '', notas).then(evento => {
+            actualizarEventoCalendar(cita.eventoId, pacienteActual.data.nombre || 'Paciente', fecha, hora, tratamiento, pacienteActual.data.telefono || '', correoPaciente, notas).then(evento => {
                 if(evento && evento.id) { cita.eventoLink = evento.htmlLink; mostrarToast('✅ Evento actualizado'); }
                 else { mostrarToast('⚠️ Solo local'); }
                 pacienteActual.citas[citaIndex] = cita;
@@ -1048,6 +1122,9 @@ function guardarCita(){
                 mostrarCitas();
                 actualizarEstadisticas();
                 limpiarCamposCita();
+                if(correoPaciente && correoPaciente.includes('@gmail.com')) {
+                    mostrarToast('📧 Se actualizó la invitación en el calendario del paciente');
+                }
             });
         } else {
             pacienteActual.citas[citaIndex] = cita;
@@ -1061,7 +1138,7 @@ function guardarCita(){
     } else {
         if(accessToken) {
             mostrarToast('📅 Creando evento...');
-            crearEventoCalendar(pacienteActual.data.nombre || 'Paciente', fecha, hora, tratamiento, pacienteActual.data.telefono || '', notas).then(evento => {
+            crearEventoCalendar(pacienteActual.data.nombre || 'Paciente', fecha, hora, tratamiento, pacienteActual.data.telefono || '', correoPaciente, notas).then(evento => {
                 if(evento && evento.id) { cita.eventoId = evento.id; cita.eventoLink = evento.htmlLink; mostrarToast('✅ Evento creado'); }
                 else { mostrarToast('⚠️ Solo local'); }
                 pacienteActual.citas.push(cita);
@@ -1070,6 +1147,11 @@ function guardarCita(){
                 mostrarCitas();
                 actualizarEstadisticas();
                 limpiarCamposCita();
+                if(correoPaciente && correoPaciente.includes('@gmail.com')) {
+                    mostrarToast('📧 Se envió invitación al correo del paciente');
+                } else if(correoPaciente) {
+                    mostrarToast('📧 El correo no es Gmail, no se envió invitación automática');
+                }
             });
         } else {
             pacienteActual.citas.push(cita);
@@ -1077,17 +1159,19 @@ function guardarCita(){
             if(pacienteActual.folderId) guardarArchivoEnDrive(pacienteActual.folderId, 'citas.json', pacienteActual.citas);
             mostrarCitas();
             actualizarEstadisticas();
-            mostrarToast('Cita guardada localmente');
+            mostrarToast('Cita guardada localmente (sin conexión a Calendar)');
             limpiarCamposCita();
         }
     }
 }
+
 function limpiarCamposCita() {
     document.getElementById('citaFecha').value = '';
     document.getElementById('citaHora').value = '';
     document.getElementById('citaTratamiento').value = '';
     document.getElementById('citaNotas').value = '';
 }
+
 function mostrarCitas(){
     let d = document.getElementById('listaCitas');
     if(!d || !pacienteActual) return;
@@ -1096,6 +1180,7 @@ function mostrarCitas(){
     citas.sort((a,b) => new Date(b.fecha + ' ' + b.hora) - new Date(a.fecha + ' ' + a.hora));
     d.innerHTML = citas.map((c,i)=>`<div class="cita-item"><div style="flex:1"><strong>📅 ${c.fecha} ${c.hora}</strong><br>🦷 ${c.tratamiento}<br>${c.notas ? `<small>📝 ${c.notas.substring(0, 50)}</small><br>` : ''}${c.eventoLink ? `<a href="${c.eventoLink}" target="_blank" class="calendar-link"><i class="fab fa-google"></i> Ver en Calendar</a>` : '<span style="color:#888;">⚠️ No sincronizado</span>'}</div><div style="display:flex; gap:5px;"><button onclick="editarCita(${i})" style="background:#0D9488; padding:5px 10px;"><i class="fas fa-edit"></i></button><button onclick="eliminarCitaConCalendar(${i})" style="background:#EF4444; padding:5px 10px;"><i class="fas fa-trash"></i></button></div></div>`).join('');
 }
+
 function editarCita(index) {
     let cita = pacienteActual.citas[index];
     if(!cita) return;
@@ -1106,6 +1191,7 @@ function editarCita(index) {
     mostrarToast('✏️ Editando cita. Modifica y vuelve a guardar.');
     document.getElementById('citaFecha').scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
+
 async function eliminarCitaConCalendar(i){
     let cita = pacienteActual.citas[i];
     if(cita && cita.eventoId) await eliminarEventoCalendar(cita.eventoId);
@@ -1176,13 +1262,13 @@ function mostrarCertificados(){let d=document.getElementById('listaCertificados'
 function eliminarCertificado(i){pacienteActual.certificados.splice(i,1);guardarTodoLocal();if(accessToken&&pacienteActual.folderId) guardarArchivoEnDrive(pacienteActual.folderId,'certificados.json',pacienteActual.certificados);mostrarCertificados();}
 
 // ========== SERVICIOS ==========
-function mostrarServicios(){let t=document.getElementById('listaServicios');t.innerHTML=servicios.map((s,i)=>`<tr><td>${s.nombre}</td><td>${s.descripcion||''}</td><td>$${s.costo}</td><td><button onclick="eliminarServicio(${i})" style="padding:4px 8px;font-size:0.7rem">X</button></td></tr>`).join('');actualizarSelectServicios();guardarTodoLocal();}
+function mostrarServicios(){let t=document.getElementById('listaServicios');t.innerHTML=servicios.map((s,i)=>`<tr><td>${s.nombre}</td><td>${s.descripcion||''}</td><td>$${s.costo}</td>}<button onclick="eliminarServicio(${i})" style="padding:4px 8px;font-size:0.7rem">X</button></td>`).join('');actualizarSelectServicios();guardarTodoLocal();}
 function agregarServicio(){let n=document.getElementById('servNombre').value,c=parseFloat(document.getElementById('servCosto').value);if(n&&c){servicios.push({nombre:n,costo:c,descripcion:document.getElementById('servDesc').value});mostrarServicios();mostrarToast('Servicio agregado')}}
 function eliminarServicio(i){servicios.splice(i,1);mostrarServicios()}
 function actualizarSelectServicios(){let s=document.getElementById('presServicioSelect');if(s)s.innerHTML=servicios.map(s=>`<option value="${s.nombre}|${s.costo}">${s.nombre} - $${s.costo}</option>`).join('')}
 
 // ========== MEDICAMENTOS ==========
-function mostrarMedicamentos(){let t=document.getElementById('listaMedicamentos');t.innerHTML=medicamentos.map((m,i)=>`<tr><td>${m.nombre}</td><td>${m.categoria||''}</td><td>${m.uso||''}</td><td><button onclick="eliminarMedicamento(${i})" style="padding:4px 8px;font-size:0.7rem">X</button>NonNull} None`).join('');guardarTodoLocal();}
+function mostrarMedicamentos(){let t=document.getElementById('listaMedicamentos');t.innerHTML=medicamentos.map((m,i)=>`<tr><tr>${m.nombre}</td><td>${m.categoria||''}</td><td>${m.uso||''}</td>}<button onclick="eliminarMedicamento(${i})" style="padding:4px 8px;font-size:0.7rem">X</button>NonNull} None`).join('');guardarTodoLocal();}
 function agregarMedicamento(){let n=document.getElementById('medNombre').value;if(n){medicamentos.push({nombre:n,categoria:document.getElementById('medCategoria').value,uso:document.getElementById('medUso').value});mostrarMedicamentos();mostrarToast('Medicamento agregado')}}
 function eliminarMedicamento(i){medicamentos.splice(i,1);mostrarMedicamentos()}
 
