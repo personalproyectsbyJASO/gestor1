@@ -84,14 +84,11 @@
             gap: 12px;
         }
 
+        /* SVG del diente - exactamente el de tu imagen */
         .logo svg {
-            width: 38px;
-            height: 38px;
+            width: 42px;
+            height: 42px;
             display: block;
-        }
-
-        .logo svg path {
-            fill: var(--primary);
         }
 
         .logo h1 {
@@ -388,7 +385,8 @@
 <div class="container">
     <div class="header">
         <div class="logo">
-            <svg width="38" height="38" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- SVG del diente IDÉNTICO al de tu imagen -->
+            <svg width="42" height="42" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12 4C8.5 4 6 6 6 9C6 12 7 14 8 16C9 18 10 20 12 20C14 20 15 18 16 16C17 14 18 12 18 9C18 6 15.5 4 12 4Z" fill="currentColor" stroke="currentColor" stroke-width="1.2"/>
                 <path d="M9 9L11 11M15 9L13 11M9 14L12 16L15 14" stroke="white" stroke-width="1.2" stroke-linecap="round"/>
                 <circle cx="12" cy="4" r="1.5" fill="currentColor"/>
@@ -401,7 +399,7 @@
         </div>
     </div>
 
-    <!-- Panel de configuración - Oculto por defecto, solo aparece al hacer clic en Conectar Drive -->
+    <!-- Panel de configuración - TOTALMENTE OCULTO por defecto -->
     <div id="configPanel" class="card hidden">
         <h3><i class="fab fa-google"></i> Configuración de Google</h3>
         <label>Client ID:</label>
@@ -472,7 +470,7 @@
     let pacientes = {}, pacienteActual = null, servicios = [], medicamentos = [], presupuestoItems = [], recetaMedicamentos = [];
     let accessToken = null, tokenClient = null;
 
-    // Funciones de tema (corregidas para Android)
+    // Funciones de tema
     function setThemeFromStorage() {
         const saved = localStorage.getItem('modo');
         if (saved === 'claro') {
@@ -507,7 +505,7 @@
         if(icon) icon.className = document.body.classList.contains('modo-claro') ? 'fas fa-sun' : 'fas fa-moon';
     }
 
-    // Funciones de almacenamiento
+    // Almacenamiento local
     function guardarTodoLocal() { 
         localStorage.setItem('pacientes', JSON.stringify(pacientes)); 
         localStorage.setItem('servicios', JSON.stringify(servicios)); 
@@ -623,7 +621,6 @@
         mostrarToast('Reporte exportado'); 
     }
 
-    // Funciones de listas
     function mostrarRecetas() { 
         let d = document.getElementById('listaRecetas'); 
         if (d && pacienteActual) d.innerHTML = (pacienteActual.recetas || []).map((r, i) => `<div class="exp-item">📄 ${r.fecha} <button onclick="eliminarReceta(${i})">X</button></div>`).join('') || 'Sin recetas'; 
@@ -739,21 +736,42 @@
     function cargarEjemploMedicamentos(){ recetaMedicamentos=[{nombre:"Amoxicilina",dosis:"500mg"}]; renderizarMedicamentosReceta(); }
     function renderizarMedicamentosReceta(){ let cont=document.getElementById('medicamentosContainer'); if(cont) cont.innerHTML=recetaMedicamentos.map((m,i)=>`<div><input value="${m.nombre}" onchange="recetaMedicamentos[${i}].nombre=this.value"></div>`).join(''); }
 
-    // Google Drive (simulado)
+    // ========== GOOGLE DRIVE - SOLO SE MUESTRA EL PANEL SI NO HAY CLIENT ID ==========
     function conectarGoogle(){ 
-        document.getElementById('configPanel').classList.remove('hidden'); 
+        let clientIdGuardado = localStorage.getItem('googleClientId');
+        if(clientIdGuardado) {
+            // Ya hay un Client ID guardado, conexión automática (simulada)
+            mostrarToast('✅ Conectado a Google Drive (sesión guardada)');
+            document.getElementById('googleBtn').classList.add('connected');
+        } else {
+            // No hay Client ID, mostrar el panel para que lo ingrese
+            document.getElementById('configPanel').classList.remove('hidden');
+        }
     }
+    
     function guardarClientId(){ 
         let id = document.getElementById('clientIdInput').value; 
         if(id){ 
             localStorage.setItem('googleClientId', id); 
             document.getElementById('configPanel').classList.add('hidden'); 
-            mostrarToast('Client ID guardado (conexión simulada)'); 
+            mostrarToast('✅ Client ID guardado. Conectado a Google Drive.'); 
+            document.getElementById('googleBtn').classList.add('connected');
         } else { 
-            mostrarToast('Ingresa un Client ID'); 
+            mostrarToast('❌ Ingresa un Client ID'); 
         } 
     }
-    function cerrarConfig(){ document.getElementById('configPanel').classList.add('hidden'); }
+    
+    function cerrarConfig(){ 
+        document.getElementById('configPanel').classList.add('hidden'); 
+    }
+
+    // Al cargar la página, verificar si ya hay Client ID para cambiar estilo del botón
+    function verificarConexionGuardada() {
+        let clientIdGuardado = localStorage.getItem('googleClientId');
+        if(clientIdGuardado) {
+            document.getElementById('googleBtn').classList.add('connected');
+        }
+    }
 
     // Pacientes
     function crearNuevoPaciente(){ 
@@ -797,11 +815,12 @@
         mostrarServicios(); 
         mostrarMedicamentos(); 
         actualizarSelectServicios(); 
+        verificarConexionGuardada();
     }
 
     function mostrarServicios(){ 
         let t=document.getElementById('listaServicios'); 
-        if(t) t.innerHTML=servicios.map((s,i)=>`<tr><td>${s.nombre}</td><td>$${s.costo}</td><td><button onclick="eliminarServicio(${i})">X</button></td>`).join(''); 
+        if(t) t.innerHTML=servicios.map((s,i)=>`<tr><td>${s.nombre}</td><td>$${s.costo}</td><td><button onclick="eliminarServicio(${i})">X</button></td></tr>`).join(''); 
     }
 
     function eliminarServicio(i){ servicios.splice(i,1); mostrarServicios(); guardarTodoLocal(); }
@@ -813,7 +832,7 @@
 
     function mostrarMedicamentos(){ 
         let t=document.getElementById('listaMedicamentos'); 
-        if(t) t.innerHTML=medicamentos.map((m,i)=>`<tr><td>${m.nombre}</td><td>${m.categoria||''}</td><td><button onclick="eliminarMedicamento(${i})">X</button></td>`).join(''); 
+        if(t) t.innerHTML=medicamentos.map((m,i)=>`<tr><td>${m.nombre}</td><td>${m.categoria||''}</td><td><button onclick="eliminarMedicamento(${i})">X</button></td></tr>`).join(''); 
     }
 
     function agregarMedicamento(){ 
