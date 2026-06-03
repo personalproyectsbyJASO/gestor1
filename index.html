@@ -63,6 +63,55 @@
         .calendar-link{font-size:0.7rem;color:var(--primary);margin-left:10px;text-decoration:none}
         .calendar-link:hover{text-decoration:underline}
         
+        /* FIRMAS DIGITALES */
+        .firma-container, .firma-receta-container {
+            border: 1px dashed var(--border);
+            border-radius: 12px;
+            padding: 10px;
+            margin: 10px 0;
+            background: var(--input);
+        }
+        canvas.firma-canvas, canvas.firma-receta-canvas {
+            background: white;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            cursor: crosshair;
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            touch-action: none;
+            display: block;
+            margin: 0 auto;
+        }
+        .firma-preview, .firma-preview-receta {
+            margin-top: 8px;
+            padding: 6px;
+            background: var(--bg);
+            border-radius: 8px;
+            font-size: 0.7rem;
+            text-align: center;
+        }
+        .btn-firma, .btn-firma-receta {
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 5px 12px;
+            font-size: 0.7rem;
+            margin: 5px;
+            border-radius: 20px;
+        }
+        .btn-firma:hover, .btn-firma-receta:hover {
+            background: var(--primary);
+            color: #0F172A;
+        }
+        
+        /* Campos inhabilitados (fijos) */
+        input:disabled, input[readonly], textarea:disabled {
+            background: var(--input);
+            color: var(--text);
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
         .lista-pacientes-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:2000;display:flex;align-items:center;justify-content:center;visibility:hidden;opacity:0;transition:.2s}
         .lista-pacientes-modal.activo{visibility:visible;opacity:1}
         .modal-contenido{background:var(--card);border-radius:16px;width:90%;max-width:500px;max-height:80vh;overflow:auto;padding:20px}
@@ -178,31 +227,71 @@
     <!-- EXPEDIENTE -->
     <div id="pagina-expediente" class="pagina"><div class="card"><h2>📋 Expediente Clínico</h2><div class="doctor-fijo"><i class="fas fa-user-md"></i> Dr. Alejandro Coronado | Cédula: 9562093</div><fieldset><legend>Datos del Paciente</legend><div class="row"><div><label>Nombre:</label><input type="text" id="expNombre"></div><div><label>Edad:</label><input type="number" id="expEdad"></div></div><div class="row"><div><label>Teléfono:</label><input type="text" id="expTelefono"></div><div><label>Email:</label><input type="email" id="expEmail"></div></div><div><label>Alergias:</label><textarea id="expAlergias" rows="2"></textarea></div><div><label>Antecedentes:</label><textarea id="expAntecedentes" rows="3"></textarea></div></fieldset><button onclick="guardarExpediente()">Guardar</button></div></div>
 
-    <!-- RECETA -->
+    <!-- RECETA CON FIRMA DEL DOCTOR Y CAMPOS FIJOS -->
     <div id="pagina-receta" class="pagina"><div class="card"><h2>📄 Receta Médica Profesional</h2>
         <div class="doctor-fijo">Dr. Alejandro Coronado - Cédula 9562093</div>
-        <fieldset><legend>Datos de la Clínica</legend><div class="row"><div><label>Nombre Clínica:</label><input type="text" id="clinicaNombre" value="C&C Dental Group"></div></div></fieldset>
-        <fieldset><legend>Datos del Médico</legend>
-            <div class="row"><div><label>Doctor:</label><input type="text" id="doctorNombre" value="Dr. Alejandro Coronado"></div><div><label>Cédula:</label><input type="text" id="doctorCedula" value="9562093"></div></div>
-            <div class="row"><div><label>Teléfono:</label><input type="text" id="telefono" value="6646251897"></div><div><label>Email:</label><input type="text" id="email" value="Dentist.alexxx@gmail.com"></div></div>
-            <div class="row"><div><label>Dirección:</label><input type="text" id="direccion" value="Emiliano Zapata 2751, Ejido Matamoros"></div><div><label>Municipio:</label><input type="text" id="municipio" value="Tijuana"></div></div>
+        
+        <fieldset><legend>🏥 Datos de la Clínica (Fijos)</legend>
+            <div class="row"><div><label>Nombre Clínica:</label><input type="text" id="clinicaNombre" value="C&C Dental Group" readonly disabled style="background:#e2e8f0; color:#1e293b; opacity:0.8;"></div></div>
+        </fieldset>
+        
+        <fieldset><legend>👨‍⚕️ Datos del Médico (Fijos)</legend>
+            <div class="row">
+                <div><label>Doctor:</label><input type="text" id="doctorNombre" value="Dr. Alejandro Coronado" readonly disabled style="background:#e2e8f0; color:#1e293b; opacity:0.8;"></div>
+                <div><label>Cédula:</label><input type="text" id="doctorCedula" value="9562093" readonly disabled style="background:#e2e8f0; color:#1e293b; opacity:0.8;"></div>
+            </div>
+            <div class="row">
+                <div><label>Teléfono:</label><input type="text" id="telefono" value="6646251897" readonly disabled style="background:#e2e8f0; color:#1e293b; opacity:0.8;"></div>
+                <div><label>Email:</label><input type="text" id="email" value="Dentist.alexxx@gmail.com" readonly disabled style="background:#e2e8f0; color:#1e293b; opacity:0.8;"></div>
+            </div>
+            <div class="row">
+                <div><label>Dirección:</label><input type="text" id="direccion" value="Emiliano Zapata 2751, Ejido Matamoros" readonly disabled style="background:#e2e8f0; color:#1e293b; opacity:0.8;"></div>
+                <div><label>Municipio:</label><input type="text" id="municipio" value="Tijuana" readonly disabled style="background:#e2e8f0; color:#1e293b; opacity:0.8;"></div>
+            </div>
             <div><label>Fecha:</label><input type="date" id="fechaReceta"></div>
         </fieldset>
-        <fieldset><legend>Datos del Paciente</legend>
-            <div class="row"><div><label>Nombre:</label><input type="text" id="recNombre" placeholder="Nombre del paciente"></div><div><label>Edad:</label><input type="text" id="recEdad" placeholder="Edad"></div><div><label>Sexo:</label><select id="recSexo"><option>Masculino</option><option>Femenino</option></select></div></div>
-            <div class="row"><div><label>Expediente:</label><input type="text" id="expediente" placeholder="DEN-0000"></div><div><label>Alergias:</label><input type="text" id="recAlergias" placeholder="Ej: Penicilina"></div></div>
+        
+        <fieldset><legend>📋 Datos del Paciente</legend>
+            <div class="row">
+                <div><label>Nombre:</label><input type="text" id="recNombre" placeholder="Nombre del paciente"></div>
+                <div><label>Edad:</label><input type="text" id="recEdad" placeholder="Edad"></div>
+                <div><label>Sexo:</label><select id="recSexo"><option>Masculino</option><option>Femenino</option></select></div>
+            </div>
+            <div class="row">
+                <div><label>Expediente:</label><input type="text" id="expediente" placeholder="DEN-0000"></div>
+                <div><label>Alergias:</label><input type="text" id="recAlergias" placeholder="Ej: Penicilina"></div>
+            </div>
             <div><label>Diagnóstico:</label><textarea id="diagnostico" rows="2" placeholder="Pulpitis irreversible..."></textarea></div>
         </fieldset>
-        <fieldset><legend>Medicamentos</legend><div id="medicamentosContainer"></div>
+        
+        <fieldset><legend>💊 Medicamentos</legend><div id="medicamentosContainer"></div>
             <button type="button" onclick="agregarMedicamentoReceta()" style="width:100%; margin-top:10px;">+ Agregar medicamento</button>
             <button type="button" onclick="cargarEjemploMedicamentos()" style="width:100%; margin-top:5px; background:#548c7a;">📋 Cargar ejemplo</button>
         </fieldset>
-        <fieldset><legend>Indicaciones</legend><textarea id="indicacionesGenerales" rows="3" placeholder="Reposo, dieta, cuidados..."></textarea></fieldset>
-        <fieldset><legend>Información Adicional</legend>
+        
+        <fieldset><legend>📝 Indicaciones</legend><textarea id="indicacionesGenerales" rows="3" placeholder="Reposo, dieta, cuidados..."></textarea></fieldset>
+        
+        <fieldset><legend>ℹ️ Información Adicional</legend>
             <div class="row"><div><label>Próxima cita:</label><input type="text" id="proximaCita" placeholder="Ej: 10 de junio de 2026"></div></div>
             <div><label>Notas adicionales:</label><textarea id="notasExtra" rows="2" placeholder="Información adicional..."></textarea></div>
             <div><label>Folio/Número de receta:</label><input type="text" id="folioReceta" placeholder="Ej: RX-2026-001"></div>
         </fieldset>
+        
+        <!-- FIRMA DEL DOCTOR (OPCIONAL) -->
+        <fieldset>
+            <legend><i class="fas fa-pen-fancy"></i> Firma del Doctor (Opcional)</legend>
+            <div class="firma-receta-container">
+                <canvas id="firmaDoctorCanvas" class="firma-receta-canvas" width="400" height="150" style="width:100%; max-width:400px; height:auto; touch-action:none"></canvas>
+                <div style="display:flex; gap:8px; justify-content:center; margin-top:8px; flex-wrap:wrap;">
+                    <button type="button" class="btn-firma-receta" onclick="limpiarFirmaDoctor()"><i class="fas fa-eraser"></i> Limpiar</button>
+                    <button type="button" class="btn-firma-receta" onclick="guardarFirmaDoctorLocal()"><i class="fas fa-save"></i> Guardar firma</button>
+                </div>
+                <div id="firmaDoctorPreview" class="firma-preview-receta">
+                    <i class="fas fa-info-circle"></i> Sin firma. La receta se imprimirá sin ella.
+                </div>
+            </div>
+        </fieldset>
+        
         <div style="display:flex; gap:10px; margin-top:15px;">
             <button onclick="guardarRecetaProfesional()" style="flex:1"><i class="fas fa-save"></i> Guardar</button>
             <button onclick="generarRecetaPDFProfesional()" style="flex:1"><i class="fas fa-file-pdf"></i> Generar PDF</button>
@@ -233,8 +322,32 @@
     <!-- MEDICAMENTOS -->
     <div id="pagina-medicamentos" class="pagina"><div class="card"><h2>💊 Medicamentos</h2><div class="row"><div><input type="text" id="medNombre" placeholder="Medicamento"></div><div><input type="text" id="medCategoria" placeholder="Categoría"></div><div><input type="text" id="medUso" placeholder="Uso"></div></div><button onclick="agregarMedicamento()">Registrar</button><hr><table style="width:100%"><thead><tr><th>Medicamento</th><th>Categoría</th><th>Uso</th><th></th></tr></thead><tbody id="listaMedicamentos"></tbody></table></div></div>
 
-    <!-- CONSENTIMIENTO -->
-    <div id="pagina-consentimiento" class="pagina"><div class="card"><h2>📝 Consentimiento</h2><div><label>Paciente:</label><input type="text" id="consentNombre"></div><div><label>Procedimiento:</label><input type="text" id="consentProcedimiento"></div><div><label>Texto:</label><textarea id="consentTexto" rows="6">Yo, [NOMBRE], autorizo al Dr. Alejandro Coronado a realizar [PROCEDIMIENTO]. He sido informado de los riesgos y beneficios.</textarea></div><button onclick="guardarConsentimiento()">Guardar</button><button onclick="generarConsentimientoPDF()">PDF</button><hr><h3>Historial</h3><div id="listaConsentimientos"></div></div></div>
+    <!-- CONSENTIMIENTO CON FIRMA DEL PACIENTE -->
+    <div id="pagina-consentimiento" class="pagina"><div class="card"><h2>📝 Consentimiento Informado</h2>
+        <div><label>Paciente:</label><input type="text" id="consentNombre"></div>
+        <div><label>Procedimiento:</label><input type="text" id="consentProcedimiento"></div>
+        <div><label>Texto del Consentimiento:</label><textarea id="consentTexto" rows="6">Yo, [NOMBRE], autorizo al Dr. Alejandro Coronado a realizar [PROCEDIMIENTO]. He sido informado de los riesgos y beneficios.</textarea></div>
+        
+        <!-- FIRMA DEL PACIENTE (OPCIONAL) -->
+        <fieldset>
+            <legend><i class="fas fa-pen-fancy"></i> Firma del Paciente (Opcional)</legend>
+            <div class="firma-container">
+                <canvas id="firmaPacienteCanvas" class="firma-canvas" width="400" height="150" style="width:100%; max-width:400px; height:auto; touch-action:none"></canvas>
+                <div style="display:flex; gap:8px; justify-content:center; margin-top:8px; flex-wrap:wrap;">
+                    <button type="button" class="btn-firma" onclick="limpiarFirmaPaciente()"><i class="fas fa-eraser"></i> Limpiar</button>
+                    <button type="button" class="btn-firma" onclick="guardarFirmaPacienteLocal()"><i class="fas fa-save"></i> Guardar firma</button>
+                </div>
+                <div id="firmaPacientePreview" class="firma-preview">
+                    <i class="fas fa-info-circle"></i> Sin firma. El consentimiento se imprimirá sin ella.
+                </div>
+            </div>
+        </fieldset>
+        
+        <button onclick="guardarConsentimientoConFirma()"><i class="fas fa-save"></i> Guardar Consentimiento</button>
+        <button onclick="generarConsentimientoPDFConFirma()"><i class="fas fa-file-pdf"></i> PDF con Firma</button>
+        <hr><h3>Historial de Consentimientos</h3>
+        <div id="listaConsentimientos"></div>
+    </div></div>
 
     <!-- CERTIFICADO -->
     <div id="pagina-certificado" class="pagina"><div class="card"><h2>📜 Certificado</h2><div class="doctor-fijo">Dr. Alejandro Coronado</div><div class="row"><div><label>Paciente:</label><input type="text" id="certNombre"></div><div><label>Edad:</label><input type="text" id="certEdad"></div></div><div class="row"><div><label>Lugar:</label><input type="text" id="certLugar"></div><div><label>Fecha:</label><input type="date" id="certFecha"></div></div><div><label>Diagnóstico:</label><textarea id="certDiagnostico" rows="2"></textarea></div><div class="row"><div><label>Días reposo:</label><input type="number" id="certDias"></div><div><label>Desde:</label><input type="date" id="certDesde"></div><div><label>Hasta:</label><input type="date" id="certHasta"></div></div><label><input type="checkbox" id="certOmitir"> Omitir diagnóstico</label><br><br><button onclick="guardarCertificado()">Guardar</button><button onclick="generarCertificadoPDF()">PDF</button><hr><h3>Historial</h3><div id="listaCertificados"></div></div></div>
@@ -410,6 +523,11 @@ function inicializarDatos(){
     actualizarEstadisticas();
     let modo=localStorage.getItem('modo');
     if(modo==='claro') document.body.classList.add('modo-claro');
+    
+    setTimeout(() => {
+        inicializarFirmaDoctor();
+        inicializarFirmaPaciente();
+    }, 500);
 }
 
 function actualizarEstadisticas(){
@@ -566,24 +684,235 @@ function autoGuardarPresupuesto() {
     guardarTodoLocal();
 }
 
+// ========== FIRMA DIGITAL DEL DOCTOR (RECETA) ==========
+let firmaDoctorCanvas = null, firmaDoctorCtx = null, firmandoDoctor = false;
+let firmaDoctorData = null;
+
+function inicializarFirmaDoctor() {
+    firmaDoctorCanvas = document.getElementById('firmaDoctorCanvas');
+    if(!firmaDoctorCanvas) return;
+    
+    firmaDoctorCtx = firmaDoctorCanvas.getContext('2d');
+    firmaDoctorCtx.strokeStyle = '#1e2a32';
+    firmaDoctorCtx.lineWidth = 2;
+    firmaDoctorCtx.lineCap = 'round';
+    firmaDoctorCtx.lineJoin = 'round';
+    
+    firmaDoctorCtx.fillStyle = 'white';
+    firmaDoctorCtx.fillRect(0, 0, firmaDoctorCanvas.width, firmaDoctorCanvas.height);
+    
+    const firmaGuardada = localStorage.getItem('firmaDoctor');
+    if(firmaGuardada) {
+        const img = new Image();
+        img.onload = () => {
+            firmaDoctorCtx.drawImage(img, 0, 0, firmaDoctorCanvas.width, firmaDoctorCanvas.height);
+            firmaDoctorData = firmaGuardada;
+            const preview = document.getElementById('firmaDoctorPreview');
+            if(preview) preview.innerHTML = '<i class="fas fa-check-circle" style="color:#10B981"></i> Firma guardada';
+        };
+        img.src = firmaGuardada;
+    }
+    
+    firmaDoctorCanvas.addEventListener('mousedown', (e) => { firmandoDoctor = true; dibujarFirmaDoctorStart(e, firmaDoctorCanvas, firmaDoctorCtx); });
+    firmaDoctorCanvas.addEventListener('mousemove', (e) => { if(firmandoDoctor) dibujarFirmaDoctorMove(e, firmaDoctorCanvas, firmaDoctorCtx); });
+    firmaDoctorCanvas.addEventListener('mouseup', () => { firmandoDoctor = false; firmaDoctorCtx.beginPath(); });
+    firmaDoctorCanvas.addEventListener('mouseleave', () => { firmandoDoctor = false; firmaDoctorCtx.beginPath(); });
+    
+    firmaDoctorCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); firmandoDoctor = true; dibujarFirmaDoctorStartTouch(e, firmaDoctorCanvas, firmaDoctorCtx); });
+    firmaDoctorCanvas.addEventListener('touchmove', (e) => { e.preventDefault(); if(firmandoDoctor) dibujarFirmaDoctorMoveTouch(e, firmaDoctorCanvas, firmaDoctorCtx); });
+    firmaDoctorCanvas.addEventListener('touchend', () => { firmandoDoctor = false; firmaDoctorCtx.beginPath(); });
+}
+
+function dibujarFirmaDoctorStart(e, canvas, ctx) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+}
+
+function dibujarFirmaDoctorMove(e, canvas, ctx) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+}
+
+function dibujarFirmaDoctorStartTouch(e, canvas, ctx) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const touch = e.touches[0];
+    const x = (touch.clientX - rect.left) * scaleX;
+    const y = (touch.clientY - rect.top) * scaleY;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+}
+
+function dibujarFirmaDoctorMoveTouch(e, canvas, ctx) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const touch = e.touches[0];
+    const x = (touch.clientX - rect.left) * scaleX;
+    const y = (touch.clientY - rect.top) * scaleY;
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+}
+
+function limpiarFirmaDoctor() {
+    if(!firmaDoctorCtx) return;
+    firmaDoctorCtx.fillStyle = 'white';
+    firmaDoctorCtx.fillRect(0, 0, firmaDoctorCanvas.width, firmaDoctorCanvas.height);
+    firmaDoctorData = null;
+    localStorage.removeItem('firmaDoctor');
+    const preview = document.getElementById('firmaDoctorPreview');
+    if(preview) preview.innerHTML = '<i class="fas fa-info-circle"></i> Sin firma. La receta se imprimirá sin ella.';
+    mostrarToast('Firma eliminada');
+}
+
+function guardarFirmaDoctorLocal() {
+    if(!firmaDoctorCanvas) return;
+    firmaDoctorData = firmaDoctorCanvas.toDataURL();
+    localStorage.setItem('firmaDoctor', firmaDoctorData);
+    const preview = document.getElementById('firmaDoctorPreview');
+    if(preview) preview.innerHTML = '<i class="fas fa-check-circle" style="color:#10B981"></i> Firma guardada';
+    mostrarToast('✅ Firma del doctor guardada');
+}
+
+// ========== FIRMA DIGITAL DEL PACIENTE (CONSENTIMIENTO) ==========
+let firmaPacienteCanvas = null, firmaPacienteCtx = null, firmandoPaciente = false;
+let firmaPacienteData = null;
+
+function inicializarFirmaPaciente() {
+    firmaPacienteCanvas = document.getElementById('firmaPacienteCanvas');
+    if(!firmaPacienteCanvas) return;
+    
+    firmaPacienteCtx = firmaPacienteCanvas.getContext('2d');
+    firmaPacienteCtx.strokeStyle = '#1e2a32';
+    firmaPacienteCtx.lineWidth = 2;
+    firmaPacienteCtx.lineCap = 'round';
+    firmaPacienteCtx.lineJoin = 'round';
+    
+    firmaPacienteCtx.fillStyle = 'white';
+    firmaPacienteCtx.fillRect(0, 0, firmaPacienteCanvas.width, firmaPacienteCanvas.height);
+    
+    firmaPacienteCanvas.addEventListener('mousedown', (e) => { firmandoPaciente = true; dibujarFirmaPacienteStart(e, firmaPacienteCanvas, firmaPacienteCtx); });
+    firmaPacienteCanvas.addEventListener('mousemove', (e) => { if(firmandoPaciente) dibujarFirmaPacienteMove(e, firmaPacienteCanvas, firmaPacienteCtx); });
+    firmaPacienteCanvas.addEventListener('mouseup', () => { firmandoPaciente = false; firmaPacienteCtx.beginPath(); });
+    firmaPacienteCanvas.addEventListener('mouseleave', () => { firmandoPaciente = false; firmaPacienteCtx.beginPath(); });
+    
+    firmaPacienteCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); firmandoPaciente = true; dibujarFirmaPacienteStartTouch(e, firmaPacienteCanvas, firmaPacienteCtx); });
+    firmaPacienteCanvas.addEventListener('touchmove', (e) => { e.preventDefault(); if(firmandoPaciente) dibujarFirmaPacienteMoveTouch(e, firmaPacienteCanvas, firmaPacienteCtx); });
+    firmaPacienteCanvas.addEventListener('touchend', () => { firmandoPaciente = false; firmaPacienteCtx.beginPath(); });
+}
+
+function dibujarFirmaPacienteStart(e, canvas, ctx) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+}
+
+function dibujarFirmaPacienteMove(e, canvas, ctx) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+}
+
+function dibujarFirmaPacienteStartTouch(e, canvas, ctx) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const touch = e.touches[0];
+    const x = (touch.clientX - rect.left) * scaleX;
+    const y = (touch.clientY - rect.top) * scaleY;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+}
+
+function dibujarFirmaPacienteMoveTouch(e, canvas, ctx) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const touch = e.touches[0];
+    const x = (touch.clientX - rect.left) * scaleX;
+    const y = (touch.clientY - rect.top) * scaleY;
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+}
+
+function limpiarFirmaPaciente() {
+    if(!firmaPacienteCtx) return;
+    firmaPacienteCtx.fillStyle = 'white';
+    firmaPacienteCtx.fillRect(0, 0, firmaPacienteCanvas.width, firmaPacienteCanvas.height);
+    firmaPacienteData = null;
+    const preview = document.getElementById('firmaPacientePreview');
+    if(preview) preview.innerHTML = '<i class="fas fa-info-circle"></i> Sin firma. El consentimiento se imprimirá sin ella.';
+    mostrarToast('Firma eliminada');
+}
+
+function guardarFirmaPacienteLocal() {
+    if(!firmaPacienteCanvas) return;
+    firmaPacienteData = firmaPacienteCanvas.toDataURL();
+    const preview = document.getElementById('firmaPacientePreview');
+    if(preview) preview.innerHTML = '<i class="fas fa-check-circle" style="color:#10B981"></i> Firma guardada (se guardará con el consentimiento)';
+    mostrarToast('✅ Firma del paciente guardada temporalmente');
+}
+
 // ========== FUNCIONES DE GOOGLE DRIVE (CON SOBRESCRITURA) ==========
 async function guardarArchivoEnDrive(fId, nombreArchivo, contenido) {
     let token = await refrescarToken();
     if(!token) return false;
     
     try {
-        // Buscar si ya existe un archivo con ese nombre
-        let buscar = await fetch(`https://www.googleapis.com/drive/v3/files?q=name='${nombreArchivo}' and '${fId}' in parents and trashed=false`, {
+        let buscar = await fetch(`https://www.googleapis.com/drive/v3/files?q=name='${nombreArchivo.replace(/'/g, "\\'")}' and '${fId}' in parents and trashed=false`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         let resultado = await buscar.json();
         
         const contenidoStr = JSON.stringify(contenido, null, 2);
         
-        // Si existe, ACTUALIZAR (sobrescribir)
         if(resultado.files && resultado.files.length > 0) {
-            let archivoId = resultado.files[0].id;
-            console.log(`📝 Actualizando: ${nombreArchivo} (ID: ${archivoId})`);
+            let archivos = resultado.files.sort((a,b) => new Date(b.modifiedTime) - new Date(a.modifiedTime));
+            let archivoId = archivos[0].id;
+            
+            if(archivos.length > 1) {
+                for(let i = 1; i < archivos.length; i++) {
+                    await fetch(`https://www.googleapis.com/drive/v3/files/${archivos[i].id}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                }
+            }
             
             let actualizar = await fetch(`https://www.googleapis.com/upload/drive/v3/files/${archivoId}?uploadType=media`, {
                 method: 'PATCH',
@@ -594,10 +923,7 @@ async function guardarArchivoEnDrive(fId, nombreArchivo, contenido) {
                 body: contenidoStr
             });
             return actualizar.ok;
-        } 
-        // Si NO existe, CREAR
-        else {
-            console.log(`📁 Creando nuevo archivo: ${nombreArchivo}`);
+        } else {
             let metadata = { name: nombreArchivo, mimeType: 'application/json', parents: [fId] };
             let formData = new FormData();
             formData.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
@@ -611,7 +937,7 @@ async function guardarArchivoEnDrive(fId, nombreArchivo, contenido) {
             return crear.ok;
         }
     } catch(e) {
-        console.error("❌ Error en guardarArchivoEnDrive:", e);
+        console.error("❌ Error:", e);
         return false;
     }
 }
@@ -684,20 +1010,27 @@ function getRecetaHTML(){
             medsHtml += `<div class="med-item-preview"><div class="med-name-preview">${i+1}. ${escapeHtml(m.nombre)}</div><div class="med-instruction">${instruccion.join(' · ')} ${instruccion.length ? '·' : ''} ${frecuenciaDur} ${m.indicacionExtra ? '· ' + escapeHtml(m.indicacionExtra) : ''}</div></div>`;
         });
     }
-    return `<div class="receta-profesional"><div class="receta-header"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjAvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvVFIvMjAwMS9SRUMtU1ZHLTIwMDEwOTA0L0RURC9zdmcxMC5kdGQiPgo8L3N2Zz4=" style="width:90px; height:auto;"><div class="clinica-nombre">${escapeHtml(clinica)}</div></div><div class="doctor-info"><span><strong>Médico:</strong> ${escapeHtml(doctor)}</span><span><strong>Cédula:</strong> ${escapeHtml(cedula)}</span><span><strong>Teléfono:</strong> ${escapeHtml(telefono)}</span></div>${(email || direccion || municipio || fecha) ? `<div style="display:flex; flex-wrap:wrap; gap:10px; font-size:0.65rem; margin-bottom:12px; padding:6px 4px; border-bottom:1px solid #ecf1f5;">${email ? `<span><strong>Email:</strong> ${escapeHtml(email)}</span>` : ''}${direccion ? `<span><strong>Dirección:</strong> ${escapeHtml(direccion)}</span>` : ''}${municipio ? `<span><strong>Municipio:</strong> ${escapeHtml(municipio)}</span>` : ''}<span><strong>Fecha:</strong> ${escapeHtml(fecha)}</span></div>` : ''}<div class="patient-box"><div style="display:flex; flex-wrap:wrap; gap:8px 16px; font-size:0.8rem; margin-bottom:6px;"><span><strong>PACIENTE:</strong> ${escapeHtml(paciente)}</span><span><strong>Edad:</strong> ${escapeHtml(edad)}</span><span><strong>Sexo:</strong> ${escapeHtml(sexo)}</span><span><strong>Expediente:</strong> ${escapeHtml(expediente)}</span></div><div><strong>Diagnóstico:</strong> ${escapeHtml(diagnostico)}</div>${alergias ? `<div style="margin-top:6px;"><strong>Alergias:</strong> ${escapeHtml(alergias)}</div>` : ''}</div>${medsHtml}${indicaciones ? `<div class="section-title">INDICACIONES Y RECOMENDACIONES</div><div class="indicaciones-text">${escapeHtml(indicaciones)}</div>` : ''}${(proximaCita || notasExtra) ? `<div class="info-footer">${proximaCita ? `<div><strong>Próxima cita:</strong> ${escapeHtml(proximaCita)}</div>` : ''}${notasExtra ? `<div><strong>Notas:</strong> ${escapeHtml(notasExtra)}</div>` : ''}</div>` : ''}<div class="firma-section"><div>Firma y sello del médico</div><div style="margin-top:4px;">${escapeHtml(doctor)} · Cédula ${escapeHtml(cedula)}</div></div><div class="validez">Documento válido por 30 días</div>${folio ? `<div class="folio-badge">Folio: ${escapeHtml(folio)}</div>` : ''}</div>`;
+    let firmaHtml = '';
+    if(firmaDoctorData) {
+        firmaHtml = `<div class="firma-section" style="margin-top:20px; text-align:center;">
+            <strong>Firma del Médico:</strong><br>
+            <img src="${firmaDoctorData}" style="max-width:200px; max-height:80px; margin-top:5px; border:1px solid #ccc; padding:5px; background:white;">
+        </div>`;
+    }
+    return `<div class="receta-profesional"><div class="receta-header"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjAvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvVFIvMjAwMS9SRUMtU1ZHLTIwMDEwOTA0L0RURC9zdmcxMC5kdGQiPgo8L3N2Zz4=" style="width:90px; height:auto;"><div class="clinica-nombre">${escapeHtml(clinica)}</div></div><div class="doctor-info"><span><strong>Médico:</strong> ${escapeHtml(doctor)}</span><span><strong>Cédula:</strong> ${escapeHtml(cedula)}</span><span><strong>Teléfono:</strong> ${escapeHtml(telefono)}</span></div>${(email || direccion || municipio || fecha) ? `<div style="display:flex; flex-wrap:wrap; gap:10px; font-size:0.65rem; margin-bottom:12px; padding:6px 4px; border-bottom:1px solid #ecf1f5;">${email ? `<span><strong>Email:</strong> ${escapeHtml(email)}</span>` : ''}${direccion ? `<span><strong>Dirección:</strong> ${escapeHtml(direccion)}</span>` : ''}${municipio ? `<span><strong>Municipio:</strong> ${escapeHtml(municipio)}</span>` : ''}<span><strong>Fecha:</strong> ${escapeHtml(fecha)}</span></div>` : ''}<div class="patient-box"><div style="display:flex; flex-wrap:wrap; gap:8px 16px; font-size:0.8rem; margin-bottom:6px;"><span><strong>PACIENTE:</strong> ${escapeHtml(paciente)}</span><span><strong>Edad:</strong> ${escapeHtml(edad)}</span><span><strong>Sexo:</strong> ${escapeHtml(sexo)}</span><span><strong>Expediente:</strong> ${escapeHtml(expediente)}</span></div><div><strong>Diagnóstico:</strong> ${escapeHtml(diagnostico)}</div>${alergias ? `<div style="margin-top:6px;"><strong>Alergias:</strong> ${escapeHtml(alergias)}</div>` : ''}</div>${medsHtml}${indicaciones ? `<div class="section-title">INDICACIONES Y RECOMENDACIONES</div><div class="indicaciones-text">${escapeHtml(indicaciones)}</div>` : ''}${(proximaCita || notasExtra) ? `<div class="info-footer">${proximaCita ? `<div><strong>Próxima cita:</strong> ${escapeHtml(proximaCita)}</div>` : ''}${notasExtra ? `<div><strong>Notas:</strong> ${escapeHtml(notasExtra)}</div>` : ''}</div>` : ''}<div class="firma-section"><div>Firma y sello del médico</div><div style="margin-top:4px;">${escapeHtml(doctor)} · Cédula ${escapeHtml(cedula)}</div></div>${firmaHtml}<div class="validez">Documento válido por 30 días</div>${folio ? `<div class="folio-badge">Folio: ${escapeHtml(folio)}</div>` : ''}</div>`;
 }
 
 function guardarRecetaProfesional(){
     if(!pacienteActual){mostrarToast('Selecciona paciente'); return;}
-    let receta = {fecha: new Date().toLocaleString(), clinica: document.getElementById('clinicaNombre')?.value, paciente: document.getElementById('recNombre')?.value, edad: document.getElementById('recEdad')?.value, sexo: document.getElementById('recSexo')?.value, expediente: document.getElementById('expediente')?.value, diagnostico: document.getElementById('diagnostico')?.value, indicaciones: document.getElementById('indicacionesGenerales')?.value, alergias: document.getElementById('recAlergias')?.value, proximaCita: document.getElementById('proximaCita')?.value, notasExtra: document.getElementById('notasExtra')?.value, folio: document.getElementById('folioReceta')?.value, medicamentos: JSON.parse(JSON.stringify(recetaMedicamentos))};
+    let receta = {fecha: new Date().toLocaleString(), clinica: document.getElementById('clinicaNombre')?.value, paciente: document.getElementById('recNombre')?.value, edad: document.getElementById('recEdad')?.value, sexo: document.getElementById('recSexo')?.value, expediente: document.getElementById('expediente')?.value, diagnostico: document.getElementById('diagnostico')?.value, indicaciones: document.getElementById('indicacionesGenerales')?.value, alergias: document.getElementById('recAlergias')?.value, proximaCita: document.getElementById('proximaCita')?.value, notasExtra: document.getElementById('notasExtra')?.value, folio: document.getElementById('folioReceta')?.value, medicamentos: JSON.parse(JSON.stringify(recetaMedicamentos)), tieneFirma: !!firmaDoctorData};
     pacienteActual.recetas.push(receta);
     guardarTodoLocal();
     if(accessToken && pacienteActual.folderId) guardarArchivoEnDrive(pacienteActual.folderId, 'recetas.json', pacienteActual.recetas);
     mostrarRecetas();
     actualizarEstadisticas();
-    mostrarToast('Receta guardada');
+    mostrarToast('Receta guardada' + (firmaDoctorData ? ' con firma' : ''));
 }
-function mostrarRecetas(){let d=document.getElementById('listaRecetas');if(!d||!pacienteActual) return; d.innerHTML = pacienteActual.recetas.map((r,i)=>`<div class="exp-item">📄 ${r.fecha}<br>${r.paciente || ''}<button onclick="eliminarReceta(${i})">X</button></div>`).join('') || '<div>No hay recetas</div>';}
+function mostrarRecetas(){let d=document.getElementById('listaRecetas');if(!d||!pacienteActual) return; d.innerHTML = pacienteActual.recetas.map((r,i)=>`<div class="exp-item">📄 ${r.fecha}<br>${r.paciente || ''}${r.tieneFirma ? ' ✍️' : ''}<button onclick="eliminarReceta(${i})">X</button></div>`).join('') || '<div>No hay recetas</div>';}
 function eliminarReceta(i){pacienteActual.recetas.splice(i,1); guardarTodoLocal(); if(accessToken && pacienteActual.folderId) guardarArchivoEnDrive(pacienteActual.folderId, 'recetas.json', pacienteActual.recetas); mostrarRecetas(); actualizarEstadisticas();}
 function generarRecetaPDFProfesional(){
     const htmlContent = getRecetaHTML();
@@ -773,7 +1106,6 @@ function guardarCita(){
     let notas = document.getElementById('citaNotas').value;
     if(!fecha || !hora) { mostrarToast('Selecciona fecha y hora'); return; }
     
-    // Buscar si ya existe una cita con misma fecha y hora
     let citaExistente = null;
     let citaIndex = -1;
     if(pacienteActual.citas) {
@@ -784,7 +1116,6 @@ function guardarCita(){
     let cita = { fecha: fecha, hora: hora, tratamiento: tratamiento, notas: notas, fechaModificacion: new Date().toISOString() };
     
     if(citaExistente) {
-        // EDITAR cita existente
         cita.eventoId = citaExistente.eventoId;
         cita.eventoLink = citaExistente.eventoLink;
         cita.fechaCreacion = citaExistente.fechaCreacion;
@@ -792,10 +1123,8 @@ function guardarCita(){
         if(accessToken && cita.eventoId) {
             mostrarToast('📅 Actualizando evento...');
             actualizarEventoCalendar(cita.eventoId, pacienteActual.data.nombre || 'Paciente', fecha, hora, tratamiento, pacienteActual.data.telefono || '', notas).then(evento => {
-                if(evento && evento.id) {
-                    cita.eventoLink = evento.htmlLink;
-                    mostrarToast('✅ Evento actualizado');
-                } else { mostrarToast('⚠️ Solo local'); }
+                if(evento && evento.id) { cita.eventoLink = evento.htmlLink; mostrarToast('✅ Evento actualizado'); }
+                else { mostrarToast('⚠️ Solo local'); }
                 pacienteActual.citas[citaIndex] = cita;
                 guardarTodoLocal();
                 if(accessToken && pacienteActual.folderId) guardarArchivoEnDrive(pacienteActual.folderId, 'citas.json', pacienteActual.citas);
@@ -813,15 +1142,11 @@ function guardarCita(){
             limpiarCamposCita();
         }
     } else {
-        // CREAR nueva cita
         if(accessToken) {
             mostrarToast('📅 Creando evento...');
             crearEventoCalendar(pacienteActual.data.nombre || 'Paciente', fecha, hora, tratamiento, pacienteActual.data.telefono || '', notas).then(evento => {
-                if(evento && evento.id) {
-                    cita.eventoId = evento.id;
-                    cita.eventoLink = evento.htmlLink;
-                    mostrarToast('✅ Evento creado');
-                } else { mostrarToast('⚠️ Solo local'); }
+                if(evento && evento.id) { cita.eventoId = evento.id; cita.eventoLink = evento.htmlLink; mostrarToast('✅ Evento creado'); }
+                else { mostrarToast('⚠️ Solo local'); }
                 pacienteActual.citas.push(cita);
                 guardarTodoLocal();
                 if(accessToken && pacienteActual.folderId) guardarArchivoEnDrive(pacienteActual.folderId, 'citas.json', pacienteActual.citas);
@@ -879,18 +1204,66 @@ async function eliminarCitaConCalendar(i){
     mostrarToast('Cita eliminada');
 }
 
-// ========== CONSENTIMIENTO ==========
-function guardarConsentimiento(){
+// ========== CONSENTIMIENTO CON FIRMA ==========
+function guardarConsentimientoConFirma() {
     if(!pacienteActual){mostrarToast('Selecciona paciente');return}
-    let c={fecha:new Date().toLocaleString(),procedimiento:document.getElementById('consentProcedimiento').value,texto:document.getElementById('consentTexto').value};
-    pacienteActual.consentimientos.push(c);
+    let firma = firmaPacienteData || null;
+    let consentimiento = {
+        fecha: new Date().toLocaleString(),
+        procedimiento: document.getElementById('consentProcedimiento').value,
+        texto: document.getElementById('consentTexto').value,
+        firma: firma
+    };
+    pacienteActual.consentimientos.push(consentimiento);
     guardarTodoLocal();
-    if(accessToken&&pacienteActual.folderId) guardarArchivoEnDrive(pacienteActual.folderId,'consentimientos.json',pacienteActual.consentimientos);
+    if(accessToken && pacienteActual.folderId) guardarArchivoEnDrive(pacienteActual.folderId, 'consentimientos.json', pacienteActual.consentimientos);
     mostrarConsentimientos();
-    mostrarToast('Consentimiento guardado');
+    mostrarToast('Consentimiento guardado' + (firma ? ' con firma' : ' sin firma'));
+    limpiarFirmaPaciente();
 }
-function mostrarConsentimientos(){let d=document.getElementById('listaConsentimientos');if(!d||!pacienteActual)return;d.innerHTML=pacienteActual.consentimientos.map((c,i)=>`<div class="exp-item">📝 ${c.fecha}<br>${c.procedimiento}<button onclick="eliminarConsentimiento(${i})">X</button></div>`).join('')||'<div>No hay consentimientos</div>';}
-function eliminarConsentimiento(i){pacienteActual.consentimientos.splice(i,1);guardarTodoLocal();if(accessToken&&pacienteActual.folderId) guardarArchivoEnDrive(pacienteActual.folderId,'consentimientos.json',pacienteActual.consentimientos);mostrarConsentimientos();}
+
+function mostrarConsentimientos() {
+    let d = document.getElementById('listaConsentimientos');
+    if(!d||!pacienteActual) return;
+    d.innerHTML = pacienteActual.consentimientos.map((c,i)=>`
+        <div class="exp-item">
+            <div>
+                📝 ${c.fecha}<br>
+                ${c.procedimiento}<br>
+                ${c.firma ? '✍️ Con firma digital' : '📄 Sin firma'}
+            </div>
+            <button onclick="eliminarConsentimiento(${i})">X</button>
+        </div>
+    `).join('') || '<div>No hay consentimientos</div>';
+}
+
+function eliminarConsentimiento(i) {
+    pacienteActual.consentimientos.splice(i,1);
+    guardarTodoLocal();
+    if(accessToken && pacienteActual.folderId) guardarArchivoEnDrive(pacienteActual.folderId, 'consentimientos.json', pacienteActual.consentimientos);
+    mostrarConsentimientos();
+}
+
+function generarConsentimientoPDFConFirma() {
+    const{jsPDF}=window.jspdf; const doc=new jsPDF();
+    doc.setFontSize(16); doc.text("C&C Dental Group - Consentimiento Informado",20,20);
+    doc.text(`Paciente: ${document.getElementById('consentNombre').value||''}`,20,45);
+    doc.text(`Procedimiento: ${document.getElementById('consentProcedimiento').value||''}`,20,65);
+    doc.text(`Fecha: ${new Date().toLocaleString()}`,20,85);
+    doc.text("Texto:",20,105);
+    const texto = document.getElementById('consentTexto').value || '';
+    const lineas = doc.splitTextToSize(texto, 170);
+    doc.text(lineas,20,115);
+    if(firmaPacienteData) {
+        doc.text("Firma del Paciente:",20,180);
+        doc.addImage(firmaPacienteData, 'PNG', 20, 190, 80, 30);
+    } else {
+        doc.text("_________________________",20,200);
+        doc.text("Firma del Paciente",20,210);
+    }
+    doc.save('consentimiento.pdf');
+    mostrarToast('PDF generado');
+}
 
 // ========== CERTIFICADO ==========
 function guardarCertificado(){
@@ -907,13 +1280,13 @@ function mostrarCertificados(){let d=document.getElementById('listaCertificados'
 function eliminarCertificado(i){pacienteActual.certificados.splice(i,1);guardarTodoLocal();if(accessToken&&pacienteActual.folderId) guardarArchivoEnDrive(pacienteActual.folderId,'certificados.json',pacienteActual.certificados);mostrarCertificados();}
 
 // ========== SERVICIOS ==========
-function mostrarServicios(){let t=document.getElementById('listaServicios');t.innerHTML=servicios.map((s,i)=>`<tr><td>${s.nombre}</td><td>${s.descripcion||''}</td><td>$${s.costo}</td><td><button onclick="eliminarServicio(${i})" style="padding:4px 8px;font-size:0.7rem">X</button></td></tr>`).join('');actualizarSelectServicios();guardarTodoLocal();}
+function mostrarServicios(){let t=document.getElementById('listaServicios');t.innerHTML=servicios.map((s,i)=>`<td>${s.nombre}</td><td>${s.descripcion||''}</td><td>$${s.costo}</td><td><button onclick="eliminarServicio(${i})" style="padding:4px 8px;font-size:0.7rem">X</button></td>`).join('');actualizarSelectServicios();guardarTodoLocal();}
 function agregarServicio(){let n=document.getElementById('servNombre').value,c=parseFloat(document.getElementById('servCosto').value);if(n&&c){servicios.push({nombre:n,costo:c,descripcion:document.getElementById('servDesc').value});mostrarServicios();mostrarToast('Servicio agregado')}}
 function eliminarServicio(i){servicios.splice(i,1);mostrarServicios()}
 function actualizarSelectServicios(){let s=document.getElementById('presServicioSelect');if(s)s.innerHTML=servicios.map(s=>`<option value="${s.nombre}|${s.costo}">${s.nombre} - $${s.costo}</option>`).join('')}
 
 // ========== MEDICAMENTOS ==========
-function mostrarMedicamentos(){let t=document.getElementById('listaMedicamentos');t.innerHTML=medicamentos.map((m,i)=>`<tr><td>${m.nombre}</td><td>${m.categoria||''}</td><td>${m.uso||''}</td><td><button onclick="eliminarMedicamento(${i})" style="padding:4px 8px;font-size:0.7rem">X</button>NonNull} None`).join('');guardarTodoLocal();}
+function mostrarMedicamentos(){let t=document.getElementById('listaMedicamentos');t.innerHTML=medicamentos.map((m,i)=>`<tr><td>${m.nombre}</td><td>${m.categoria||''}</td><td>${m.uso||''}</td><td><button onclick="eliminarMedicamento(${i})" style="padding:4px 8px;font-size:0.7rem">X</button></td></tr>`).join('');guardarTodoLocal();}
 function agregarMedicamento(){let n=document.getElementById('medNombre').value;if(n){medicamentos.push({nombre:n,categoria:document.getElementById('medCategoria').value,uso:document.getElementById('medUso').value});mostrarMedicamentos();mostrarToast('Medicamento agregado')}}
 function eliminarMedicamento(i){medicamentos.splice(i,1);mostrarMedicamentos()}
 
@@ -975,13 +1348,6 @@ function generarCertificadoPDF(){
     doc.text(`Diagnóstico: ${diag}`,20,75);
     doc.text(`Reposo: ${document.getElementById('certDias').value||0} días`,20,95);
     doc.save('certificado.pdf');mostrarToast('PDF generado');
-}
-function generarConsentimientoPDF(){
-    const{jsPDF}=window.jspdf;const doc=new jsPDF();
-    doc.setFontSize(16);doc.text("C&C Dental Group - Consentimiento Informado",20,20);
-    doc.text(`Paciente: ${document.getElementById('consentNombre').value||''}`,20,45);
-    doc.text(`Procedimiento: ${document.getElementById('consentProcedimiento').value||''}`,20,65);
-    doc.save('consentimiento.pdf');mostrarToast('PDF generado');
 }
 
 // ========== GOOGLE DRIVE Y CALENDAR ==========
