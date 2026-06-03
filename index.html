@@ -568,7 +568,6 @@ function eliminarReceta(i){
 }
 
 function generarRecetaPDFProfesional(){
-    const ventana = window.open('', '_blank');
     const htmlContent = getRecetaHTML();
     const styles = `
         <style>
@@ -589,10 +588,16 @@ function generarRecetaPDFProfesional(){
             @media print { body { margin: 0; padding: 0; } }
         </style>
     `;
-    ventana.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">${styles}</head><body>${htmlContent}</body></html>`);
-    ventana.document.close();
-    ventana.print();
-    mostrarToast('Abriendo vista previa para imprimir');
+    const fullHTML = `<!DOCTYPE html><html><head><meta charset="UTF-8">${styles}</head><body>${htmlContent}</body></html>`;
+    const blob = new Blob([fullHTML], {type: 'text/html'});
+    const url = URL.createObjectURL(blob);
+    // Abrir en nueva pestaña usando el blob URL (no bloqueado por popup blocker)
+    const a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+    mostrarToast('Abriendo receta en nueva pestaña para imprimir/PDF');
 }
 
 function imprimirRecetaProfesional(){
