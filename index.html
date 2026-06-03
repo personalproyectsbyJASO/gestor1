@@ -22,33 +22,10 @@
         .btn-google{border-left:3px solid #EF4444}
         .btn-google.connected{border-left-color:#10B981}
         
-        /* Botones discretos y proporcionados */
-        .btn-icono {
-            background: var(--card);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 8px 12px !important;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-        .btn-icono:hover {
-            background: var(--primary);
-            color: #0F172A;
-            border-color: var(--primary);
-        }
-        .btn-icono i {
-            font-size: 0.8rem;
-        }
-        @media (max-width: 550px) {
-            .btn-icono .btn-text { display: none; }
-            .btn-icono { padding: 8px 10px !important; }
-            .btn-icono i { font-size: 1rem; }
-        }
+        .btn-icono{background:var(--card);border:1px solid var(--border);color:var(--text);padding:8px 12px !important;border-radius:20px;font-size:0.75rem;display:inline-flex;align-items:center;gap:5px;transition:all 0.2s;white-space:nowrap}
+        .btn-icono:hover{background:var(--primary);color:#0F172A;border-color:var(--primary)}
+        .btn-icono i{font-size:0.8rem}
+        @media (max-width:550px){.btn-icono .btn-text{display:none}.btn-icono{padding:8px 10px !important}.btn-icono i{font-size:1rem}}
         
         .selector-paciente{background:var(--card);border-radius:16px;padding:12px;margin-bottom:20px;border:1px solid var(--border)}
         .selector-paciente select{background:var(--input);color:var(--text);border:1px solid var(--border);padding:8px 12px;border-radius:20px;font-size:0.85rem;flex:2;min-width:150px}
@@ -86,7 +63,6 @@
         .calendar-link{font-size:0.7rem;color:var(--primary);margin-left:10px;text-decoration:none}
         .calendar-link:hover{text-decoration:underline}
         
-        /* Modal de lista de pacientes */
         .lista-pacientes-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:2000;display:flex;align-items:center;justify-content:center;visibility:hidden;opacity:0;transition:.2s}
         .lista-pacientes-modal.activo{visibility:visible;opacity:1}
         .modal-contenido{background:var(--card);border-radius:16px;width:90%;max-width:500px;max-height:80vh;overflow:auto;padding:20px}
@@ -96,7 +72,6 @@
         .paciente-item-modal{padding:10px;border-bottom:1px solid var(--border);cursor:pointer;display:flex;justify-content:space-between;align-items:center}
         .paciente-item-modal:hover{background:var(--primary);color:#0F172A}
         
-        /* RECETA */
         .receta-profesional{font-family:'Inter','Segoe UI',Georgia,serif;color:#1e2a32;line-height:1.45;font-size:0.85rem;position:relative;z-index:2;background:white;padding:20px;border-radius:16px;max-width:800px;margin:0 auto}
         .receta-header{text-align:center;border-bottom:2px solid #2c6e5c;padding-bottom:12px;margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;background:transparent}
         .clinica-nombre{font-size:1.3rem;font-weight:700;color:#1c4e44;text-transform:uppercase}
@@ -153,7 +128,7 @@
         </div>
     </div>
     
-    <!-- SELECTOR DE PACIENTES REDISEÑADO -->
+    <!-- SELECTOR DE PACIENTES -->
     <div class="selector-paciente">
         <div class="row">
             <select id="selectPaciente" onchange="cambiarPaciente()">
@@ -175,7 +150,7 @@
         <div id="infoPacienteActual" style="font-size:.7rem;color:var(--primary);margin-top:8px"></div>
     </div>
     
-    <!-- Modal para lista de pacientes -->
+    <!-- Modal lista pacientes -->
     <div id="modalPacientes" class="lista-pacientes-modal">
         <div class="modal-contenido">
             <h3><i class="fas fa-users"></i> Lista de Pacientes</h3>
@@ -216,10 +191,9 @@
         <fieldset><legend>Datos del Paciente</legend>
             <div class="row"><div><label>Nombre:</label><input type="text" id="recNombre" placeholder="Nombre del paciente"></div><div><label>Edad:</label><input type="text" id="recEdad" placeholder="Edad"></div><div><label>Sexo:</label><select id="recSexo"><option>Masculino</option><option>Femenino</option></select></div></div>
             <div class="row"><div><label>Expediente:</label><input type="text" id="expediente" placeholder="DEN-0000"></div><div><label>Alergias:</label><input type="text" id="recAlergias" placeholder="Ej: Penicilina"></div></div>
-            <div><label>Diagnóstico:</label><textarea id="diagnostico" rows="2" placeholder="Pulpitis irreversible en órgano dentario 36"></textarea></div>
+            <div><label>Diagnóstico:</label><textarea id="diagnostico" rows="2" placeholder="Pulpitis irreversible..."></textarea></div>
         </fieldset>
-        <fieldset><legend>Medicamentos</legend>
-            <div id="medicamentosContainer"></div>
+        <fieldset><legend>Medicamentos</legend><div id="medicamentosContainer"></div>
             <button type="button" onclick="agregarMedicamentoReceta()" style="width:100%; margin-top:10px;">+ Agregar medicamento</button>
             <button type="button" onclick="cargarEjemploMedicamentos()" style="width:100%; margin-top:5px; background:#548c7a;">📋 Cargar ejemplo</button>
         </fieldset>
@@ -250,7 +224,7 @@
         <button onclick="guardarCita()"><i class="fas fa-save"></i> Agendar</button>
         <hr><h3>Citas Programadas</h3>
         <div id="listaCitas"></div>
-        <button onclick="sincronizarCalendario()" style="background:#0D9488; margin-top:10px;"><i class="fas fa-sync-alt"></i> Sincronizar</button>
+        <button onclick="sincronizarCalendario()" style="background:#0D9488; margin-top:10px;"><i class="fas fa-sync-alt"></i> Sincronizar con Calendar</button>
     </div></div>
 
     <!-- SERVICIOS -->
@@ -511,7 +485,7 @@ function guardarExpediente(){
     mostrarToast('Expediente guardado');
 }
 
-// AUTO-GUARDADO
+// ========== AUTO-GUARDADO ==========
 function autoGuardarExpediente() {
     if(!pacienteActual) return;
     pacienteActual.data = {
@@ -592,7 +566,57 @@ function autoGuardarPresupuesto() {
     guardarTodoLocal();
 }
 
-// RECETA
+// ========== FUNCIONES DE GOOGLE DRIVE (CON SOBRESCRITURA) ==========
+async function guardarArchivoEnDrive(fId, nombreArchivo, contenido) {
+    let token = await refrescarToken();
+    if(!token) return false;
+    
+    try {
+        // Buscar si ya existe un archivo con ese nombre
+        let buscar = await fetch(`https://www.googleapis.com/drive/v3/files?q=name='${nombreArchivo}' and '${fId}' in parents and trashed=false`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        let resultado = await buscar.json();
+        
+        const contenidoStr = JSON.stringify(contenido, null, 2);
+        
+        // Si existe, ACTUALIZAR (sobrescribir)
+        if(resultado.files && resultado.files.length > 0) {
+            let archivoId = resultado.files[0].id;
+            console.log(`📝 Actualizando: ${nombreArchivo} (ID: ${archivoId})`);
+            
+            let actualizar = await fetch(`https://www.googleapis.com/upload/drive/v3/files/${archivoId}?uploadType=media`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: contenidoStr
+            });
+            return actualizar.ok;
+        } 
+        // Si NO existe, CREAR
+        else {
+            console.log(`📁 Creando nuevo archivo: ${nombreArchivo}`);
+            let metadata = { name: nombreArchivo, mimeType: 'application/json', parents: [fId] };
+            let formData = new FormData();
+            formData.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+            formData.append('file', new Blob([contenidoStr], { type: 'application/json' }));
+            
+            let crear = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData
+            });
+            return crear.ok;
+        }
+    } catch(e) {
+        console.error("❌ Error en guardarArchivoEnDrive:", e);
+        return false;
+    }
+}
+
+// ========== RECETA ==========
 function renderizarMedicamentosReceta(){
     let container = document.getElementById('medicamentosContainer');
     if(!container) return;
@@ -690,7 +714,7 @@ function generarRecetaPDFProfesional(){
 }
 function imprimirRecetaProfesional(){ generarRecetaPDFProfesional(); }
 
-// CALENDAR
+// ========== CALENDAR ==========
 async function crearEventoCalendar(pacienteNombre, fecha, hora, tratamiento, telefono, notas) {
     if(!accessToken) return null;
     try {
@@ -703,10 +727,25 @@ async function crearEventoCalendar(pacienteNombre, fecha, hora, tratamiento, tel
         return null;
     } catch(e) { return null; }
 }
+
+async function actualizarEventoCalendar(eventoId, pacienteNombre, fecha, hora, tratamiento, telefono, notas) {
+    if(!accessToken || !eventoId) return null;
+    try {
+        let fechaTime = new Date(`${fecha}T${hora}:00`);
+        let fechaFin = new Date(fechaTime.getTime() + 60 * 60 * 1000);
+        let evento = { summary: `🦷 Cita Dental - ${pacienteNombre}`, description: `Paciente: ${pacienteNombre}\nTeléfono: ${telefono}\nTratamiento: ${tratamiento}\n${notas ? `Notas: ${notas}` : ''}\n\nActualizado desde C&C Dental Group`, start: { dateTime: fechaTime.toISOString(), timeZone: 'America/Tijuana' }, end: { dateTime: fechaFin.toISOString(), timeZone: 'America/Tijuana' }, reminders: { useDefault: true } };
+        let response = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventoId}`, { method: 'PUT', headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify(evento) });
+        let data = await response.json();
+        if(data.id) return data;
+        return null;
+    } catch(e) { return null; }
+}
+
 async function eliminarEventoCalendar(eventoId) {
     if(!accessToken || !eventoId) return false;
     try { let response = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventoId}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${accessToken}` } }); return response.ok; } catch(e) { return false; }
 }
+
 async function sincronizarCalendario() {
     if(!pacienteActual) { mostrarToast('Selecciona paciente'); return; }
     if(!accessToken) { mostrarToast('Conecta Drive primero'); return; }
@@ -733,42 +772,102 @@ function guardarCita(){
     let tratamiento = document.getElementById('citaTratamiento').value;
     let notas = document.getElementById('citaNotas').value;
     if(!fecha || !hora) { mostrarToast('Selecciona fecha y hora'); return; }
-    let cita = { fecha: fecha, hora: hora, tratamiento: tratamiento, notas: notas, fechaCreacion: new Date().toISOString() };
-    if(accessToken) {
-        mostrarToast('📅 Creando evento...');
-        crearEventoCalendar(pacienteActual.data.nombre || 'Paciente', fecha, hora, tratamiento, pacienteActual.data.telefono || '', notas).then(evento => {
-            if(evento && evento.id) { cita.eventoId = evento.id; cita.eventoLink = evento.htmlLink; mostrarToast('✅ Evento creado'); }
-            else { mostrarToast('⚠️ Cita local'); }
-            pacienteActual.citas.push(cita);
+    
+    // Buscar si ya existe una cita con misma fecha y hora
+    let citaExistente = null;
+    let citaIndex = -1;
+    if(pacienteActual.citas) {
+        citaIndex = pacienteActual.citas.findIndex(c => c.fecha === fecha && c.hora === hora);
+        if(citaIndex !== -1) citaExistente = pacienteActual.citas[citaIndex];
+    }
+    
+    let cita = { fecha: fecha, hora: hora, tratamiento: tratamiento, notas: notas, fechaModificacion: new Date().toISOString() };
+    
+    if(citaExistente) {
+        // EDITAR cita existente
+        cita.eventoId = citaExistente.eventoId;
+        cita.eventoLink = citaExistente.eventoLink;
+        cita.fechaCreacion = citaExistente.fechaCreacion;
+        
+        if(accessToken && cita.eventoId) {
+            mostrarToast('📅 Actualizando evento...');
+            actualizarEventoCalendar(cita.eventoId, pacienteActual.data.nombre || 'Paciente', fecha, hora, tratamiento, pacienteActual.data.telefono || '', notas).then(evento => {
+                if(evento && evento.id) {
+                    cita.eventoLink = evento.htmlLink;
+                    mostrarToast('✅ Evento actualizado');
+                } else { mostrarToast('⚠️ Solo local'); }
+                pacienteActual.citas[citaIndex] = cita;
+                guardarTodoLocal();
+                if(accessToken && pacienteActual.folderId) guardarArchivoEnDrive(pacienteActual.folderId, 'citas.json', pacienteActual.citas);
+                mostrarCitas();
+                actualizarEstadisticas();
+                limpiarCamposCita();
+            });
+        } else {
+            pacienteActual.citas[citaIndex] = cita;
             guardarTodoLocal();
-            if(accessToken && pacienteActual.folderId) guardarArchivoEnDrive(pacienteActual.folderId, 'citas.json', pacienteActual.citas);
+            if(pacienteActual.folderId) guardarArchivoEnDrive(pacienteActual.folderId, 'citas.json', pacienteActual.citas);
             mostrarCitas();
             actualizarEstadisticas();
-            document.getElementById('citaFecha').value = '';
-            document.getElementById('citaHora').value = '';
-            document.getElementById('citaTratamiento').value = '';
-            document.getElementById('citaNotas').value = '';
-        });
+            mostrarToast('Cita actualizada localmente');
+            limpiarCamposCita();
+        }
     } else {
-        pacienteActual.citas.push(cita);
-        guardarTodoLocal();
-        if(pacienteActual.folderId) guardarArchivoEnDrive(pacienteActual.folderId, 'citas.json', pacienteActual.citas);
-        mostrarCitas();
-        actualizarEstadisticas();
-        mostrarToast('Cita guardada localmente');
-        document.getElementById('citaFecha').value = '';
-        document.getElementById('citaHora').value = '';
-        document.getElementById('citaTratamiento').value = '';
-        document.getElementById('citaNotas').value = '';
+        // CREAR nueva cita
+        if(accessToken) {
+            mostrarToast('📅 Creando evento...');
+            crearEventoCalendar(pacienteActual.data.nombre || 'Paciente', fecha, hora, tratamiento, pacienteActual.data.telefono || '', notas).then(evento => {
+                if(evento && evento.id) {
+                    cita.eventoId = evento.id;
+                    cita.eventoLink = evento.htmlLink;
+                    mostrarToast('✅ Evento creado');
+                } else { mostrarToast('⚠️ Solo local'); }
+                pacienteActual.citas.push(cita);
+                guardarTodoLocal();
+                if(accessToken && pacienteActual.folderId) guardarArchivoEnDrive(pacienteActual.folderId, 'citas.json', pacienteActual.citas);
+                mostrarCitas();
+                actualizarEstadisticas();
+                limpiarCamposCita();
+            });
+        } else {
+            pacienteActual.citas.push(cita);
+            guardarTodoLocal();
+            if(pacienteActual.folderId) guardarArchivoEnDrive(pacienteActual.folderId, 'citas.json', pacienteActual.citas);
+            mostrarCitas();
+            actualizarEstadisticas();
+            mostrarToast('Cita guardada localmente');
+            limpiarCamposCita();
+        }
     }
 }
+
+function limpiarCamposCita() {
+    document.getElementById('citaFecha').value = '';
+    document.getElementById('citaHora').value = '';
+    document.getElementById('citaTratamiento').value = '';
+    document.getElementById('citaNotas').value = '';
+}
+
 function mostrarCitas(){
     let d = document.getElementById('listaCitas');
     if(!d || !pacienteActual) return;
     let citas = pacienteActual.citas || [];
-    if(citas.length === 0) { d.innerHTML = '<div>No hay citas</div>'; return; }
-    d.innerHTML = citas.map((c,i)=>`<div class="cita-item"><div><strong>📅 ${c.fecha} ${c.hora}</strong><br>${c.tratamiento}<br>${c.notas ? `<small>📝 ${c.notas.substring(0, 50)}</small><br>` : ''}${c.eventoLink ? `<a href="${c.eventoLink}" target="_blank" class="calendar-link"><i class="fab fa-google"></i> Ver en Calendar</a>` : '<span style="color:#888;">⚠️ No sincronizado</span>'}</div><button onclick="eliminarCitaConCalendar(${i})" style="background:#EF4444;">X</button></div>`).join('');
+    if(citas.length === 0) { d.innerHTML = '<div>No hay citas programadas</div>'; return; }
+    citas.sort((a,b) => new Date(b.fecha + ' ' + b.hora) - new Date(a.fecha + ' ' + a.hora));
+    d.innerHTML = citas.map((c,i)=>`<div class="cita-item"><div style="flex:1"><strong>📅 ${c.fecha} ${c.hora}</strong><br>🦷 ${c.tratamiento}<br>${c.notas ? `<small>📝 ${c.notas.substring(0, 50)}</small><br>` : ''}${c.eventoLink ? `<a href="${c.eventoLink}" target="_blank" class="calendar-link"><i class="fab fa-google"></i> Ver en Calendar</a>` : '<span style="color:#888;">⚠️ No sincronizado</span>'}</div><div style="display:flex; gap:5px;"><button onclick="editarCita(${i})" style="background:#0D9488; padding:5px 10px;"><i class="fas fa-edit"></i></button><button onclick="eliminarCitaConCalendar(${i})" style="background:#EF4444; padding:5px 10px;"><i class="fas fa-trash"></i></button></div></div>`).join('');
 }
+
+function editarCita(index) {
+    let cita = pacienteActual.citas[index];
+    if(!cita) return;
+    document.getElementById('citaFecha').value = cita.fecha;
+    document.getElementById('citaHora').value = cita.hora;
+    document.getElementById('citaTratamiento').value = cita.tratamiento;
+    document.getElementById('citaNotas').value = cita.notas || '';
+    mostrarToast('✏️ Editando cita. Modifica y vuelve a guardar.');
+    document.getElementById('citaFecha').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
 async function eliminarCitaConCalendar(i){
     let cita = pacienteActual.citas[i];
     if(cita && cita.eventoId) await eliminarEventoCalendar(cita.eventoId);
@@ -780,6 +879,7 @@ async function eliminarCitaConCalendar(i){
     mostrarToast('Cita eliminada');
 }
 
+// ========== CONSENTIMIENTO ==========
 function guardarConsentimiento(){
     if(!pacienteActual){mostrarToast('Selecciona paciente');return}
     let c={fecha:new Date().toLocaleString(),procedimiento:document.getElementById('consentProcedimiento').value,texto:document.getElementById('consentTexto').value};
@@ -792,6 +892,7 @@ function guardarConsentimiento(){
 function mostrarConsentimientos(){let d=document.getElementById('listaConsentimientos');if(!d||!pacienteActual)return;d.innerHTML=pacienteActual.consentimientos.map((c,i)=>`<div class="exp-item">📝 ${c.fecha}<br>${c.procedimiento}<button onclick="eliminarConsentimiento(${i})">X</button></div>`).join('')||'<div>No hay consentimientos</div>';}
 function eliminarConsentimiento(i){pacienteActual.consentimientos.splice(i,1);guardarTodoLocal();if(accessToken&&pacienteActual.folderId) guardarArchivoEnDrive(pacienteActual.folderId,'consentimientos.json',pacienteActual.consentimientos);mostrarConsentimientos();}
 
+// ========== CERTIFICADO ==========
 function guardarCertificado(){
     if(!pacienteActual){mostrarToast('Selecciona paciente');return}
     let o=document.getElementById('certOmitir').checked;
@@ -805,16 +906,18 @@ function guardarCertificado(){
 function mostrarCertificados(){let d=document.getElementById('listaCertificados');if(!d||!pacienteActual)return;d.innerHTML=pacienteActual.certificados.map((c,i)=>`<div class="exp-item">📜 ${c.fecha}<br>${c.diagnostico}<button onclick="eliminarCertificado(${i})">X</button></div>`).join('')||'<div>No hay certificados</div>';}
 function eliminarCertificado(i){pacienteActual.certificados.splice(i,1);guardarTodoLocal();if(accessToken&&pacienteActual.folderId) guardarArchivoEnDrive(pacienteActual.folderId,'certificados.json',pacienteActual.certificados);mostrarCertificados();}
 
+// ========== SERVICIOS ==========
 function mostrarServicios(){let t=document.getElementById('listaServicios');t.innerHTML=servicios.map((s,i)=>`<tr><td>${s.nombre}</td><td>${s.descripcion||''}</td><td>$${s.costo}</td><td><button onclick="eliminarServicio(${i})" style="padding:4px 8px;font-size:0.7rem">X</button></td></tr>`).join('');actualizarSelectServicios();guardarTodoLocal();}
 function agregarServicio(){let n=document.getElementById('servNombre').value,c=parseFloat(document.getElementById('servCosto').value);if(n&&c){servicios.push({nombre:n,costo:c,descripcion:document.getElementById('servDesc').value});mostrarServicios();mostrarToast('Servicio agregado')}}
 function eliminarServicio(i){servicios.splice(i,1);mostrarServicios()}
 function actualizarSelectServicios(){let s=document.getElementById('presServicioSelect');if(s)s.innerHTML=servicios.map(s=>`<option value="${s.nombre}|${s.costo}">${s.nombre} - $${s.costo}</option>`).join('')}
 
-function mostrarMedicamentos(){let t=document.getElementById('listaMedicamentos');t.innerHTML=medicamentos.map((m,i)=>`<tr><td>${m.nombre}</td><td>${m.categoria||''}</td><td>${m.uso||''}</td><td><button onclick="eliminarMedicamento(${i})" style="padding:4px 8px;font-size:0.7rem">X</button></td></tr>`).join('');guardarTodoLocal();}
+// ========== MEDICAMENTOS ==========
+function mostrarMedicamentos(){let t=document.getElementById('listaMedicamentos');t.innerHTML=medicamentos.map((m,i)=>`<tr><td>${m.nombre}</td><td>${m.categoria||''}</td><td>${m.uso||''}</td><td><button onclick="eliminarMedicamento(${i})" style="padding:4px 8px;font-size:0.7rem">X</button>NonNull} None`).join('');guardarTodoLocal();}
 function agregarMedicamento(){let n=document.getElementById('medNombre').value;if(n){medicamentos.push({nombre:n,categoria:document.getElementById('medCategoria').value,uso:document.getElementById('medUso').value});mostrarMedicamentos();mostrarToast('Medicamento agregado')}}
 function eliminarMedicamento(i){medicamentos.splice(i,1);mostrarMedicamentos()}
 
-// PRESUPUESTO
+// ========== PRESUPUESTO ==========
 function agregarServicioPresupuesto(){
     let v=document.getElementById('presServicioSelect').value;
     if(v){ let[n,c]=v.split('|'); presupuestoItems.push({nombre:n,costo:parseFloat(c)}); renderPresupuestoItems(); calcularTotalPresupuesto(); autoGuardarPresupuesto(); }
@@ -881,7 +984,7 @@ function generarConsentimientoPDF(){
     doc.save('consentimiento.pdf');mostrarToast('PDF generado');
 }
 
-// GOOGLE DRIVE
+// ========== GOOGLE DRIVE Y CALENDAR ==========
 async function conectarGoogle(){let id=localStorage.getItem('googleClientId');if(id)iniciarAuth(id);else document.getElementById('configPanel').classList.remove('hidden');}
 function guardarClientId(){let id=document.getElementById('clientIdInput').value;if(id){localStorage.setItem('googleClientId',id);document.getElementById('configPanel').classList.add('hidden');iniciarAuth(id)}}
 function cerrarConfig(){document.getElementById('configPanel').classList.add('hidden')}
@@ -912,7 +1015,6 @@ async function iniciarAuth(clientId){
 async function refrescarToken(){let st=localStorage.getItem('driveToken');if(st)return st;if(!tokenClient)return null;return new Promise(r=>{tokenClient.callback=resp=>{if(resp.access_token){localStorage.setItem('driveToken',resp.access_token);r(resp.access_token)}else r(null)};tokenClient.requestAccessToken({prompt:''})})}
 async function crearCarpetaPrincipal(){let t=await refrescarToken();if(!t)return;try{let b=await fetch(`https://www.googleapis.com/drive/v3/files?q=name='C-C Dental Group' and mimeType='application/vnd.google-apps.folder' and trashed=false`,{headers:{'Authorization':`Bearer ${t}`}});let r=await b.json();if(r.files&&r.files.length>0)principalFolderId=r.files[0].id;else{let c=await fetch('https://www.googleapis.com/drive/v3/files',{method:'POST',headers:{'Authorization':`Bearer ${t}`,'Content-Type':'application/json'},body:JSON.stringify({name:'C-C Dental Group',mimeType:'application/vnd.google-apps.folder'})});let n=await c.json();if(n.id)principalFolderId=n.id}await cargarPacientesDesdeDrive()}catch(e){}}
 async function crearSubcarpeta(pId,n){let t=await refrescarToken();if(!t)return null;try{let b=await fetch(`https://www.googleapis.com/drive/v3/files?q=name='${n}' and mimeType='application/vnd.google-apps.folder' and '${pId}' in parents and trashed=false`,{headers:{'Authorization':`Bearer ${t}`}});let r=await b.json();if(r.files&&r.files.length>0)return r.files[0].id;let c=await fetch('https://www.googleapis.com/drive/v3/files',{method:'POST',headers:{'Authorization':`Bearer ${t}`,'Content-Type':'application/json'},body:JSON.stringify({name:n,mimeType:'application/vnd.google-apps.folder',parents:[pId]})});let nw=await c.json();return nw.id||null}catch(e){return null}}
-async function guardarArchivoEnDrive(fId,n,c){let t=await refrescarToken();if(!t)return false;let metadata={name:n,mimeType:'application/json',parents:[fId]};let fd=new FormData();fd.append('metadata',new Blob([JSON.stringify(metadata)],{type:'application/json'}));fd.append('file',new Blob([JSON.stringify(c,null,2)],{type:'application/json'}));try{let r=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',{method:'POST',headers:{'Authorization':`Bearer ${t}`},body:fd});return r.ok}catch(e){return false}}
 async function cargarPacientesDesdeDrive(){if(!principalFolderId)return;let t=await refrescarToken();if(!t)return;try{let b=await fetch(`https://www.googleapis.com/drive/v3/files?q='${principalFolderId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`,{headers:{'Authorization':`Bearer ${t}`}});let r=await b.json();if(r.files){for(let f of r.files){if(!pacientes[f.name]){pacientes[f.name]={folderId:f.id,data:{},recetas:[],presupuestos:[],citas:[],consentimientos:[],certificados:[]};await cargarDatosPacienteDesdeDrive(f.name,f.id)}}guardarTodoLocal();actualizarSelectPacientes()}}catch(e){}}
 async function cargarDatosPacienteDesdeDrive(k,fId){let t=await refrescarToken();if(!t)return;let archivos=['expediente.json','recetas.json','presupuestos.json','citas.json','consentimientos.json','certificados.json'];for(let a of archivos){try{let b=await fetch(`https://www.googleapis.com/drive/v3/files?q='${fId}' in parents and name='${a}' and trashed=false`,{headers:{'Authorization':`Bearer ${t}`}});let r=await b.json();if(r.files&&r.files.length>0){let c=await fetch(`https://www.googleapis.com/drive/v3/files/${r.files[0].id}?alt=media`,{headers:{'Authorization':`Bearer ${t}`}});let d=await c.json();if(a==='expediente.json')pacientes[k].data={...pacientes[k].data,...d};else if(a==='recetas.json')pacientes[k].recetas=d;else if(a==='presupuestos.json')pacientes[k].presupuestos=d;else if(a==='citas.json')pacientes[k].citas=d;else if(a==='consentimientos.json')pacientes[k].consentimientos=d;else if(a==='certificados.json')pacientes[k].certificados=d}}catch(e){}}}
 
