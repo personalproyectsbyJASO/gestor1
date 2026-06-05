@@ -472,8 +472,8 @@
     <div id="pagina-receta" class="pagina"><div class="card"><h2>📄 Receta Médica</h2><div class="doctor-fijo">Dr. Alejandro Coronado - Cédula 9562093</div><fieldset><legend>🏥 Datos Clínica</legend><input type="text" id="clinicaNombre" value="C&C Dental Group" disabled></fieldset><fieldset><legend>👨‍⚕️ Médico</legend><div class="row"><input type="text" value="Dr. Alejandro Coronado" disabled><input type="text" value="9562093" disabled></div></fieldset><fieldset><legend>Paciente</legend><div class="row"><input type="text" id="recNombre" placeholder="Nombre"><input type="text" id="recEdad" placeholder="Edad"><select id="recSexo"><option>Masculino</option><option>Femenino</option></select></div><input type="text" id="recAlergias" placeholder="Alergias"></fieldset><fieldset><legend>💊 Medicamentos</legend><div id="medicamentosContainer"></div><button type="button" onclick="agregarMedicamentoReceta()">+ Agregar medicamento</button><button type="button" onclick="cargarEjemploMedicamentos()" style="background:#4B6E6B;">Cargar ejemplo</button></fieldset><fieldset><legend>Indicaciones</legend><textarea id="indicacionesGenerales" rows="3"></textarea></fieldset><div style="display:flex; gap:10px;"><button onclick="guardarRecetaProfesional()">Guardar</button><button onclick="generarRecetaPDFProfesional()">PDF</button><button onclick="imprimirRecetaProfesional()">Imprimir</button></div><hr><h3>Historial</h3><div id="listaRecetas"></div></div></div>
     <div id="pagina-presupuesto" class="pagina"><div class="card"><h2>💰 Presupuesto</h2><input type="text" id="presNombre" placeholder="Paciente"><div class="row"><select id="presServicioSelect"></select><button onclick="agregarServicioPresupuesto()">+ Servicio</button></div><div id="listaPresupuestoItems"></div><div class="row"><input type="number" id="presDescuento" placeholder="Descuento %" value="0" oninput="calcularTotalPresupuesto()"><input type="text" id="presVigencia" placeholder="Vigencia"></div><div class="total-presupuesto" id="totalPresupuestoDisplay">Total: $0.00</div><button onclick="guardarPresupuesto()">Guardar</button><button onclick="generarPresupuestoPDF()">PDF</button><hr><div id="listaPresupuestos"></div></div></div>
     <div id="pagina-citas" class="pagina"><div class="card"><h2>📅 Agenda Citas</h2><div class="row"><input type="text" id="citaNombre" disabled placeholder="Nombre"><input type="text" id="citaTelefono" disabled></div><input type="email" id="citaEmail" disabled><div class="row"><input type="date" id="citaFecha"><input type="time" id="citaHora"></div><input type="text" id="citaTratamiento" placeholder="Tratamiento"><textarea id="citaNotas" rows="2" placeholder="Notas"></textarea><button onclick="guardarCita()">Agendar Cita</button><hr><div id="listaCitas"></div><button onclick="sincronizarCalendario()" style="background:#1D6F62;">Sincronizar Calendar</button></div></div>
-    <div id="pagina-servicios" class="pagina"><div class="card"><h2>Servicios</h2><div class="row"><input type="text" id="servNombre" placeholder="Servicio"><input type="number" id="servCosto" placeholder="$"><input type="text" id="servDesc" placeholder="Descripción"></div><button onclick="agregarServicio()">Registrar</button><hr><table style="width:100%"><thead><tr><th>Servicio</th><th>Costo</th><th></th><tr></thead><tbody id="listaServicios"></tbody>}</div></div>
-    <div id="pagina-medicamentos" class="pagina"><div class="card"><h2>Medicamentos</h2><div class="row"><input type="text" id="medNombre" placeholder="Medicamento"><input type="text" id="medCategoria" placeholder="Categoría"><input type="text" id="medUso" placeholder="Uso"></div><button onclick="agregarMedicamento()">Registrar</button><hr><table style="width:100%"><thead><tr><th>Medicamento</th><th>Categoría</th><th></th></tr></thead><tbody id="listaMedicamentos"></tbody>}</div></div>
+    <div id="pagina-servicios" class="pagina"><div class="card"><h2>Servicios</h2><div class="row"><input type="text" id="servNombre" placeholder="Servicio"><input type="number" id="servCosto" placeholder="$"><input type="text" id="servDesc" placeholder="Descripción"></div><button onclick="agregarServicio()">Registrar</button><hr><table style="width:100%"><thead><tr><th>Servicio</th><th>Costo</th><th></th></tr></thead><tbody id="listaServicios"></tbody></table></div></div>
+    <div id="pagina-medicamentos" class="pagina"><div class="card"><h2>Medicamentos</h2><div class="row"><input type="text" id="medNombre" placeholder="Medicamento"><input type="text" id="medCategoria" placeholder="Categoría"><input type="text" id="medUso" placeholder="Uso"></div><button onclick="agregarMedicamento()">Registrar</button><hr><table style="width:100%"><thead><tr><th>Medicamento</th><th>Categoría</th><th></th></tr></thead><tbody id="listaMedicamentos"></tbody></table></div></div>
     <div id="pagina-consentimiento" class="pagina"><div class="card"><h2>Consentimiento</h2><input type="text" id="consentNombre" placeholder="Paciente"><input type="text" id="consentProcedimiento" placeholder="Procedimiento"><textarea id="consentTexto" rows="4">Autorizo el procedimiento informado</textarea><button onclick="guardarConsentimientoConFirma()">Guardar</button><button onclick="generarConsentimientoPDFConFirma()">PDF</button><hr><div id="listaConsentimientos"></div></div></div>
     <div id="pagina-certificado" class="pagina"><div class="card"><h2>Certificado</h2><div class="row"><input type="text" id="certNombre"><input type="text" id="certEdad"></div><div class="row"><input type="text" id="certLugar"><input type="date" id="certFecha"></div><textarea id="certDiagnostico"></textarea><div class="row"><input type="number" id="certDias" placeholder="Días reposo"><input type="date" id="certDesde"><input type="date" id="certHasta"></div><label><input type="checkbox" id="certOmitir"> Omitir diagnóstico</label><div style="margin-top:12px"><button onclick="guardarCertificado()">Guardar</button><button onclick="generarCertificadoPDF()">PDF</button></div><hr><div id="listaCertificados"></div></div></div>
     <div id="pagina-consultorio" class="pagina"><div class="card"><h2>Mi Consultorio</h2><div class="doctor-fijo"><strong>Dr. Alejandro Coronado</strong> | Cédula 9562093<br>Tel: 6646251897 | Email: Dentist.alexxx@gmail.com</div><fieldset><legend>Dirección fija</legend><textarea rows="2" disabled>Emiliano Zapata 2751, Ejido Matamoros, Tijuana</textarea></fieldset></div></div>
@@ -526,13 +526,23 @@
         localStorage.setItem('medicamentos', JSON.stringify(medicamentos)); 
     }
 
+    function escapeHtml(str) {
+        if(!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if(m === '&') return '&amp;';
+            if(m === '<') return '&lt;';
+            if(m === '>') return '&gt;';
+            return m;
+        });
+    }
+
     function actualizarSelectPacientes() { 
         let s = document.getElementById('selectPaciente'); 
         let arr = Object.keys(pacientes); 
         s.innerHTML = '<option value="">-- Seleccionar paciente --</option>'; 
         arr.forEach(k => { 
             let nombre = pacientes[k].data?.nombre || k;
-            s.innerHTML += `<option value="${k}">${nombre}</option>`; 
+            s.innerHTML += `<option value="${k}">${escapeHtml(nombre)}</option>`; 
         }); 
     }
 
@@ -540,7 +550,8 @@
         let k = document.getElementById('selectPaciente').value; 
         if (k && pacientes[k]) { 
             pacienteActual = pacientes[k]; 
-            document.getElementById('infoPacienteActual').innerHTML = `✅ ${pacienteActual.data.nombre || k}`; 
+            let nombreMostrar = pacienteActual.data?.nombre || k;
+            document.getElementById('infoPacienteActual').innerHTML = `✅ ${escapeHtml(nombreMostrar)}`; 
             actualizarCamposUI(); 
             mostrarRecetas(); 
             mostrarPresupuestos(); 
@@ -640,7 +651,7 @@
         mostrarToast('Reporte exportado'); 
     }
 
-    // ========== FUNCIONES DEL BUSCADOR DE PACIENTES (CORREGIDAS) ==========
+    // ========== FUNCIONES DEL BUSCADOR DE PACIENTES ==========
     function abrirListaPacientes() { 
         let modal = document.getElementById('modalPacientes');
         modal.classList.add('activo');
@@ -691,17 +702,7 @@
         select.value = key;
         cambiarPaciente();
         cerrarListaPacientes();
-        mostrarToast(`Paciente seleccionado: ${pacientes[key].data?.nombre || key}`);
-    }
-    
-    function escapeHtml(str) {
-        if(!str) return '';
-        return str.replace(/[&<>]/g, function(m) {
-            if(m === '&') return '&amp;';
-            if(m === '<') return '&lt;';
-            if(m === '>') return '&gt;';
-            return m;
-        });
+        mostrarToast(`Paciente seleccionado: ${escapeHtml(pacientes[key].data?.nombre || key)}`);
     }
 
     function mostrarRecetas() { 
