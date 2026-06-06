@@ -18,12 +18,19 @@
             font-family: 'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
             background: var(--bg); color: var(--text);
             padding: 24px; font-size: 14px; line-height: 1.5;
+            transition: background 0.2s, color 0.2s;
         }
         body.modo-oscuro {
             --bg: #121212; --card: #1E1E1E; --input: #2A2A2A;
             --text: #E0E0E0; --text-muted: #A0A0A0; --border: #333333;
             --primary: #2C7A6E; --primary-hover: #3E9B8C; --hover-card: #252525;
             --shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        body.modo-claro {
+            --bg: #F5F5F5; --card: #FFFFFF; --input: #FFFFFF;
+            --text: #1A1A1A; --text-muted: #666666; --border: #E0E0E0;
+            --primary: #0F5C5C; --primary-hover: #0A4A4A; --hover-card: #FAFAFA;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
         }
         .container { max-width: 1280px; margin: 0 auto; }
         .header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 32px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
@@ -112,7 +119,7 @@
         </div>
         <div style="display:flex; gap:12px">
             <div class="btn-google" id="googleBtn" onclick="conectarGoogle()"><i class="fab fa-google"></i><span id="googleBtnText">Conectar Google</span></div>
-            <div class="btn-theme" onclick="toggleModo()"><i class="fas fa-moon"></i><span>Modo</span></div>
+            <div class="btn-theme" onclick="toggleModo()"><i class="fas fa-sun"></i><span>Modo</span></div>
         </div>
     </div>
 
@@ -192,7 +199,7 @@
         </div>
     </div>
 
-    <div id="pagina-servicios" class="pagina"><div class="card"><h2>🦷 Servicios</h2><div class="row"><input type="text" id="servNombre" placeholder="Servicio"><input type="number" id="servCosto" placeholder="$"><input type="text" id="servDesc" placeholder="Descripción"></div><button onclick="agregarServicio()">Registrar</button><hr><table style="width:100%"><thead><tr><th>Servicio</th><th>Descripción</th><th>Costo</th><th></th></tr></thead><tbody id="listaServicios"></tbody>}</div></div>
+    <div id="pagina-servicios" class="pagina"><div class="card"><h2>🦷 Servicios</h2><div class="row"><input type="text" id="servNombre" placeholder="Servicio"><input type="number" id="servCosto" placeholder="$"><input type="text" id="servDesc" placeholder="Descripción"></div><button onclick="agregarServicio()">Registrar</button><hr><table style="width:100%"><thead><tr><th>Servicio</th><th>Descripción</th><th>Costo</th><th></th><tr></thead><tbody id="listaServicios"></tbody>}</div></div>
 
     <div id="pagina-medicamentos" class="pagina"><div class="card"><h2>💊 Medicamentos</h2><div class="row"><input type="text" id="medNombre" placeholder="Medicamento"><input type="text" id="medCategoria" placeholder="Categoría"><input type="text" id="medUso" placeholder="Uso"></div><button onclick="agregarMedicamento()">Registrar</button><hr><table style="width:100%"><thead><tr><th>Medicamento</th><th>Categoría</th><th>Uso</th><th></th></tr></thead><tbody id="listaMedicamentos"></tbody>}</div></div>
 
@@ -232,14 +239,40 @@ function escapeHtml(str) {
     return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
 }
 
+// ==================== MODO OSCURO (CORREGIDO) ====================
 function toggleModo() {
-    document.body.classList.toggle('modo-claro');
-    localStorage.setItem('modo', document.body.classList.contains('modo-claro') ? 'claro' : 'oscuro');
+    if (document.body.classList.contains('modo-claro')) {
+        document.body.classList.remove('modo-claro');
+        document.body.classList.add('modo-oscuro');
+        localStorage.setItem('modo', 'oscuro');
+        const icon = document.querySelector('.btn-theme i');
+        if (icon) icon.className = 'fas fa-moon';
+    } else {
+        document.body.classList.remove('modo-oscuro');
+        document.body.classList.add('modo-claro');
+        localStorage.setItem('modo', 'claro');
+        const icon = document.querySelector('.btn-theme i');
+        if (icon) icon.className = 'fas fa-sun';
+    }
 }
+
 function setThemeFromStorage() {
     const saved = localStorage.getItem('modo');
-    if (saved === 'claro') document.body.classList.add('modo-claro');
-    else document.body.classList.add('modo-oscuro');
+    const icon = document.querySelector('.btn-theme i');
+    if (saved === 'claro') {
+        document.body.classList.add('modo-claro');
+        document.body.classList.remove('modo-oscuro');
+        if (icon) icon.className = 'fas fa-sun';
+    } else if (saved === 'oscuro') {
+        document.body.classList.add('modo-oscuro');
+        document.body.classList.remove('modo-claro');
+        if (icon) icon.className = 'fas fa-moon';
+    } else {
+        document.body.classList.add('modo-claro');
+        document.body.classList.remove('modo-oscuro');
+        localStorage.setItem('modo', 'claro');
+        if (icon) icon.className = 'fas fa-sun';
+    }
 }
 
 // ==================== GOOGLE ====================
