@@ -186,11 +186,8 @@
             <textarea id="citaNotas" rows="2" placeholder="Notas"></textarea>
             <button onclick="guardarCita()"><i class="fas fa-save"></i> Agendar Cita</button>
             <hr><div id="listaCitas"></div>
-            <button onclick="sincronizarCalendario()" style="background:#6B7280; margin-top:10px;" title="Solo necesario para citas creadas antes de conectar Google">
-                <i class="fas fa-cloud-upload-alt"></i> Subir citas antiguas a Calendar
-            </button>
-            <button onclick="reconectarGoogle()" style="background:#6B7280; margin-top:10px; margin-left:10px;" title="Forzar reconexión si hay problemas">
-                <i class="fas fa-sync-alt"></i> Reconectar Google
+            <button onclick="sincronizarCalendario()" style="background:#6B7280; margin-top:10px;" title="Sincronizar citas no sincronizadas con Google Calendar">
+                <i class="fas fa-sync-alt"></i> Sincronizar con Calendar
             </button>
         </div>
     </div>
@@ -245,7 +242,7 @@ function setThemeFromStorage() {
     else document.body.classList.add('modo-oscuro');
 }
 
-// ==================== GOOGLE REAL ====================
+// ==================== GOOGLE ====================
 function actualizarEstadoGoogle() {
     const btn = document.getElementById('googleBtn');
     const statusDiv = document.getElementById('googleStatus');
@@ -276,17 +273,6 @@ function conectarGoogle() {
         iniciarAuth(clientId);
     } else {
         document.getElementById('configPanel').classList.remove('hidden');
-    }
-}
-
-function reconectarGoogle() {
-    if (clientIdGuardado) {
-        localStorage.removeItem('driveToken');
-        accessToken = null;
-        actualizarEstadoGoogle();
-        iniciarAuth(clientIdGuardado);
-    } else {
-        conectarGoogle();
     }
 }
 
@@ -534,7 +520,6 @@ function guardarExpediente() {
     guardarTodoLocal();
     mostrarToast('Expediente guardado', 'success');
     actualizarSelectPacientes();
-    // Actualizar campos de cita con los nuevos datos
     document.getElementById('citaNombre').value = pacienteActual.data.nombre || '';
     document.getElementById('citaTelefono').value = pacienteActual.data.telefono || '';
     document.getElementById('citaEmail').value = pacienteActual.data.email || '';
@@ -979,14 +964,12 @@ function guardarCita() {
         return; 
     }
     
-    // Verificar que el paciente tenga datos completos
     let nombrePaciente = pacienteActual.data.nombre;
     let telefonoPaciente = pacienteActual.data.telefono || '';
     let correoPaciente = pacienteActual.data.email || '';
     
     if (!nombrePaciente || nombrePaciente === 'Paciente' || nombrePaciente.trim() === '') {
         mostrarToast('❌ Primero completa el expediente del paciente (nombre obligatorio).', 'error');
-        // Redirigir al expediente
         irAPagina('expediente');
         return;
     }
@@ -1009,7 +992,7 @@ function guardarCita() {
     };
     
     if (accessToken) {
-        mostrarToast('📅 Creando evento en Calendar con los datos de: ' + nombrePaciente);
+        mostrarToast('📅 Creando evento en Calendar...');
         crearEventoCalendar(nombrePaciente, fecha, hora, tratamiento, telefonoPaciente, correoPaciente, notas)
             .then(evento => {
                 if (evento && evento.id) {
@@ -1057,9 +1040,9 @@ function mostrarCitas() {
         if (c.eventoLink) {
             calendarIcon = `<a href="${c.eventoLink}" target="_blank" class="calendar-link"><i class="fab fa-google"></i> Ver en Calendar</a>`;
         } else if (accessToken) {
-            calendarIcon = `<span style="margin-left:10px; font-size:0.7rem; color:#888;">⚠️ No sincronizado (error)</span>`;
+            calendarIcon = `<span style="margin-left:10px; font-size:0.7rem; color:#888;">⚠️ No sincronizado</span>`;
         } else {
-            calendarIcon = `<span style="margin-left:10px; font-size:0.7rem; color:#888;">⚠️ No sincronizado (sin conexión)</span>`;
+            calendarIcon = `<span style="margin-left:10px; font-size:0.7rem; color:#888;">⚠️ Sin conexión a Google</span>`;
         }
         return `<div class="cita-item" style="border-left: 3px solid var(--primary); margin-bottom:12px;">
                     <div style="flex:1;">
@@ -1090,7 +1073,7 @@ async function eliminarCitaConCalendar(i) {
         try {
             let eliminado = await eliminarEventoCalendar(cita.eventoId);
             if (eliminado) mostrarToast('✅ Eliminado de Google Calendar', 'success');
-            else mostrarToast('⚠️ No se pudo eliminar de Calendar (puede que ya no exista)', 'error');
+            else mostrarToast('⚠️ No se pudo eliminar de Calendar', 'error');
         } catch(e) { mostrarToast('⚠️ Error al eliminar de Calendar', 'error'); }
     } else if (cita.eventoId && !accessToken) {
         mostrarToast('⚠️ No conectado a Google. Solo se eliminará localmente.', 'error');
@@ -1196,7 +1179,7 @@ async function sincronizarCalendario() {
         return;
     }
     
-    mostrarToast(`🔄 Subiendo ${citasSinSincronizar.length} cita(s) antigua(s) a Calendar...`);
+    mostrarToast(`🔄 Sincronizando ${citasSinSincronizar.length} cita(s) con Calendar...`);
     let actualizadas = 0;
     for (let i = 0; i < citas.length; i++) {
         let cita = citas[i];
@@ -1217,7 +1200,7 @@ async function sincronizarCalendario() {
     }
     if (actualizadas > 0) {
         guardarTodoLocal();
-        mostrarToast(`✅ ${actualizadas} cita(s) antigua(s) subidas a Calendar`, 'success');
+        mostrarToast(`✅ ${actualizadas} cita(s) sincronizadas con Calendar`, 'success');
     } else {
         mostrarToast('⚠️ No se pudo sincronizar ninguna cita. Revisa la conexión.', 'error');
     }
