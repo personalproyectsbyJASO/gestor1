@@ -11,98 +11,169 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            --bg: #F5F5F5; --card: #FFFFFF; --input: #FFFFFF;
-            --text: #1A1A1A; --text-muted: #666666; --border: #E0E0E0;
-            --primary: #0F5C5C; --primary-hover: #0A4A4A; --hover-card: #FAFAFA;
+            /* COLORES BASE - Psicología aplicada */
+            --bg: #F4F6F9;        /* Fondo muy suave, transmite tranquilidad */
+            --card: #FFFFFF;       /* Pureza, limpieza */
+            --input: #FFFFFF;
+            --text: #1A2A3A;       /* Azul oscuro para texto = autoridad */
+            --text-muted: #5D6D7E; /* Gris azulado = neutralidad */
+            --border: #D5D8DC;     /* Gris suave = orden */
+            
+            /* PSICOLOGÍA DEL COLOR PRINCIPAL: AZUL = CONFIANZA + PROFESIONALISMO */
+            --primary: #1A5276;        /* Azul profundo = confianza, seguridad, calma */
+            --primary-hover: #2471A3;  /* Azul medio = estabilidad, serenidad */
+            
+            /* VERDE = SALUD, CURACIÓN, CRECIMIENTO (para acciones positivas) */
+            --secondary: #2E7D64;       /* Verde esmeralda = salud, curación */
+            --secondary-hover: #239B56; /* Verde más vibrante = vitalidad */
+            
+            --hover-card: #F8F9FA;
             --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            
             font-family: 'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
             background: var(--bg); color: var(--text);
             padding: 24px; font-size: 14px; line-height: 1.5;
             transition: background 0.2s, color 0.2s;
         }
+        
         body.modo-oscuro {
-            --bg: #121212; --card: #1E1E1E; --input: #2A2A2A;
-            --text: #E0E0E0; --text-muted: #A0A0A0; --border: #333333;
-            --primary: #2C7A6E; --primary-hover: #3E9B8C; --hover-card: #252525;
+            --bg: #1A2A3A;        /* Azul noche = tranquilidad */
+            --card: #2C3E50;       /* Azul grisáceo = seriedad */
+            --input: #1A2A3A;
+            --text: #EAECEE;
+            --text-muted: #AAB7B8;
+            --border: #3E5A6F;
+            --primary: #5DADE2;    /* Azul claro en oscuro = esperanza */
+            --primary-hover: #85C1E9;
+            --secondary: #58D68D;   /* Verde vivo en oscuro = vitalidad */
+            --secondary-hover: #7DCEA0;
+            --hover-card: #34495E;
             --shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
         }
+        
         body.modo-claro {
-            --bg: #F5F5F5; --card: #FFFFFF; --input: #FFFFFF;
-            --text: #1A1A1A; --text-muted: #666666; --border: #E0E0E0;
-            --primary: #0F5C5C; --primary-hover: #0A4A4A; --hover-card: #FAFAFA;
+            --bg: #F4F6F9;
+            --card: #FFFFFF;
+            --input: #FFFFFF;
+            --text: #1A2A3A;
+            --text-muted: #5D6D7E;
+            --border: #D5D8DC;
+            --primary: #1A5276;
+            --primary-hover: #2471A3;
+            --secondary: #2E7D64;
+            --secondary-hover: #239B56;
+            --hover-card: #F8F9FA;
             --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
         }
+        
         .container { max-width: 1280px; margin: 0 auto; }
+        
+        /* HEADER */
         .header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 32px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
         .logo { display: flex; align-items: center; gap: 12px; }
-        .logo svg { width: 42px; height: 42px; }
-        .logo h1 { font-size: 1.5rem; font-weight: 600; color: var(--primary); }
+        .logo svg { width: 42px; height: 42px; color: var(--secondary); }
+        .logo h1 { font-size: 1.5rem; font-weight: 600; color: var(--primary); letter-spacing: -0.5px; }
+        
+        /* BOTONES */
         .btn-google, .btn-theme, .btn-volver {
-            background: var(--card); padding: 8px 16px; border-radius: 4px; cursor: pointer;
+            background: var(--card); padding: 8px 16px; border-radius: 6px; cursor: pointer;
             display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--border);
             font-size: 0.85rem; font-weight: 500; color: var(--text); transition: all 0.2s;
             box-shadow: var(--shadow);
         }
         .btn-google:hover, .btn-theme:hover, .btn-volver:hover { background: var(--hover-card); border-color: var(--primary); }
-        .btn-google.connected { border-left: 3px solid #10B981; }
+        .btn-google.connected { border-left: 3px solid var(--secondary); }
+        
         .btn-accion {
             background: var(--card); color: var(--text); border: 1px solid var(--border);
-            padding: 8px 16px; border-radius: 4px; cursor: pointer; display: inline-flex;
+            padding: 8px 16px; border-radius: 6px; cursor: pointer; display: inline-flex;
             align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 500;
             transition: all 0.2s; box-shadow: var(--shadow);
         }
-        .btn-accion:hover { background: var(--primary); color: white; border-color: var(--primary); }
+        .btn-accion:hover { background: var(--secondary); color: white; border-color: var(--secondary); }
+        
         button, .btn-primario {
-            background: var(--primary); color: white; border: none; padding: 8px 16px;
-            border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 0.85rem;
+            background: var(--secondary); color: white; border: none; padding: 8px 16px;
+            border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 0.85rem;
             transition: all 0.2s; box-shadow: var(--shadow);
         }
-        button:hover, .btn-primario:hover { background: var(--primary-hover); }
+        button:hover, .btn-primario:hover { background: var(--secondary-hover); }
+        
+        /* SELECTOR PACIENTE */
         .selector-paciente { background: var(--card); border-radius: 8px; padding: 16px; margin-bottom: 24px; border: 1px solid var(--border); box-shadow: var(--shadow); }
         .selector-paciente .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
-        .selector-paciente select { flex: 2; min-width: 180px; background: var(--input); border: 1px solid var(--border); padding: 8px 12px; border-radius: 4px; font-size: 0.85rem; color: var(--text); }
+        .selector-paciente select { flex: 2; min-width: 180px; background: var(--input); border: 1px solid var(--border); padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; color: var(--text); }
         .grupo-botones-accion { display: flex; flex-wrap: wrap; gap: 8px; margin-left: auto; }
+        
+        /* GRID MÓDULOS */
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 16px; margin-top: 16px; }
         .modulo { background: var(--card); border-radius: 8px; padding: 20px 12px; text-align: center; cursor: pointer; border: 1px solid var(--border); transition: all 0.2s ease; box-shadow: var(--shadow); }
-        .modulo:hover { transform: translateY(-2px); border-color: var(--primary); background: var(--hover-card); }
-        .modulo i { font-size: 1.8rem; color: var(--primary); margin-bottom: 12px; display: block; }
-        .modulo h3 { font-size: 0.85rem; font-weight: 600; }
+        .modulo:hover { transform: translateY(-3px); border-color: var(--primary); background: var(--hover-card); box-shadow: 0 4px 12px rgba(26, 82, 118, 0.15); }
+        .modulo i { font-size: 2rem; color: var(--primary); margin-bottom: 12px; display: block; }
+        .modulo h3 { font-size: 0.85rem; font-weight: 600; color: var(--text); }
+        
+        /* PÁGINAS */
         .pagina { display: none; }
         .pagina.activa { display: block; }
-        .card { background: var(--card); border-radius: 8px; padding: 24px; margin-bottom: 24px; border: 1px solid var(--border); box-shadow: var(--shadow); }
-        h2 { font-size: 1.25rem; margin-bottom: 20px; font-weight: 600; color: var(--primary); }
+        
+        /* TARJETAS */
+        .card { background: var(--card); border-radius: 10px; padding: 24px; margin-bottom: 24px; border: 1px solid var(--border); box-shadow: var(--shadow); }
+        h2 { font-size: 1.3rem; margin-bottom: 20px; font-weight: 600; color: var(--primary); letter-spacing: -0.3px; }
         h3 { font-size: 1rem; font-weight: 600; margin-bottom: 16px; color: var(--text); }
-        input, textarea, select { width: 100%; padding: 8px 12px; background: var(--input); border: 1px solid var(--border); border-radius: 4px; color: var(--text); margin-bottom: 12px; font-size: 0.85rem; }
-        input:focus, textarea:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(15, 92, 92, 0.1); }
+        
+        /* FORMULARIOS */
+        input, textarea, select { width: 100%; padding: 10px 12px; background: var(--input); border: 1px solid var(--border); border-radius: 6px; color: var(--text); margin-bottom: 12px; font-size: 0.85rem; transition: all 0.2s; }
+        input:focus, textarea:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(26, 82, 118, 0.1); }
         label { font-size: 0.75rem; font-weight: 500; color: var(--text-muted); margin-bottom: 4px; display: block; }
+        
+        /* LAYOUT */
         .row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
         .row > * { flex: 1; min-width: 120px; }
         fieldset { border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 24px; }
         legend { color: var(--primary); padding: 0 12px; font-weight: 600; font-size: 0.85rem; }
-        .doctor-fijo { background: var(--bg); border-radius: 4px; padding: 12px 16px; margin-bottom: 24px; font-size: 0.85rem; border-left: 3px solid var(--primary); }
-        .alert-info { background: var(--bg); border: 1px solid var(--border); padding: 12px 16px; border-radius: 4px; margin-bottom: 24px; text-align: left; font-size: 0.85rem; color: var(--text-muted); }
-        .alert-success { background: rgba(16, 185, 129, 0.1); border: 1px solid #10B981; padding: 12px 16px; border-radius: 4px; margin-bottom: 24px; text-align: left; font-size: 0.85rem; color: #10B981; }
-        .alert-error { background: rgba(239, 68, 68, 0.1); border: 1px solid #EF4444; padding: 12px 16px; border-radius: 4px; margin-bottom: 24px; text-align: left; font-size: 0.85rem; color: #EF4444; }
-        .toast { position: fixed; bottom: 24px; right: 24px; background: var(--primary); color: white; padding: 10px 20px; border-radius: 4px; font-size: 0.85rem; z-index: 1000; animation: slideIn 0.25s ease; }
+        
+        /* DOCTOR INFO */
+        .doctor-fijo { background: var(--bg); border-radius: 6px; padding: 12px 16px; margin-bottom: 24px; font-size: 0.85rem; border-left: 3px solid var(--secondary); color: var(--text); }
+        
+        /* ALERTAS */
+        .alert-info { background: rgba(26, 82, 118, 0.05); border: 1px solid var(--primary); padding: 12px 16px; border-radius: 8px; margin-bottom: 24px; text-align: left; font-size: 0.85rem; color: var(--primary); }
+        .alert-success { background: rgba(46, 125, 100, 0.08); border: 1px solid var(--secondary); padding: 12px 16px; border-radius: 8px; margin-bottom: 24px; text-align: left; font-size: 0.85rem; color: var(--secondary); }
+        .alert-error { background: rgba(231, 76, 60, 0.08); border: 1px solid #E74C3C; padding: 12px 16px; border-radius: 8px; margin-bottom: 24px; text-align: left; font-size: 0.85rem; color: #E74C3C; }
+        
+        /* TOAST */
+        .toast { position: fixed; bottom: 24px; right: 24px; background: var(--secondary); color: white; padding: 10px 20px; border-radius: 6px; font-size: 0.85rem; z-index: 1000; animation: slideIn 0.25s ease; }
         @keyframes slideIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
-        .presupuesto-item, .exp-item, .cita-item { background: var(--bg); padding: 12px; border-radius: 4px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; border: 1px solid var(--border); }
-        .total-presupuesto { font-size: 1.1rem; font-weight: 700; color: var(--primary); text-align: right; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border); }
+        
+        /* LISTAS */
+        .presupuesto-item, .exp-item, .cita-item { background: var(--bg); padding: 12px; border-radius: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; border: 1px solid var(--border); }
+        .total-presupuesto { font-size: 1.2rem; font-weight: 700; color: var(--secondary); text-align: right; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border); }
+        
+        /* MODAL */
         .lista-pacientes-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 2000; display: flex; align-items: center; justify-content: center; visibility: hidden; opacity: 0; transition: 0.2s; }
         .lista-pacientes-modal.activo { visibility: visible; opacity: 1; }
-        .modal-contenido { background: var(--card); border-radius: 8px; width: 90%; max-width: 500px; max-height: 80vh; overflow: auto; padding: 24px; border: 1px solid var(--border); }
+        .modal-contenido { background: var(--card); border-radius: 10px; width: 90%; max-width: 500px; max-height: 80vh; overflow: auto; padding: 24px; border: 1px solid var(--border); }
         .lista-pacientes-items { max-height: 300px; overflow-y: auto; margin-top: 16px; }
-        .paciente-item-modal { padding: 12px; border-bottom: 1px solid var(--border); cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 4px; }
+        .paciente-item-modal { padding: 12px; border-bottom: 1px solid var(--border); cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 6px; transition: all 0.2s; }
         .paciente-item-modal:hover { background: var(--primary); color: white; }
+        
+        /* TABLAS */
         table { width: 100%; border-collapse: collapse; margin-top: 16px; }
         th { text-align: left; padding: 12px 8px; border-bottom: 2px solid var(--border); font-weight: 600; font-size: 0.85rem; color: var(--text-muted); }
         td { padding: 10px 8px; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+        
+        /* FIRMAS */
+        .firma-container, .firma-receta-container { border: 1px dashed var(--border); border-radius: 8px; padding: 12px; margin: 12px 0; background: var(--input); }
+        canvas.firma-canvas, canvas.firma-receta-canvas { background: white; border-radius: 6px; border: 1px solid var(--border); cursor: crosshair; width: 100%; max-width: 400px; height: auto; touch-action: none; display: block; margin: 0 auto; }
+        .btn-firma, .btn-firma-receta { background: var(--card); border: 1px solid var(--border); padding: 5px 12px; font-size: 0.7rem; margin: 5px; border-radius: 6px; cursor: pointer; }
+        .btn-firma:hover, .btn-firma-receta:hover { background: var(--primary); color: white; }
+        
+        /* CALENDAR LINK */
+        .calendar-link { font-size: 0.7rem; color: var(--secondary); margin-left: 10px; text-decoration: none; }
+        .calendar-link:hover { text-decoration: underline; }
+        
         .hidden { display: none; }
         hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
-        .firma-container, .firma-receta-container { border: 1px dashed var(--border); border-radius: 8px; padding: 12px; margin: 12px 0; background: var(--input); }
-        canvas.firma-canvas, canvas.firma-receta-canvas { background: white; border-radius: 4px; border: 1px solid var(--border); cursor: crosshair; width: 100%; max-width: 400px; height: auto; touch-action: none; display: block; margin: 0 auto; }
-        .btn-firma, .btn-firma-receta { background: var(--card); border: 1px solid var(--border); padding: 5px 12px; font-size: 0.7rem; margin: 5px; border-radius: 4px; cursor: pointer; }
-        .btn-firma:hover, .btn-firma-receta:hover { background: var(--primary); color: white; }
-        .calendar-link { font-size: 0.7rem; color: var(--primary); margin-left: 10px; text-decoration: none; }
+        
         @media (max-width: 640px) { body { padding: 16px; } .grupo-botones-accion { margin-left: 0; width: 100%; justify-content: flex-start; } .card { padding: 16px; } }
     </style>
 </head>
@@ -130,7 +201,7 @@
         <input type="text" id="clientIdInput" placeholder="Ej: 123456789-abc123.apps.googleusercontent.com">
         <div style="display:flex;gap:10px;margin-top:15px">
             <button onclick="guardarClientId()">Guardar y Conectar</button>
-            <button onclick="cerrarConfig()" style="background:#AAA;">Cancelar</button>
+            <button onclick="cerrarConfig()" style="background:#7F8C8D;">Cancelar</button>
         </div>
     </div>
 
@@ -146,7 +217,7 @@
                 <button onclick="exportarExpedienteJSON()" class="btn-accion"><i class="fas fa-file-export"></i> Exportar</button>
             </div>
         </div>
-        <div id="infoPacienteActual" style="font-size:0.7rem; margin-top:8px; color:var(--primary);"></div>
+        <div id="infoPacienteActual" style="font-size:0.7rem; margin-top:8px; color:var(--secondary);"></div>
     </div>
 
     <div id="modalPacientes" class="lista-pacientes-modal">
@@ -193,13 +264,13 @@
             <textarea id="citaNotas" rows="2" placeholder="Notas"></textarea>
             <button onclick="guardarCita()"><i class="fas fa-save"></i> Agendar Cita</button>
             <hr><div id="listaCitas"></div>
-            <button onclick="sincronizarCalendario()" style="background:#6B7280; margin-top:10px;" title="Sincronizar citas no sincronizadas con Google Calendar">
+            <button onclick="sincronizarCalendario()" style="background:#7F8C8D; margin-top:10px;" title="Sincronizar citas no sincronizadas con Google Calendar">
                 <i class="fas fa-sync-alt"></i> Sincronizar con Calendar
             </button>
         </div>
     </div>
 
-    <div id="pagina-servicios" class="pagina"><div class="card"><h2>🦷 Servicios</h2><div class="row"><input type="text" id="servNombre" placeholder="Servicio"><input type="number" id="servCosto" placeholder="$"><input type="text" id="servDesc" placeholder="Descripción"></div><button onclick="agregarServicio()">Registrar</button><hr><table style="width:100%"><thead><tr><th>Servicio</th><th>Descripción</th><th>Costo</th><th></th><tr></thead><tbody id="listaServicios"></tbody>}</div></div>
+    <div id="pagina-servicios" class="pagina"><div class="card"><h2>🦷 Servicios</h2><div class="row"><input type="text" id="servNombre" placeholder="Servicio"><input type="number" id="servCosto" placeholder="$"><input type="text" id="servDesc" placeholder="Descripción"></div><button onclick="agregarServicio()">Registrar</button><hr><table style="width:100%"><thead><tr><th>Servicio</th><th>Descripción</th><th>Costo</th><th></th></tr></thead><tbody id="listaServicios"></tbody>}</div></div>
 
     <div id="pagina-medicamentos" class="pagina"><div class="card"><h2>💊 Medicamentos</h2><div class="row"><input type="text" id="medNombre" placeholder="Medicamento"><input type="text" id="medCategoria" placeholder="Categoría"><input type="text" id="medUso" placeholder="Uso"></div><button onclick="agregarMedicamento()">Registrar</button><hr><table style="width:100%"><thead><tr><th>Medicamento</th><th>Categoría</th><th>Uso</th><th></th></tr></thead><tbody id="listaMedicamentos"></tbody>}</div></div>
 
@@ -228,8 +299,8 @@ function mostrarToast(msg, tipo = 'info') {
     let t = document.createElement('div');
     t.className = 'toast';
     t.innerText = msg;
-    if (tipo === 'error') t.style.background = '#EF4444';
-    if (tipo === 'success') t.style.background = '#10B981';
+    if (tipo === 'error') t.style.background = '#E74C3C';
+    if (tipo === 'success') t.style.background = '#2E7D64';
     document.body.appendChild(t);
     setTimeout(() => t.remove(), 3000);
 }
@@ -239,7 +310,7 @@ function escapeHtml(str) {
     return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
 }
 
-// ==================== MODO OSCURO (CORREGIDO) ====================
+// ==================== MODO OSCURO ====================
 function toggleModo() {
     if (document.body.classList.contains('modo-claro')) {
         document.body.classList.remove('modo-claro');
@@ -616,7 +687,7 @@ function renderizarMedicamentosReceta() {
         html += `<div style="border:1px solid var(--border); border-radius:8px; margin-bottom:12px; padding:12px;">
             <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
                 <span style="font-weight:bold;">Medicamento ${idx+1}</span>
-                <button type="button" onclick="eliminarMedicamentoReceta(${idx})" style="background:#c0392b; padding:4px 12px;">✕ Eliminar</button>
+                <button type="button" onclick="eliminarMedicamentoReceta(${idx})" style="background:#E74C3C; padding:4px 12px;">✕ Eliminar</button>
             </div>
             <div class="row"><div><label>Nombre:</label><input type="text" id="medNombre_${idx}" value="${escapeHtml(med.nombre||'')}"></div><div><label>Presentación:</label><input type="text" id="medPresentacion_${idx}" value="${escapeHtml(med.presentacion||'')}"></div></div>
             <div class="row"><div><label>Dosis:</label><input type="text" id="medDosis_${idx}" value="${escapeHtml(med.dosis||'')}"></div><div><label>Frecuencia:</label><input type="text" id="medFrecuencia_${idx}" value="${escapeHtml(med.frecuencia||'')}"></div></div>
@@ -1077,7 +1148,7 @@ function mostrarCitas() {
         } else {
             calendarIcon = `<span style="margin-left:10px; font-size:0.7rem; color:#888;">⚠️ Sin conexión a Google</span>`;
         }
-        return `<div class="cita-item" style="border-left: 3px solid var(--primary); margin-bottom:12px;">
+        return `<div class="cita-item" style="border-left: 3px solid var(--secondary); margin-bottom:12px;">
                     <div style="flex:1;">
                         <strong>📅 ${c.fecha} ${c.hora}</strong><br>
                         🦷 ${escapeHtml(c.tratamiento)}<br>
@@ -1085,8 +1156,8 @@ function mostrarCitas() {
                         ${calendarIcon}
                     </div>
                     <div style="display:flex; gap:8px; margin-left:10px;">
-                        <button onclick="editarCita(${i})" style="background:#0D9488; padding:6px 12px;"><i class="fas fa-edit"></i> Editar</button>
-                        <button onclick="eliminarCitaConCalendar(${i})" style="background:#c0392b; padding:6px 12px;"><i class="fas fa-trash"></i> Eliminar</button>
+                        <button onclick="editarCita(${i})" style="background:#2471A3; padding:6px 12px;"><i class="fas fa-edit"></i> Editar</button>
+                        <button onclick="eliminarCitaConCalendar(${i})" style="background:#E74C3C; padding:6px 12px;"><i class="fas fa-trash"></i> Eliminar</button>
                     </div>
                 </div>`;
     }).join('');
