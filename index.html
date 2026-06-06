@@ -642,19 +642,19 @@
         </div>
     </div>
 
-    <!-- CITAS CON ELIMINACIÓN EN CALENDAR CORREGIDA -->
+    <!-- CITAS -->
     <div id="pagina-citas" class="pagina">
         <div class="card">
             <h2>📅 Agenda de Citas <i class="fab fa-google"></i></h2>
-            <div class="alert-info"><i class="fas fa-google"></i> Las citas se sincronizan con Google Calendar. Al eliminar una cita, también se elimina de Calendar.</div>
+            <div class="alert-info"><i class="fas fa-google"></i> Las citas se sincronizan con Google Calendar. Conecta tu cuenta para enviar invitaciones.</div>
             <div class="row"><input type="text" id="citaNombre" readonly disabled><input type="text" id="citaTelefono" readonly disabled></div>
             <input type="email" id="citaEmail" readonly disabled>
             <div class="row"><input type="date" id="citaFecha"><input type="time" id="citaHora"></div>
             <input type="text" id="citaTratamiento" placeholder="Tratamiento">
             <textarea id="citaNotas" rows="2" placeholder="Notas"></textarea>
-            <button onclick="guardarCita()">Agendar Cita</button>
+            <button onclick="guardarCita()"><i class="fas fa-save"></i> Agendar Cita</button>
             <hr><div id="listaCitas"></div>
-            <button onclick="sincronizarCalendario()">Sincronizar con Calendar</button>
+            <button onclick="sincronizarCalendario()"><i class="fas fa-sync-alt"></i> Sincronizar con Calendar</button>
         </div>
     </div>
 
@@ -674,7 +674,7 @@
             <h2>💊 Medicamentos</h2>
             <div class="row"><input type="text" id="medNombre" placeholder="Medicamento"><input type="text" id="medCategoria" placeholder="Categoría"><input type="text" id="medUso" placeholder="Uso"></div>
             <button onclick="agregarMedicamento()">Registrar</button>
-            <hr><table><thead><tr><th>Medicamento</th><th>Categoría</th><th>Uso</th><th></th></tr></thead><tbody id="listaMedicamentos"></tbody></table>
+            <hr><tr><thead><tr><th>Medicamento</th><th>Categoría</th><th>Uso</th><th></th></tr></thead><tbody id="listaMedicamentos"></tbody></table>
         </div>
     </div>
 
@@ -749,7 +749,7 @@
     let recetaMedicamentos = [];
     let firmaDoctorData = null, firmaDoctorCanvas = null, firmaDoctorCtx = null, firmandoDoctor = false;
     let firmaPacienteData = null, firmaPacienteCanvas = null, firmaPacienteCtx = null, firmandoPaciente = false;
-    let accessToken = null, tokenClient = null, principalFolderId = null;
+    let accessToken = null, tokenClient = null;
 
     // ==================== FUNCIONES DE TEMA ====================
     function toggleModo() {
@@ -1246,7 +1246,7 @@
     function mostrarServicios() {
         let t = document.getElementById('listaServicios');
         if (!t) return;
-        t.innerHTML = servicios.map((s,i) => `<tr><td>${escapeHtml(s.nombre)}</td><td>${escapeHtml(s.descripcion || '')}</td><td>$${s.costo}</td><td><button onclick="eliminarServicio(${i})">X</button></td>`).join('');
+        t.innerHTML = servicios.map((s,i) => `<tr><td>${escapeHtml(s.nombre)}</td><td>${escapeHtml(s.descripcion || '')}</td><td>$${s.costo}</td>}<button onclick="eliminarServicio(${i})">X</button></td>`).join('');
         actualizarSelectServicios();
         guardarTodoLocal();
     }
@@ -1269,7 +1269,7 @@
     function mostrarMedicamentos() {
         let t = document.getElementById('listaMedicamentos');
         if (!t) return;
-        t.innerHTML = medicamentos.map((m,i) => `<td><td>${escapeHtml(m.nombre)}</td><td>${escapeHtml(m.categoria||'')}</td><td>${escapeHtml(m.uso||'')}</td><td><button onclick="eliminarMedicamento(${i})">X</button></td>`).join('');
+        t.innerHTML = medicamentos.map((m,i) => `<tr><td>${escapeHtml(m.nombre)}</td><td>${escapeHtml(m.categoria||'')}</td><td>${escapeHtml(m.uso||'')}</td><td><button onclick="eliminarMedicamento(${i})">X</button></td>`).join('');
         guardarTodoLocal();
     }
     function agregarMedicamento() {
@@ -1285,21 +1285,146 @@
     }
     function eliminarMedicamento(i) { medicamentos.splice(i,1); mostrarMedicamentos(); }
 
-    // ==================== CITAS CON ELIMINACIÓN EN CALENDAR ====================
+    // ==================== CITAS CON GOOGLE CALENDAR ====================
+    async function crearEventoCalendar(pacienteNombre, fecha, hora, tratamiento, telefono, correoPaciente, notas) {
+        if (!accessToken || accessToken === 'demo') {
+            console.log('⚠️ No hay token real de Google');
+            return null;
+        }
+        try {
+            let fechaTime = new Date(`${fecha}T${hora}:00`);
+            let fechaFin = new Date(fechaTime.getTime() + 60 * 60 * 1000);
+            
+            let evento = {
+                summary: `🦷 Cita Dental - ${pacienteNombre}`,
+                description: `Paciente: ${pacienteNombre}\nTeléfono: ${telefono}\nTratamiento: ${tratamiento}\n${notas ? `Notas: ${notas}` : ''}\n\nCita agendada desde C&C Dental Group`,
+                start: { dateTime: fechaTime.toISOString(), timeZone: 'America/Tijuana' },
+                end: { dateTime: fechaFin.toISOString(), timeZone: 'America/Tijuana' },
+                reminders: { useDefault: true }
+            };
+            
+            if (correoPaciente && correoPaciente.trim() !== '' && correoPaciente.toLowerCase().includes('@gmail.com')) {
+                evento.attendees = [{ email: correoPaciente.trim() }];
+                evento.sendUpdates = 'all';
+                console.log(`📧 Invitación para: ${correoPaciente}`);
+            }
+            
+            console.log('📅 Creando evento:', evento.summary);
+            
+            let response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(evento)
+            });
+            
+            let data = await response.json();
+            if (data.id) {
+                console.log('✅ Evento creado:', data.htmlLink);
+                return data;
+            } else {
+                console.error('❌ Error al crear evento:', data);
+                return null;
+            }
+        } catch(e) {
+            console.error('❌ Error en Calendar:', e);
+            return null;
+        }
+    }
+
+    async function actualizarEventoCalendar(eventoId, pacienteNombre, fecha, hora, tratamiento, telefono, correoPaciente, notas) {
+        if (!accessToken || accessToken === 'demo' || !eventoId) return null;
+        try {
+            let fechaTime = new Date(`${fecha}T${hora}:00`);
+            let fechaFin = new Date(fechaTime.getTime() + 60 * 60 * 1000);
+            
+            let evento = {
+                summary: `🦷 Cita Dental - ${pacienteNombre}`,
+                description: `Paciente: ${pacienteNombre}\nTeléfono: ${telefono}\nTratamiento: ${tratamiento}\n${notas ? `Notas: ${notas}` : ''}\n\nActualizado desde C&C Dental Group`,
+                start: { dateTime: fechaTime.toISOString(), timeZone: 'America/Tijuana' },
+                end: { dateTime: fechaFin.toISOString(), timeZone: 'America/Tijuana' },
+                reminders: { useDefault: true }
+            };
+            
+            if (correoPaciente && correoPaciente.trim() !== '' && correoPaciente.toLowerCase().includes('@gmail.com')) {
+                evento.attendees = [{ email: correoPaciente.trim() }];
+                evento.sendUpdates = 'all';
+            }
+            
+            let response = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventoId}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(evento)
+            });
+            
+            let data = await response.json();
+            if (data.id) {
+                console.log('✅ Evento actualizado:', data.htmlLink);
+                return data;
+            }
+            return null;
+        } catch(e) {
+            console.error('❌ Error al actualizar evento:', e);
+            return null;
+        }
+    }
+
+    async function eliminarEventoCalendar(eventoId) {
+        if (!accessToken || accessToken === 'demo' || !eventoId) return false;
+        try {
+            let response = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventoId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${accessToken}` }
+            });
+            if (response.ok) {
+                console.log(`✅ Evento ${eventoId} eliminado de Calendar`);
+                return true;
+            }
+            return false;
+        } catch(e) {
+            console.error('❌ Error al eliminar evento:', e);
+            return false;
+        }
+    }
+
     function guardarCita() {
-        if (!pacienteActual) { mostrarToast('Selecciona paciente'); return; }
+        if (!pacienteActual) { 
+            mostrarToast('❌ Selecciona un paciente primero'); 
+            return; 
+        }
+        
         let fecha = document.getElementById('citaFecha').value;
         let hora = document.getElementById('citaHora').value;
         let tratamiento = document.getElementById('citaTratamiento').value;
         let notas = document.getElementById('citaNotas').value;
-        if (!fecha || !hora) { mostrarToast('Selecciona fecha y hora'); return; }
+        
+        if (!fecha || !hora) { 
+            mostrarToast('❌ Selecciona fecha y hora'); 
+            return; 
+        }
         
         let correoPaciente = pacienteActual.data.email || '';
-        let cita = { fecha, hora, tratamiento, notas, fechaCreacion: new Date().toISOString(), eventoId: null, eventoLink: null };
+        let nombrePaciente = pacienteActual.data.nombre || 'Paciente';
+        let telefonoPaciente = pacienteActual.data.telefono || '';
         
-        if (accessToken) {
+        let cita = { 
+            fecha: fecha, 
+            hora: hora, 
+            tratamiento: tratamiento, 
+            notas: notas, 
+            fechaCreacion: new Date().toISOString(),
+            eventoId: null,
+            eventoLink: null
+        };
+        
+        if (accessToken && accessToken !== 'demo') {
             mostrarToast('📅 Creando evento en Calendar...');
-            crearEventoCalendar(pacienteActual.data.nombre || 'Paciente', fecha, hora, tratamiento, pacienteActual.data.telefono || '', correoPaciente, notas)
+            crearEventoCalendar(nombrePaciente, fecha, hora, tratamiento, telefonoPaciente, correoPaciente, notas)
                 .then(evento => {
                     if (evento && evento.id) {
                         cita.eventoId = evento.id;
@@ -1322,7 +1447,7 @@
             guardarTodoLocal();
             mostrarCitas();
             actualizarEstadisticas();
-            mostrarToast('Cita guardada localmente');
+            mostrarToast('Cita guardada localmente (sin Calendar)');
             limpiarCamposCita();
         }
     }
@@ -1331,13 +1456,16 @@
         let d = document.getElementById('listaCitas');
         if (!d || !pacienteActual) return;
         let citas = pacienteActual.citas || [];
-        if (citas.length === 0) { d.innerHTML = '<div>No hay citas programadas</div>'; return; }
+        if (citas.length === 0) { 
+            d.innerHTML = '<div>No hay citas programadas</div>'; 
+            return; 
+        }
         citas.sort((a,b) => new Date(b.fecha + ' ' + b.hora) - new Date(a.fecha + ' ' + a.hora));
         d.innerHTML = citas.map((c, i) => {
             let calendarIcon = '';
             if (c.eventoLink) {
                 calendarIcon = `<a href="${c.eventoLink}" target="_blank" class="calendar-link" style="margin-left:10px;"><i class="fab fa-google"></i> Ver en Calendar</a>`;
-            } else if (accessToken) {
+            } else if (accessToken && accessToken !== 'demo') {
                 calendarIcon = `<span style="margin-left:10px; font-size:0.7rem; color:#888;">⚠️ No sincronizado</span>`;
             }
             return `<div class="cita-item" style="border-left: 3px solid var(--primary); margin-bottom:12px;">
@@ -1365,13 +1493,13 @@
         
         mostrarToast('🔄 Eliminando...');
         
-        if (cita.eventoId && accessToken) {
+        if (cita.eventoId && accessToken && accessToken !== 'demo') {
             try {
                 let eliminado = await eliminarEventoCalendar(cita.eventoId);
                 if (eliminado) mostrarToast('✅ Eliminado de Google Calendar');
                 else mostrarToast('⚠️ No se pudo eliminar de Calendar');
             } catch(e) { mostrarToast('⚠️ Error al eliminar de Calendar'); }
-        } else if (cita.eventoId && !accessToken) {
+        } else if (cita.eventoId && (!accessToken || accessToken === 'demo')) {
             mostrarToast('⚠️ No conectado a Google. Solo local.');
         }
         
@@ -1380,17 +1508,6 @@
         mostrarCitas();
         actualizarEstadisticas();
         mostrarToast('🗑️ Cita eliminada');
-    }
-
-    async function eliminarEventoCalendar(eventoId) {
-        if (!accessToken || !eventoId) return false;
-        try {
-            let response = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventoId}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${accessToken}` }
-            });
-            return response.ok;
-        } catch(e) { return false; }
     }
 
     function editarCita(i) {
@@ -1402,6 +1519,7 @@
         document.getElementById('citaNotas').value = cita.notas || '';
         window.citaEditandoIndex = i;
         mostrarToast('✏️ Editando cita. Modifica y guarda.');
+        document.getElementById('citaFecha').scrollIntoView({ behavior: 'smooth', block: 'center' });
         
         let originalGuardar = window.guardarCita;
         window.guardarCita = function() {
@@ -1425,13 +1543,16 @@
         
         let citaOriginal = pacienteActual.citas[index];
         let citaActualizada = {
-            fecha, hora, tratamiento, notas,
+            fecha: fecha,
+            hora: hora,
+            tratamiento: tratamiento,
+            notas: notas,
             fechaModificacion: new Date().toISOString(),
             eventoId: citaOriginal.eventoId,
             eventoLink: citaOriginal.eventoLink
         };
         
-        if (citaOriginal.eventoId && accessToken) {
+        if (citaOriginal.eventoId && accessToken && accessToken !== 'demo') {
             mostrarToast('📅 Actualizando evento en Calendar...');
             let evento = await actualizarEventoCalendar(
                 citaOriginal.eventoId,
@@ -1441,7 +1562,10 @@
                 pacienteActual.data.email || '',
                 notas
             );
-            if (evento && evento.id) citaActualizada.eventoLink = evento.htmlLink;
+            if (evento && evento.id) {
+                citaActualizada.eventoLink = evento.htmlLink;
+                mostrarToast('✅ Evento actualizado en Calendar');
+            }
         }
         
         pacienteActual.citas[index] = citaActualizada;
@@ -1450,57 +1574,6 @@
         actualizarEstadisticas();
         limpiarCamposCita();
         mostrarToast('Cita actualizada');
-    }
-
-    async function actualizarEventoCalendar(eventoId, pacienteNombre, fecha, hora, tratamiento, telefono, correoPaciente, notas) {
-        if (!accessToken || !eventoId) return null;
-        try {
-            let fechaTime = new Date(`${fecha}T${hora}:00`);
-            let fechaFin = new Date(fechaTime.getTime() + 60 * 60 * 1000);
-            let evento = {
-                summary: `🦷 Cita Dental - ${pacienteNombre}`,
-                description: `Paciente: ${pacienteNombre}\nTeléfono: ${telefono}\nTratamiento: ${tratamiento}\n${notas ? `Notas: ${notas}` : ''}`,
-                start: { dateTime: fechaTime.toISOString(), timeZone: 'America/Tijuana' },
-                end: { dateTime: fechaFin.toISOString(), timeZone: 'America/Tijuana' }
-            };
-            if (correoPaciente && correoPaciente.trim() && correoPaciente.includes('@gmail.com')) {
-                evento.attendees = [{ email: correoPaciente.trim() }];
-                evento.sendUpdates = 'all';
-            }
-            let response = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventoId}`, {
-                method: 'PUT',
-                headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify(evento)
-            });
-            let data = await response.json();
-            return data.id ? data : null;
-        } catch(e) { return null; }
-    }
-
-    async function crearEventoCalendar(pacienteNombre, fecha, hora, tratamiento, telefono, correoPaciente, notas) {
-        if (!accessToken) return null;
-        try {
-            let fechaTime = new Date(`${fecha}T${hora}:00`);
-            let fechaFin = new Date(fechaTime.getTime() + 60 * 60 * 1000);
-            let evento = {
-                summary: `🦷 Cita Dental - ${pacienteNombre}`,
-                description: `Paciente: ${pacienteNombre}\nTeléfono: ${telefono}\nTratamiento: ${tratamiento}\n${notas ? `Notas: ${notas}` : ''}`,
-                start: { dateTime: fechaTime.toISOString(), timeZone: 'America/Tijuana' },
-                end: { dateTime: fechaFin.toISOString(), timeZone: 'America/Tijuana' },
-                reminders: { useDefault: true }
-            };
-            if (correoPaciente && correoPaciente.trim() && correoPaciente.includes('@gmail.com')) {
-                evento.attendees = [{ email: correoPaciente.trim() }];
-                evento.sendUpdates = 'all';
-            }
-            let response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify(evento)
-            });
-            let data = await response.json();
-            return data.id ? data : null;
-        } catch(e) { return null; }
     }
 
     function limpiarCamposCita() {
@@ -1512,7 +1585,10 @@
 
     async function sincronizarCalendario() {
         if (!pacienteActual) { mostrarToast('Selecciona paciente'); return; }
-        if (!accessToken) { mostrarToast('❌ Conecta Google Drive primero'); return; }
+        if (!accessToken || accessToken === 'demo') { 
+            mostrarToast('❌ Conecta Google Drive primero (usa un Client ID real)'); 
+            return; 
+        }
         mostrarToast('🔄 Sincronizando citas con Calendar...');
         let citas = pacienteActual.citas || [];
         let actualizadas = 0;
@@ -1592,12 +1668,43 @@
     // ==================== GOOGLE DRIVE ====================
     function conectarGoogle() {
         let id = localStorage.getItem('googleClientId');
-        if (id) { mostrarToast('Conectado a Drive (demo)'); document.getElementById('googleBtn').classList.add('connected'); accessToken = 'demo'; }
-        else document.getElementById('configPanel').classList.remove('hidden');
+        if (id) { 
+            iniciarAuth(id);
+        } else {
+            document.getElementById('configPanel').classList.remove('hidden');
+        }
     }
+    
+    function iniciarAuth(clientId) {
+        tokenClient = google.accounts.oauth2.initTokenClient({
+            client_id: clientId,
+            scope: 'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/drive.file',
+            callback: async (resp) => {
+                if (resp.access_token) {
+                    accessToken = resp.access_token;
+                    localStorage.setItem('driveToken', accessToken);
+                    document.getElementById('googleBtn').classList.add('connected');
+                    mostrarToast('✅ Conectado a Google Calendar y Drive');
+                }
+            }
+        });
+        let st = localStorage.getItem('driveToken');
+        if (st) {
+            accessToken = st;
+            document.getElementById('googleBtn').classList.add('connected');
+            mostrarToast('✅ Sesión restaurada');
+        } else {
+            tokenClient.requestAccessToken({ prompt: 'consent' });
+        }
+    }
+    
     function guardarClientId() {
         let id = document.getElementById('clientIdInput').value;
-        if (id) { localStorage.setItem('googleClientId', id); document.getElementById('configPanel').classList.add('hidden'); mostrarToast('Client ID guardado'); document.getElementById('googleBtn').classList.add('connected'); accessToken = 'demo'; }
+        if (id) { 
+            localStorage.setItem('googleClientId', id); 
+            document.getElementById('configPanel').classList.add('hidden'); 
+            iniciarAuth(id);
+        }
     }
     function cerrarConfig() { document.getElementById('configPanel').classList.add('hidden'); }
 
@@ -1650,6 +1757,9 @@
         
         let hash = window.location.hash.substring(1);
         if (hash) mostrarPagina(hash);
+        
+        let idG = localStorage.getItem('googleClientId');
+        if (idG) setTimeout(() => { if (!accessToken) iniciarAuth(idG); }, 1000);
     }
     
     window.addEventListener('hashchange', () => mostrarPagina(window.location.hash.substring(1)));
