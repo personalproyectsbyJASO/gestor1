@@ -175,7 +175,25 @@
 
     <div id="pagina-presupuesto" class="pagina"><div class="card"><h2>💰 Presupuesto</h2><input type="text" id="presNombre" placeholder="Paciente"><div class="row"><div style="flex:3"><select id="presServicioSelect"></select></div><button onclick="agregarServicioPresupuesto()">+</button></div><div class="row"><input type="text" id="extraNombre" placeholder="Extra"><input type="number" id="extraMonto" placeholder="$"><button onclick="agregarExtraPresupuesto()">+</button></div><div id="listaPresupuestoItems"></div><div class="row"><input type="number" id="presDescuento" placeholder="Descuento %" value="0" oninput="calcularTotalPresupuesto()"><input type="text" id="presVigencia" placeholder="Vigencia"></div><div class="total-presupuesto" id="totalPresupuestoDisplay">Total: $0.00</div><button onclick="guardarPresupuesto()">Guardar</button><button onclick="generarPresupuestoPDF()">PDF</button><hr><h3>Historial</h3><div id="listaPresupuestos"></div></div></div>
 
-    <div id="pagina-citas" class="pagina"><div class="card"><h2>📅 Agenda de Citas <i class="fab fa-google"></i></h2><div id="googleStatus" class="alert-info"><i class="fas fa-info-circle"></i> Conecta tu cuenta de Google para sincronizar con Calendar</div><div class="row"><input type="text" id="citaNombre" readonly disabled><input type="text" id="citaTelefono" readonly disabled></div><input type="email" id="citaEmail" readonly disabled><div class="row"><input type="date" id="citaFecha"><input type="time" id="citaHora"></div><input type="text" id="citaTratamiento" placeholder="Tratamiento"><textarea id="citaNotas" rows="2" placeholder="Notas"></textarea><button onclick="guardarCita()"><i class="fas fa-save"></i> Agendar Cita</button><hr><div id="listaCitas"></div><button onclick="sincronizarCalendario()"><i class="fas fa-sync-alt"></i> Sincronizar con Calendar</button><button onclick="reconectarGoogle()" style="margin-top:10px; background:#6B7280;"><i class="fas fa-sync-alt"></i> Reconectar Google</button></div></div>
+    <div id="pagina-citas" class="pagina">
+        <div class="card">
+            <h2>📅 Agenda de Citas <i class="fab fa-google"></i></h2>
+            <div id="googleStatus" class="alert-info"><i class="fas fa-info-circle"></i> Conecta tu cuenta de Google para sincronizar con Calendar</div>
+            <div class="row"><input type="text" id="citaNombre" readonly disabled placeholder="Nombre del paciente"><input type="text" id="citaTelefono" readonly disabled placeholder="Teléfono"></div>
+            <input type="email" id="citaEmail" readonly disabled placeholder="Email">
+            <div class="row"><input type="date" id="citaFecha"><input type="time" id="citaHora"></div>
+            <input type="text" id="citaTratamiento" placeholder="Tratamiento">
+            <textarea id="citaNotas" rows="2" placeholder="Notas"></textarea>
+            <button onclick="guardarCita()"><i class="fas fa-save"></i> Agendar Cita</button>
+            <hr><div id="listaCitas"></div>
+            <button onclick="sincronizarCalendario()" style="background:#6B7280; margin-top:10px;" title="Solo necesario para citas creadas antes de conectar Google">
+                <i class="fas fa-cloud-upload-alt"></i> Subir citas antiguas a Calendar
+            </button>
+            <button onclick="reconectarGoogle()" style="background:#6B7280; margin-top:10px; margin-left:10px;" title="Forzar reconexión si hay problemas">
+                <i class="fas fa-sync-alt"></i> Reconectar Google
+            </button>
+        </div>
+    </div>
 
     <div id="pagina-servicios" class="pagina"><div class="card"><h2>🦷 Servicios</h2><div class="row"><input type="text" id="servNombre" placeholder="Servicio"><input type="number" id="servCosto" placeholder="$"><input type="text" id="servDesc" placeholder="Descripción"></div><button onclick="agregarServicio()">Registrar</button><hr><table style="width:100%"><thead><tr><th>Servicio</th><th>Descripción</th><th>Costo</th><th></th></tr></thead><tbody id="listaServicios"></tbody>}</div></div>
 
@@ -227,7 +245,7 @@ function setThemeFromStorage() {
     else document.body.classList.add('modo-oscuro');
 }
 
-// ==================== GOOGLE REAL (CORREGIDO) ====================
+// ==================== GOOGLE REAL ====================
 function actualizarEstadoGoogle() {
     const btn = document.getElementById('googleBtn');
     const statusDiv = document.getElementById('googleStatus');
@@ -263,7 +281,6 @@ function conectarGoogle() {
 
 function reconectarGoogle() {
     if (clientIdGuardado) {
-        // Forzar nueva autenticación eliminando token guardado
         localStorage.removeItem('driveToken');
         accessToken = null;
         actualizarEstadoGoogle();
@@ -327,7 +344,6 @@ async function crearEventoCalendar(pacienteNombre, fecha, hora, tratamiento, tel
         return null;
     }
     try {
-        // Validar fecha/hora
         let fechaTime = new Date(`${fecha}T${hora}:00`);
         if (isNaN(fechaTime.getTime())) {
             console.error('❌ Fecha/hora inválida:', fecha, hora);
@@ -518,6 +534,10 @@ function guardarExpediente() {
     guardarTodoLocal();
     mostrarToast('Expediente guardado', 'success');
     actualizarSelectPacientes();
+    // Actualizar campos de cita con los nuevos datos
+    document.getElementById('citaNombre').value = pacienteActual.data.nombre || '';
+    document.getElementById('citaTelefono').value = pacienteActual.data.telefono || '';
+    document.getElementById('citaEmail').value = pacienteActual.data.email || '';
 }
 
 function exportarExpedienteJSON() {
@@ -952,23 +972,44 @@ function agregarMedicamento() {
 }
 function eliminarMedicamento(i) { medicamentos.splice(i,1); mostrarMedicamentos(); }
 
-// ==================== CITAS ====================
+// ==================== CITAS CORREGIDAS ====================
 function guardarCita() {
-    if (!pacienteActual) { mostrarToast('❌ Selecciona un paciente primero', 'error'); return; }
+    if (!pacienteActual) { 
+        mostrarToast('❌ Selecciona un paciente primero', 'error'); 
+        return; 
+    }
+    
+    // Verificar que el paciente tenga datos completos
+    let nombrePaciente = pacienteActual.data.nombre;
+    let telefonoPaciente = pacienteActual.data.telefono || '';
+    let correoPaciente = pacienteActual.data.email || '';
+    
+    if (!nombrePaciente || nombrePaciente === 'Paciente' || nombrePaciente.trim() === '') {
+        mostrarToast('❌ Primero completa el expediente del paciente (nombre obligatorio).', 'error');
+        // Redirigir al expediente
+        irAPagina('expediente');
+        return;
+    }
+    
     let fecha = document.getElementById('citaFecha').value;
     let hora = document.getElementById('citaHora').value;
     let tratamiento = document.getElementById('citaTratamiento').value;
     let notas = document.getElementById('citaNotas').value;
-    if (!fecha || !hora) { mostrarToast('❌ Selecciona fecha y hora', 'error'); return; }
     
-    let correoPaciente = pacienteActual.data.email || '';
-    let nombrePaciente = pacienteActual.data.nombre || 'Paciente';
-    let telefonoPaciente = pacienteActual.data.telefono || '';
+    if (!fecha || !hora) { 
+        mostrarToast('❌ Selecciona fecha y hora', 'error'); 
+        return; 
+    }
     
-    let cita = { fecha, hora, tratamiento, notas, fechaCreacion: new Date().toISOString(), eventoId: null, eventoLink: null };
+    let cita = { 
+        fecha, hora, tratamiento, notas, 
+        fechaCreacion: new Date().toISOString(), 
+        eventoId: null, 
+        eventoLink: null 
+    };
     
     if (accessToken) {
-        mostrarToast('📅 Creando evento en Calendar...');
+        mostrarToast('📅 Creando evento en Calendar con los datos de: ' + nombrePaciente);
         crearEventoCalendar(nombrePaciente, fecha, hora, tratamiento, telefonoPaciente, correoPaciente, notas)
             .then(evento => {
                 if (evento && evento.id) {
@@ -984,7 +1025,6 @@ function guardarCita() {
                         mostrarToast('📧 Invitación enviada al paciente', 'success');
                     }
                 } else {
-                    // Si falló la creación, guardar solo local
                     pacienteActual.citas.push(cita);
                     guardarTodoLocal();
                     mostrarCitas();
@@ -1007,7 +1047,10 @@ function mostrarCitas() {
     let d = document.getElementById('listaCitas');
     if (!d || !pacienteActual) return;
     let citas = pacienteActual.citas || [];
-    if (citas.length === 0) { d.innerHTML = '<div>No hay citas programadas</div>'; return; }
+    if (citas.length === 0) { 
+        d.innerHTML = '<div>No hay citas programadas</div>'; 
+        return; 
+    }
     citas.sort((a,b) => new Date(b.fecha + ' ' + b.hora) - new Date(a.fecha + ' ' + a.hora));
     d.innerHTML = citas.map((c, i) => {
         let calendarIcon = '';
@@ -1090,6 +1133,10 @@ async function actualizarCitaExistente(index) {
     let notas = document.getElementById('citaNotas').value;
     if (!fecha || !hora) { mostrarToast('Selecciona fecha y hora', 'error'); return; }
     
+    let nombrePaciente = pacienteActual.data.nombre || 'Paciente';
+    let telefonoPaciente = pacienteActual.data.telefono || '';
+    let correoPaciente = pacienteActual.data.email || '';
+    
     let citaOriginal = pacienteActual.citas[index];
     let citaActualizada = {
         fecha, hora, tratamiento, notas,
@@ -1102,10 +1149,10 @@ async function actualizarCitaExistente(index) {
         mostrarToast('📅 Actualizando evento en Calendar...');
         let evento = await actualizarEventoCalendar(
             citaOriginal.eventoId,
-            pacienteActual.data.nombre || 'Paciente',
+            nombrePaciente,
             fecha, hora, tratamiento,
-            pacienteActual.data.telefono || '',
-            pacienteActual.data.email || '',
+            telefonoPaciente,
+            correoPaciente,
             notas
         );
         if (evento && evento.id) {
@@ -1134,14 +1181,28 @@ function limpiarCamposCita() {
 async function sincronizarCalendario() {
     if (!pacienteActual) { mostrarToast('Selecciona paciente', 'error'); return; }
     if (!accessToken) { mostrarToast('❌ Conecta Google primero (botón "Conectar Google")', 'error'); return; }
-    mostrarToast('🔄 Sincronizando citas con Calendar...');
+    
     let citas = pacienteActual.citas || [];
+    let citasSinSincronizar = citas.filter(c => !c.eventoId);
+    if (citasSinSincronizar.length === 0) {
+        mostrarToast('✅ Todas las citas ya están sincronizadas con Calendar', 'success');
+        return;
+    }
+    
+    let nombrePaciente = pacienteActual.data.nombre;
+    if (!nombrePaciente || nombrePaciente === 'Paciente' || nombrePaciente.trim() === '') {
+        mostrarToast('❌ El paciente no tiene nombre. Completa el expediente primero.', 'error');
+        irAPagina('expediente');
+        return;
+    }
+    
+    mostrarToast(`🔄 Subiendo ${citasSinSincronizar.length} cita(s) antigua(s) a Calendar...`);
     let actualizadas = 0;
     for (let i = 0; i < citas.length; i++) {
         let cita = citas[i];
         if (!cita.eventoId) {
             let evento = await crearEventoCalendar(
-                pacienteActual.data.nombre || 'Paciente',
+                nombrePaciente,
                 cita.fecha, cita.hora, cita.tratamiento,
                 pacienteActual.data.telefono || '',
                 pacienteActual.data.email || '',
@@ -1156,9 +1217,9 @@ async function sincronizarCalendario() {
     }
     if (actualizadas > 0) {
         guardarTodoLocal();
-        mostrarToast(`✅ ${actualizadas} citas sincronizadas`, 'success');
+        mostrarToast(`✅ ${actualizadas} cita(s) antigua(s) subidas a Calendar`, 'success');
     } else {
-        mostrarToast('✅ Todas las citas ya estaban sincronizadas (o no hay citas pendientes)', 'success');
+        mostrarToast('⚠️ No se pudo sincronizar ninguna cita. Revisa la conexión.', 'error');
     }
     mostrarCitas();
 }
@@ -1269,9 +1330,6 @@ function inicializarDatos() {
                 if (savedToken) {
                     accessToken = savedToken;
                     actualizarEstadoGoogle();
-                } else {
-                    // No forzar autenticación automática para no molestar
-                    console.log("No hay token, esperando que el usuario conecte manualmente");
                 }
             }
         }, 1000);
