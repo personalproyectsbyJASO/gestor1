@@ -9,6 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        /* ========== ESTILOS PROFESIONALES (sin redondeos exagerados, sombras suaves) ========== */
         * {
             margin: 0;
             padding: 0;
@@ -16,52 +17,50 @@
         }
 
         body {
-            --bg: #EFF3F6;
+            --bg: #F5F5F5;
             --card: #FFFFFF;
-            --input: #F8FAFC;
-            --text: #1E293B;
-            --border: #CBD5E1;
-            --primary: #2C7A6E;
-            --primary-hover: #1E5F54;
-            --hover-card: #F1F5F9;
-            --text-muted: #5B6E8C;
-            --shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
-            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            --input: #FFFFFF;
+            --text: #1A1A1A;
+            --text-muted: #666666;
+            --border: #E0E0E0;
+            --primary: #0F5C5C;
+            --primary-hover: #0A4A4A;
+            --hover-card: #FAFAFA;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: var(--bg);
             color: var(--text);
-            padding: 16px;
+            padding: 24px;
+            font-size: 14px;
+            line-height: 1.5;
             transition: background 0.2s, color 0.2s;
         }
 
         body.modo-oscuro {
-            --bg: #121826;
-            --card: #1E2538;
-            --input: #0F131E;
-            --text: #E2E8F0;
-            --border: #2D3548;
-            --primary: #3E9B8C;
-            --primary-hover: #2C7A6E;
-            --hover-card: #252E44;
-            --text-muted: #8E9BB0;
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            --bg: #121212;
+            --card: #1E1E1E;
+            --input: #2A2A2A;
+            --text: #E0E0E0;
+            --text-muted: #A0A0A0;
+            --border: #333333;
+            --primary: #2C7A6E;
+            --primary-hover: #3E9B8C;
+            --hover-card: #252525;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
         }
 
         body.modo-claro {
-            --bg: #F4F7FA;
+            --bg: #F5F5F5;
             --card: #FFFFFF;
             --input: #FFFFFF;
-            --text: #1F2A3E;
-            --border: #DCE5EF;
-            --primary: #1D6F62;
-            --primary-hover: #155A4F;
-            --hover-card: #F8FAFE;
-            --text-muted: #5C6F87;
-            --shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
-        }
-
-        body.modo-claro, body.modo-oscuro {
-            background: var(--bg);
-            color: var(--text);
+            --text: #1A1A1A;
+            --text-muted: #666666;
+            --border: #E0E0E0;
+            --primary: #0F5C5C;
+            --primary-hover: #0A4A4A;
+            --hover-card: #FAFAFA;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
         }
 
         .container {
@@ -74,8 +73,10 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 24px;
+            gap: 16px;
+            margin-bottom: 32px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
         }
 
         .logo {
@@ -91,57 +92,79 @@
         }
 
         .logo h1 {
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             font-weight: 600;
-            letter-spacing: -0.2px;
+            letter-spacing: -0.3px;
             color: var(--primary);
         }
 
-        .btn-google, .btn-theme {
+        .btn-google, .btn-theme, .btn-volver {
             background: var(--card);
-            padding: 8px 18px;
-            border-radius: 40px;
+            padding: 8px 16px;
+            border-radius: 4px;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             gap: 8px;
             border: 1px solid var(--border);
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: 500;
             color: var(--text);
             transition: all 0.2s;
             box-shadow: var(--shadow);
+        }
+
+        .btn-google:hover, .btn-theme:hover, .btn-volver:hover {
+            background: var(--hover-card);
+            border-color: var(--primary);
         }
 
         .btn-google.connected {
-            border-left: 3px solid #2E7D64;
+            border-left: 3px solid var(--primary);
         }
 
-        .btn-icono {
+        .btn-accion {
             background: var(--card);
-            border: 1px solid var(--border);
             color: var(--text);
-            padding: 8px 14px;
-            border-radius: 32px;
-            font-size: 0.75rem;
-            font-weight: 500;
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
             transition: all 0.2s;
-            cursor: pointer;
             box-shadow: var(--shadow);
         }
 
-        .btn-icono:hover {
+        .btn-accion:hover {
             background: var(--primary);
             color: white;
             border-color: var(--primary);
         }
 
+        button, .btn-primario {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            box-shadow: var(--shadow);
+        }
+
+        button:hover, .btn-primario:hover {
+            background: var(--primary-hover);
+        }
+
         .selector-paciente {
             background: var(--card);
-            border-radius: 20px;
+            border-radius: 8px;
             padding: 16px;
             margin-bottom: 24px;
             border: 1px solid var(--border);
@@ -150,7 +173,7 @@
 
         .selector-paciente .row {
             display: flex;
-            gap: 8px;
+            gap: 12px;
             flex-wrap: wrap;
             align-items: center;
         }
@@ -160,8 +183,8 @@
             min-width: 180px;
             background: var(--input);
             border: 1px solid var(--border);
-            padding: 10px 12px;
-            border-radius: 32px;
+            padding: 8px 12px;
+            border-radius: 4px;
             font-size: 0.85rem;
             color: var(--text);
         }
@@ -175,15 +198,15 @@
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
             gap: 16px;
             margin-top: 16px;
         }
 
         .modulo {
             background: var(--card);
-            border-radius: 18px;
-            padding: 18px 10px;
+            border-radius: 8px;
+            padding: 20px 12px;
             text-align: center;
             cursor: pointer;
             border: 1px solid var(--border);
@@ -192,7 +215,7 @@
         }
 
         .modulo:hover {
-            transform: translateY(-3px);
+            transform: translateY(-2px);
             border-color: var(--primary);
             background: var(--hover-card);
         }
@@ -200,12 +223,14 @@
         .modulo i {
             font-size: 1.8rem;
             color: var(--primary);
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+            display: block;
         }
 
         .modulo h3 {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: 600;
+            margin: 0;
         }
 
         .pagina {
@@ -214,122 +239,120 @@
         .pagina.activa {
             display: block;
         }
+
         .card {
             background: var(--card);
-            border-radius: 24px;
-            padding: 20px;
-            margin-bottom: 20px;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
             border: 1px solid var(--border);
             box-shadow: var(--shadow);
         }
+
         h2 {
             font-size: 1.25rem;
-            margin-bottom: 1rem;
+            margin-bottom: 20px;
             font-weight: 600;
             color: var(--primary);
         }
+
+        h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text);
+        }
+
         input, textarea, select {
             width: 100%;
-            padding: 10px 12px;
+            padding: 8px 12px;
             background: var(--input);
             border: 1px solid var(--border);
-            border-radius: 14px;
+            border-radius: 4px;
             color: var(--text);
             margin-bottom: 12px;
             font-size: 0.85rem;
         }
+
         input:focus, textarea:focus, select:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(44, 122, 110, 0.2);
+            box-shadow: 0 0 0 2px rgba(15, 92, 92, 0.1);
         }
-        button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 40px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.8rem;
-            transition: 0.2s;
+
+        label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            display: block;
         }
-        button:hover {
-            background: var(--primary-hover);
-            transform: translateY(-1px);
-        }
+
         .row {
             display: flex;
-            gap: 12px;
+            gap: 16px;
             flex-wrap: wrap;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
         }
         .row > * {
             flex: 1;
             min-width: 120px;
         }
+
         fieldset {
             border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 16px;
-            margin-bottom: 18px;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
         }
         legend {
             color: var(--primary);
-            padding: 0 8px;
+            padding: 0 12px;
             font-weight: 600;
+            font-size: 0.85rem;
         }
+
         .doctor-fijo {
-            background: rgba(44, 122, 110, 0.1);
-            border-radius: 14px;
-            padding: 12px;
-            margin-bottom: 18px;
-            font-size: 0.75rem;
+            background: var(--bg);
+            border-radius: 4px;
+            padding: 12px 16px;
+            margin-bottom: 24px;
+            font-size: 0.85rem;
             border-left: 3px solid var(--primary);
         }
-        .btn-volver {
-            background: var(--card);
-            padding: 8px 18px;
-            border-radius: 40px;
-            cursor: pointer;
-            margin-bottom: 20px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            border: 1px solid var(--border);
-            font-weight: 500;
-            box-shadow: var(--shadow);
-        }
+
         .alert-info {
-            background: rgba(44, 122, 110, 0.08);
-            border: 1px solid var(--primary);
-            padding: 12px;
-            border-radius: 20px;
-            margin-bottom: 20px;
-            text-align: center;
-            font-size: 0.8rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-bottom: 24px;
+            text-align: left;
+            font-size: 0.85rem;
+            color: var(--text-muted);
         }
+
         .toast {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
+            bottom: 24px;
+            right: 24px;
             background: var(--primary);
             color: white;
-            padding: 12px 20px;
-            border-radius: 40px;
-            font-size: 0.8rem;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-size: 0.85rem;
             z-index: 1000;
             animation: slideIn 0.25s ease;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         @keyframes slideIn {
             from { opacity: 0; transform: translateX(40px); }
             to { opacity: 1; transform: translateX(0); }
         }
+
         .presupuesto-item, .exp-item, .cita-item {
-            background: var(--input);
+            background: var(--bg);
             padding: 12px;
-            border-radius: 16px;
+            border-radius: 4px;
             margin-bottom: 8px;
             display: flex;
             justify-content: space-between;
@@ -337,19 +360,22 @@
             flex-wrap: wrap;
             border: 1px solid var(--border);
         }
+
         .total-presupuesto {
             font-size: 1.1rem;
             font-weight: 700;
             color: var(--primary);
             text-align: right;
             margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
         }
+
         .lista-pacientes-modal {
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(4px);
+            background: rgba(0, 0, 0, 0.5);
             z-index: 2000;
             display: flex;
             align-items: center;
@@ -364,16 +390,18 @@
         }
         .modal-contenido {
             background: var(--card);
-            border-radius: 28px;
+            border-radius: 8px;
             width: 90%;
-            max-width: 480px;
+            max-width: 500px;
             max-height: 80vh;
             overflow: auto;
             padding: 24px;
+            border: 1px solid var(--border);
         }
         .lista-pacientes-items {
             max-height: 300px;
             overflow-y: auto;
+            margin-top: 16px;
         }
         .paciente-item-modal {
             padding: 12px;
@@ -382,19 +410,86 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: background 0.2s;
+            border-radius: 4px;
         }
         .paciente-item-modal:hover {
             background: var(--primary);
             color: white;
-            border-radius: 12px;
         }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+        th {
+            text-align: left;
+            padding: 12px 8px;
+            border-bottom: 2px solid var(--border);
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        td {
+            padding: 10px 8px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.85rem;
+        }
+
         .hidden {
             display: none;
         }
+
+        hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 20px 0;
+        }
+
+        .firma-container, .firma-receta-container {
+            border: 1px dashed var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            margin: 12px 0;
+            background: var(--input);
+        }
+        canvas.firma-canvas, canvas.firma-receta-canvas {
+            background: white;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            cursor: crosshair;
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            touch-action: none;
+            display: block;
+            margin: 0 auto;
+        }
+        .btn-firma, .btn-firma-receta {
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 5px 12px;
+            font-size: 0.7rem;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-firma:hover, .btn-firma-receta:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .calendar-link {
+            font-size: 0.7rem;
+            color: var(--primary);
+            margin-left: 10px;
+            text-decoration: none;
+        }
+
         @media (max-width: 640px) {
-            body { padding: 12px; }
+            body { padding: 16px; }
             .grupo-botones-accion { margin-left: 0; width: 100%; justify-content: flex-start; }
+            .card { padding: 16px; }
         }
     </style>
 </head>
@@ -431,10 +526,10 @@
                 <option value="">-- Seleccionar paciente --</option>
             </select>
             <div class="grupo-botones-accion">
-                <button onclick="crearNuevoPaciente()" class="btn-icono"><i class="fas fa-plus"></i> <span>Nuevo</span></button>
-                <button onclick="abrirListaPacientes()" class="btn-icono"><i class="fas fa-search"></i> <span>Buscar</span></button>
-                <button onclick="importarExpedienteJSON()" class="btn-icono"><i class="fas fa-file-import"></i> <span>Importar</span></button>
-                <button onclick="exportarExpedienteJSON()" class="btn-icono"><i class="fas fa-file-export"></i> <span>Exportar</span></button>
+                <button onclick="crearNuevoPaciente()" class="btn-accion"><i class="fas fa-plus"></i> Nuevo</button>
+                <button onclick="abrirListaPacientes()" class="btn-accion"><i class="fas fa-search"></i> Buscar</button>
+                <button onclick="importarExpedienteJSON()" class="btn-accion"><i class="fas fa-file-import"></i> Importar</button>
+                <button onclick="exportarExpedienteJSON()" class="btn-accion"><i class="fas fa-file-export"></i> Exportar</button>
             </div>
         </div>
         <div id="infoPacienteActual" style="font-size:0.7rem; margin-top:8px; color:var(--primary);"></div>
@@ -451,6 +546,7 @@
 
     <button id="btnVolver" class="btn-volver" onclick="irAlMenu()" style="display:none"><i class="fas fa-arrow-left"></i> Volver al menú</button>
 
+    <!-- PÁGINA MENÚ -->
     <div id="pagina-menu" class="pagina activa">
         <div class="alert-info"><i class="fas fa-info-circle"></i> Selecciona un paciente y luego el módulo</div>
         <div class="grid">
@@ -467,591 +563,863 @@
         </div>
     </div>
 
-    <!-- Páginas de módulos -->
-    <div id="pagina-expediente" class="pagina"><div class="card"><h2>📋 Expediente Clínico</h2><div class="doctor-fijo"><i class="fas fa-user-md"></i> Dr. Alejandro Coronado | Cédula: 9562093</div><fieldset><legend>Datos del Paciente</legend><div class="row"><div><label>Nombre:</label><input type="text" id="expNombre"></div><div><label>Edad:</label><input type="number" id="expEdad"></div></div><div class="row"><div><label>Teléfono:</label><input type="text" id="expTelefono"></div><div><label>Email:</label><input type="email" id="expEmail"></div></div><div><label>Alergias:</label><textarea id="expAlergias" rows="2"></textarea></div><div><label>Antecedentes:</label><textarea id="expAntecedentes" rows="3"></textarea></div></fieldset><button onclick="guardarExpediente()">Guardar</button></div></div>
-    <div id="pagina-receta" class="pagina"><div class="card"><h2>📄 Receta Médica</h2><div class="doctor-fijo">Dr. Alejandro Coronado - Cédula 9562093</div><fieldset><legend>🏥 Datos Clínica</legend><input type="text" id="clinicaNombre" value="C&C Dental Group" disabled></fieldset><fieldset><legend>👨‍⚕️ Médico</legend><div class="row"><input type="text" value="Dr. Alejandro Coronado" disabled><input type="text" value="9562093" disabled></div></fieldset><fieldset><legend>Paciente</legend><div class="row"><input type="text" id="recNombre" placeholder="Nombre"><input type="text" id="recEdad" placeholder="Edad"><select id="recSexo"><option>Masculino</option><option>Femenino</option></select></div><input type="text" id="recAlergias" placeholder="Alergias"></fieldset><fieldset><legend>💊 Medicamentos</legend><div id="medicamentosContainer"></div><button type="button" onclick="agregarMedicamentoReceta()">+ Agregar medicamento</button><button type="button" onclick="cargarEjemploMedicamentos()" style="background:#4B6E6B;">Cargar ejemplo</button></fieldset><fieldset><legend>Indicaciones</legend><textarea id="indicacionesGenerales" rows="3"></textarea></fieldset><div style="display:flex; gap:10px;"><button onclick="guardarRecetaProfesional()">Guardar</button><button onclick="generarRecetaPDFProfesional()">PDF</button><button onclick="imprimirRecetaProfesional()">Imprimir</button></div><hr><h3>Historial</h3><div id="listaRecetas"></div></div></div>
-    <div id="pagina-presupuesto" class="pagina"><div class="card"><h2>💰 Presupuesto</h2><input type="text" id="presNombre" placeholder="Paciente"><div class="row"><select id="presServicioSelect"></select><button onclick="agregarServicioPresupuesto()">+ Servicio</button></div><div id="listaPresupuestoItems"></div><div class="row"><input type="number" id="presDescuento" placeholder="Descuento %" value="0" oninput="calcularTotalPresupuesto()"><input type="text" id="presVigencia" placeholder="Vigencia"></div><div class="total-presupuesto" id="totalPresupuestoDisplay">Total: $0.00</div><button onclick="guardarPresupuesto()">Guardar</button><button onclick="generarPresupuestoPDF()">PDF</button><hr><div id="listaPresupuestos"></div></div></div>
-    <div id="pagina-citas" class="pagina"><div class="card"><h2>📅 Agenda Citas</h2><div class="row"><input type="text" id="citaNombre" disabled placeholder="Nombre"><input type="text" id="citaTelefono" disabled></div><input type="email" id="citaEmail" disabled><div class="row"><input type="date" id="citaFecha"><input type="time" id="citaHora"></div><input type="text" id="citaTratamiento" placeholder="Tratamiento"><textarea id="citaNotas" rows="2" placeholder="Notas"></textarea><button onclick="guardarCita()">Agendar Cita</button><hr><div id="listaCitas"></div><button onclick="sincronizarCalendario()" style="background:#1D6F62;">Sincronizar Calendar</button></div></div>
-    <div id="pagina-servicios" class="pagina"><div class="card"><h2>Servicios</h2><div class="row"><input type="text" id="servNombre" placeholder="Servicio"><input type="number" id="servCosto" placeholder="$"><input type="text" id="servDesc" placeholder="Descripción"></div><button onclick="agregarServicio()">Registrar</button><hr><table style="width:100%"><thead><tr><th>Servicio</th><th>Costo</th><th></th><tr></thead><tbody id="listaServicios"></tbody>}</div></div>
-    <div id="pagina-medicamentos" class="pagina"><div class="card"><h2>Medicamentos</h2><div class="row"><input type="text" id="medNombre" placeholder="Medicamento"><input type="text" id="medCategoria" placeholder="Categoría"><input type="text" id="medUso" placeholder="Uso"></div><button onclick="agregarMedicamento()">Registrar</button><hr><table style="width:100%"><thead><tr><th>Medicamento</th><th>Categoría</th><th></th></tr></thead><tbody id="listaMedicamentos"></tbody>}</div></div>
-    <div id="pagina-consentimiento" class="pagina"><div class="card"><h2>Consentimiento</h2><input type="text" id="consentNombre" placeholder="Paciente"><input type="text" id="consentProcedimiento" placeholder="Procedimiento"><textarea id="consentTexto" rows="4">Autorizo el procedimiento informado</textarea><button onclick="guardarConsentimientoConFirma()">Guardar</button><button onclick="generarConsentimientoPDFConFirma()">PDF</button><hr><div id="listaConsentimientos"></div></div></div>
-    <div id="pagina-certificado" class="pagina"><div class="card"><h2>Certificado</h2><div class="row"><input type="text" id="certNombre"><input type="text" id="certEdad"></div><div class="row"><input type="text" id="certLugar"><input type="date" id="certFecha"></div><textarea id="certDiagnostico"></textarea><div class="row"><input type="number" id="certDias" placeholder="Días reposo"><input type="date" id="certDesde"><input type="date" id="certHasta"></div><label><input type="checkbox" id="certOmitir"> Omitir diagnóstico</label><div style="margin-top:12px"><button onclick="guardarCertificado()">Guardar</button><button onclick="generarCertificadoPDF()">PDF</button></div><hr><div id="listaCertificados"></div></div></div>
-    <div id="pagina-consultorio" class="pagina"><div class="card"><h2>Mi Consultorio</h2><div class="doctor-fijo"><strong>Dr. Alejandro Coronado</strong> | Cédula 9562093<br>Tel: 6646251897 | Email: Dentist.alexxx@gmail.com</div><fieldset><legend>Dirección fija</legend><textarea rows="2" disabled>Emiliano Zapata 2751, Ejido Matamoros, Tijuana</textarea></fieldset></div></div>
-    <div id="pagina-estadisticas" class="pagina"><div class="card"><h2>Estadísticas</h2><div class="row"><div style="background:var(--card); border-radius:20px; padding:15px; text-align:center; flex:1;"><div id="totalPacientes" style="font-size:2rem; font-weight:bold; color:var(--primary);">0</div><div>Pacientes</div></div><div style="background:var(--card); border-radius:20px; padding:15px; text-align:center; flex:1;"><div id="totalCitas" style="font-size:2rem; font-weight:bold; color:var(--primary);">0</div><div>Citas</div></div><div style="background:var(--card); border-radius:20px; padding:15px; text-align:center; flex:1;"><div id="totalRecetas" style="font-size:2rem; font-weight:bold; color:var(--primary);">0</div><div>Recetas</div></div><div style="background:var(--card); border-radius:20px; padding:15px; text-align:center; flex:1;"><div id="totalPresupuestos" style="font-size:2rem; font-weight:bold; color:var(--primary);">0</div><div>Presupuestos</div></div></div><button onclick="exportarReporte()"><i class="fas fa-download"></i> Exportar reporte</button></div></div>
+    <!-- ==================== MÓDULOS ==================== -->
+
+    <!-- EXPEDIENTE -->
+    <div id="pagina-expediente" class="pagina">
+        <div class="card">
+            <h2>📋 Expediente Clínico</h2>
+            <div class="doctor-fijo"><i class="fas fa-user-md"></i> Dr. Alejandro Coronado | Cédula: 9562093</div>
+            <fieldset><legend>Datos del Paciente</legend>
+                <div class="row"><div><label>Nombre:</label><input type="text" id="expNombre"></div><div><label>Edad:</label><input type="number" id="expEdad"></div></div>
+                <div class="row"><div><label>Teléfono:</label><input type="text" id="expTelefono"></div><div><label>Email:</label><input type="email" id="expEmail" placeholder="correo@ejemplo.com (para invitaciones a Calendar)"></div></div>
+                <div><label>Alergias:</label><textarea id="expAlergias" rows="2"></textarea></div>
+                <div><label>Antecedentes:</label><textarea id="expAntecedentes" rows="3"></textarea></div>
+            </fieldset>
+            <button onclick="guardarExpediente()">Guardar</button>
+        </div>
+    </div>
+
+    <!-- RECETA (con firma y campos completos) -->
+    <div id="pagina-receta" class="pagina">
+        <div class="card">
+            <h2>📄 Receta Médica Profesional</h2>
+            <div class="doctor-fijo">Dr. Alejandro Coronado - Cédula 9562093</div>
+            <fieldset><legend>🏥 Datos de la Clínica</legend>
+                <input type="text" id="clinicaNombre" value="C&C Dental Group" readonly disabled>
+            </fieldset>
+            <fieldset><legend>👨‍⚕️ Datos del Médico</legend>
+                <div class="row"><input type="text" id="doctorNombre" value="Dr. Alejandro Coronado" readonly disabled><input type="text" id="doctorCedula" value="9562093" readonly disabled></div>
+                <div class="row"><input type="text" id="telefono" value="6646251897" readonly disabled><input type="text" id="email" value="Dentist.alexxx@gmail.com" readonly disabled></div>
+                <div class="row"><input type="text" id="direccion" value="Emiliano Zapata 2751, Ejido Matamoros" readonly disabled><input type="text" id="municipio" value="Tijuana" readonly disabled></div>
+                <input type="date" id="fechaReceta">
+            </fieldset>
+            <fieldset><legend>📋 Datos del Paciente</legend>
+                <div class="row"><input type="text" id="recNombre" placeholder="Nombre"><input type="text" id="recEdad" placeholder="Edad"><select id="recSexo"><option>Masculino</option><option>Femenino</option></select></div>
+                <div class="row"><input type="text" id="expediente" placeholder="Expediente"><input type="text" id="recAlergias" placeholder="Alergias"></div>
+                <textarea id="diagnostico" rows="2" placeholder="Diagnóstico"></textarea>
+            </fieldset>
+            <fieldset><legend>💊 Medicamentos</legend><div id="medicamentosContainer"></div>
+                <button type="button" onclick="agregarMedicamentoReceta()">+ Agregar medicamento</button>
+                <button type="button" onclick="cargarEjemploMedicamentos()">📋 Cargar ejemplo</button>
+            </fieldset>
+            <fieldset><legend>📝 Indicaciones</legend><textarea id="indicacionesGenerales" rows="3"></textarea></fieldset>
+            <fieldset><legend>ℹ️ Información Adicional</legend>
+                <input type="text" id="proximaCita" placeholder="Próxima cita">
+                <textarea id="notasExtra" rows="2" placeholder="Notas adicionales"></textarea>
+                <input type="text" id="folioReceta" placeholder="Folio">
+            </fieldset>
+            <fieldset>
+                <legend><i class="fas fa-pen-fancy"></i> Firma del Doctor</legend>
+                <div class="firma-receta-container">
+                    <canvas id="firmaDoctorCanvas" class="firma-receta-canvas" width="400" height="150"></canvas>
+                    <div style="display:flex; gap:8px; justify-content:center; margin-top:8px;">
+                        <button type="button" class="btn-firma-receta" onclick="limpiarFirmaDoctor()"><i class="fas fa-eraser"></i> Limpiar</button>
+                        <button type="button" class="btn-firma-receta" onclick="guardarFirmaDoctorLocal()"><i class="fas fa-save"></i> Guardar firma</button>
+                    </div>
+                    <div id="firmaDoctorPreview" class="firma-preview-receta">Sin firma.</div>
+                </div>
+            </fieldset>
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <button onclick="guardarRecetaProfesional()"><i class="fas fa-save"></i> Guardar</button>
+                <button onclick="generarRecetaPDFProfesional()"><i class="fas fa-file-pdf"></i> Generar PDF</button>
+                <button onclick="imprimirRecetaProfesional()"><i class="fas fa-print"></i> Imprimir</button>
+            </div>
+            <hr><h3>Historial de Recetas</h3><div id="listaRecetas"></div>
+        </div>
+    </div>
+
+    <!-- PRESUPUESTO -->
+    <div id="pagina-presupuesto" class="pagina">
+        <div class="card">
+            <h2>💰 Presupuesto</h2>
+            <input type="text" id="presNombre" placeholder="Paciente">
+            <div class="row"><div style="flex:3"><select id="presServicioSelect"></select></div><button onclick="agregarServicioPresupuesto()">+</button></div>
+            <div class="row"><input type="text" id="extraNombre" placeholder="Extra"><input type="number" id="extraMonto" placeholder="$"><button onclick="agregarExtraPresupuesto()">+</button></div>
+            <div id="listaPresupuestoItems"></div>
+            <div class="row"><input type="number" id="presDescuento" placeholder="Descuento %" value="0" oninput="calcularTotalPresupuesto()"><input type="text" id="presVigencia" placeholder="Vigencia"></div>
+            <div class="total-presupuesto" id="totalPresupuestoDisplay">Total: $0.00</div>
+            <button onclick="guardarPresupuesto()">Guardar</button>
+            <button onclick="generarPresupuestoPDF()">PDF</button>
+            <hr><h3>Historial</h3><div id="listaPresupuestos"></div>
+        </div>
+    </div>
+
+    <!-- CITAS -->
+    <div id="pagina-citas" class="pagina">
+        <div class="card">
+            <h2>📅 Agenda de Citas <i class="fab fa-google"></i></h2>
+            <div class="alert-info"><i class="fas fa-google"></i> Las citas se sincronizan con Google Calendar.</div>
+            <div class="row"><input type="text" id="citaNombre" readonly disabled><input type="text" id="citaTelefono" readonly disabled></div>
+            <input type="email" id="citaEmail" readonly disabled>
+            <div class="row"><input type="date" id="citaFecha"><input type="time" id="citaHora"></div>
+            <input type="text" id="citaTratamiento" placeholder="Tratamiento">
+            <textarea id="citaNotas" rows="2" placeholder="Notas"></textarea>
+            <button onclick="guardarCita()">Agendar</button>
+            <hr><div id="listaCitas"></div>
+            <button onclick="sincronizarCalendario()">Sincronizar con Calendar</button>
+        </div>
+    </div>
+
+    <!-- SERVICIOS -->
+    <div id="pagina-servicios" class="pagina">
+        <div class="card">
+            <h2>🦷 Servicios</h2>
+            <div class="row"><input type="text" id="servNombre" placeholder="Servicio"><input type="number" id="servCosto" placeholder="$"><input type="text" id="servDesc" placeholder="Descripción"></div>
+            <button onclick="agregarServicio()">Registrar</button>
+            <hr><table style="width:100%"><thead><tr><th>Servicio</th><th>Descripción</th><th>Costo</th><th></th></tr></thead><tbody id="listaServicios"></tbody></table>
+        </div>
+    </div>
+
+    <!-- MEDICAMENTOS -->
+    <div id="pagina-medicamentos" class="pagina">
+        <div class="card">
+            <h2>💊 Medicamentos</h2>
+            <div class="row"><input type="text" id="medNombre" placeholder="Medicamento"><input type="text" id="medCategoria" placeholder="Categoría"><input type="text" id="medUso" placeholder="Uso"></div>
+            <button onclick="agregarMedicamento()">Registrar</button>
+            <hr><table style="width:100%"><thead><tr><th>Medicamento</th><th>Categoría</th><th>Uso</th><th></th></tr></thead><tbody id="listaMedicamentos"></tbody></table>
+        </div>
+    </div>
+
+    <!-- CONSENTIMIENTO -->
+    <div id="pagina-consentimiento" class="pagina">
+        <div class="card">
+            <h2>📝 Consentimiento Informado</h2>
+            <input type="text" id="consentNombre" placeholder="Paciente">
+            <input type="text" id="consentProcedimiento" placeholder="Procedimiento">
+            <textarea id="consentTexto" rows="6">Yo, [NOMBRE], autorizo al Dr. Alejandro Coronado a realizar [PROCEDIMIENTO]. He sido informado de los riesgos y beneficios.</textarea>
+            <fieldset>
+                <legend>Firma del Paciente</legend>
+                <div class="firma-container">
+                    <canvas id="firmaPacienteCanvas" class="firma-canvas" width="400" height="150"></canvas>
+                    <div style="display:flex; gap:8px; justify-content:center; margin-top:8px;">
+                        <button type="button" class="btn-firma" onclick="limpiarFirmaPaciente()"><i class="fas fa-eraser"></i> Limpiar</button>
+                        <button type="button" class="btn-firma" onclick="guardarFirmaPacienteLocal()"><i class="fas fa-save"></i> Guardar firma</button>
+                    </div>
+                    <div id="firmaPacientePreview">Sin firma.</div>
+                </div>
+            </fieldset>
+            <button onclick="guardarConsentimientoConFirma()">Guardar Consentimiento</button>
+            <button onclick="generarConsentimientoPDFConFirma()">PDF con Firma</button>
+            <hr><h3>Historial</h3><div id="listaConsentimientos"></div>
+        </div>
+    </div>
+
+    <!-- CERTIFICADO -->
+    <div id="pagina-certificado" class="pagina">
+        <div class="card">
+            <h2>📜 Certificado</h2>
+            <div class="doctor-fijo">Dr. Alejandro Coronado</div>
+            <div class="row"><input type="text" id="certNombre" placeholder="Paciente"><input type="text" id="certEdad" placeholder="Edad"></div>
+            <div class="row"><input type="text" id="certLugar" placeholder="Lugar"><input type="date" id="certFecha"></div>
+            <textarea id="certDiagnostico" rows="2" placeholder="Diagnóstico"></textarea>
+            <div class="row"><input type="number" id="certDias" placeholder="Días reposo"><input type="date" id="certDesde"><input type="date" id="certHasta"></div>
+            <label><input type="checkbox" id="certOmitir"> Omitir diagnóstico</label><br><br>
+            <button onclick="guardarCertificado()">Guardar</button>
+            <button onclick="generarCertificadoPDF()">PDF</button>
+            <hr><div id="listaCertificados"></div>
+        </div>
+    </div>
+
+    <!-- MI CONSULTORIO -->
+    <div id="pagina-consultorio" class="pagina">
+        <div class="card">
+            <h2>🏢 Mi Consultorio</h2>
+            <div class="doctor-fijo"><strong>Dr. Alejandro Coronado</strong> | Cédula: 9562093<br>Tel: 6646251897 | Email: Dentist.alexxx@gmail.com</div>
+            <fieldset><legend>Dirección fija</legend><textarea rows="2" disabled>Emiliano Zapata 2751, Ejido Matamoros, Tijuana, CP 22204</textarea></fieldset>
+        </div>
+    </div>
+
+    <!-- ESTADÍSTICAS -->
+    <div id="pagina-estadisticas" class="pagina">
+        <div class="card">
+            <h2>📊 Estadísticas</h2>
+            <div class="row">
+                <div style="background:var(--card); border-radius:8px; padding:15px; text-align:center; border:1px solid var(--border); flex:1;"><div id="totalPacientes" style="font-size:2rem; font-weight:bold; color:var(--primary);">0</div><div>Pacientes</div></div>
+                <div style="background:var(--card); border-radius:8px; padding:15px; text-align:center; border:1px solid var(--border); flex:1;"><div id="totalCitas" style="font-size:2rem; font-weight:bold; color:var(--primary);">0</div><div>Citas</div></div>
+                <div style="background:var(--card); border-radius:8px; padding:15px; text-align:center; border:1px solid var(--border); flex:1;"><div id="totalRecetas" style="font-size:2rem; font-weight:bold; color:var(--primary);">0</div><div>Recetas</div></div>
+                <div style="background:var(--card); border-radius:8px; padding:15px; text-align:center; border:1px solid var(--border); flex:1;"><div id="totalPresupuestos" style="font-size:2rem; font-weight:bold; color:var(--primary);">0</div><div>Presupuestos</div></div>
+            </div>
+            <button onclick="exportarReporte()"><i class="fas fa-download"></i> Exportar reporte</button>
+        </div>
+    </div>
 </div>
 
 <script>
-    // Variables globales
-    let pacientes = {}, pacienteActual = null, servicios = [], medicamentos = [], presupuestoItems = [], recetaMedicamentos = [];
-    let accessToken = null, tokenClient = null;
+    // ==================== VARIABLES GLOBALES ====================
+    const DOCTOR = {nombre:"Dr. Alejandro Coronado", cedula:"9562093", telefono:"6646251897", email:"Dentist.alexxx@gmail.com"};
+    let pacientes = {}, pacienteActual = null, servicios = [], medicamentos = [], presupuestoItems = [];
+    let recetaMedicamentos = [];
+    let firmaDoctorData = null, firmaDoctorCanvas = null, firmaDoctorCtx = null, firmandoDoctor = false;
+    let firmaPacienteData = null, firmaPacienteCanvas = null, firmaPacienteCtx = null, firmandoPaciente = false;
+    let accessToken = null, tokenClient = null, principalFolderId = null;
 
-    // Funciones de tema
+    // ==================== FUNCIONES DE TEMA ====================
+    function toggleModo() {
+        document.body.classList.toggle('modo-claro');
+        localStorage.setItem('modo', document.body.classList.contains('modo-claro') ? 'claro' : 'oscuro');
+    }
     function setThemeFromStorage() {
         const saved = localStorage.getItem('modo');
-        if (saved === 'claro') {
-            document.body.classList.add('modo-claro');
-            document.body.classList.remove('modo-oscuro');
-        } else if (saved === 'oscuro') {
-            document.body.classList.add('modo-oscuro');
-            document.body.classList.remove('modo-claro');
-        } else {
-            document.body.classList.add('modo-claro');
-            document.body.classList.remove('modo-oscuro');
-            localStorage.setItem('modo', 'claro');
-        }
-        const icon = document.querySelector('.btn-theme i');
-        if(icon) {
-            if(document.body.classList.contains('modo-claro')) icon.className = 'fas fa-sun';
-            else icon.className = 'fas fa-moon';
-        }
+        if (saved === 'claro') document.body.classList.add('modo-claro');
+        else document.body.classList.add('modo-oscuro');
     }
 
-    function toggleModo() {
-        if(document.body.classList.contains('modo-claro')) {
-            document.body.classList.remove('modo-claro');
-            document.body.classList.add('modo-oscuro');
-            localStorage.setItem('modo', 'oscuro');
-        } else {
-            document.body.classList.remove('modo-oscuro');
-            document.body.classList.add('modo-claro');
-            localStorage.setItem('modo', 'claro');
-        }
-        const icon = document.querySelector('.btn-theme i');
-        if(icon) icon.className = document.body.classList.contains('modo-claro') ? 'fas fa-sun' : 'fas fa-moon';
+    // ==================== TOAST ====================
+    function mostrarToast(msg) {
+        let t = document.createElement('div');
+        t.className = 'toast';
+        t.innerText = msg;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 2500);
     }
 
-    function guardarTodoLocal() { 
-        localStorage.setItem('pacientes', JSON.stringify(pacientes)); 
-        localStorage.setItem('servicios', JSON.stringify(servicios)); 
-        localStorage.setItem('medicamentos', JSON.stringify(medicamentos)); 
-    }
-
-    function actualizarSelectPacientes() { 
-        let s = document.getElementById('selectPaciente'); 
-        let arr = Object.keys(pacientes); 
-        s.innerHTML = '<option value="">-- Seleccionar paciente --</option>'; 
-        arr.forEach(k => { 
+    // ==================== PACIENTES ====================
+    function actualizarSelectPacientes() {
+        let s = document.getElementById('selectPaciente');
+        let arr = Object.keys(pacientes);
+        s.innerHTML = '<option value="">-- Seleccionar paciente --</option>';
+        arr.forEach(k => {
             let nombre = pacientes[k].data?.nombre || k;
-            s.innerHTML += `<option value="${k}">${nombre}</option>`; 
-        }); 
-    }
-
-    function cambiarPaciente() { 
-        let k = document.getElementById('selectPaciente').value; 
-        if (k && pacientes[k]) { 
-            pacienteActual = pacientes[k]; 
-            document.getElementById('infoPacienteActual').innerHTML = `✅ ${pacienteActual.data.nombre || k}`; 
-            actualizarCamposUI(); 
-            mostrarRecetas(); 
-            mostrarPresupuestos(); 
-            mostrarCitas(); 
-            mostrarConsentimientos(); 
-            mostrarCertificados(); 
-            actualizarEstadisticas(); 
-        } 
-    }
-
-    function actualizarCamposUI() { 
-        let d = pacienteActual.data || {}; 
-        document.getElementById('expNombre').value = d.nombre || ''; 
-        document.getElementById('expEdad').value = d.edad || ''; 
-        document.getElementById('expTelefono').value = d.telefono || ''; 
-        document.getElementById('expEmail').value = d.email || ''; 
-        document.getElementById('expAlergias').value = d.alergias || ''; 
-        document.getElementById('expAntecedentes').value = d.antecedentes || ''; 
-        document.getElementById('recNombre').value = d.nombre || ''; 
-        document.getElementById('presNombre').value = d.nombre || ''; 
-        document.getElementById('citaNombre').value = d.nombre || ''; 
-        document.getElementById('citaTelefono').value = d.telefono || ''; 
-        document.getElementById('citaEmail').value = d.email || ''; 
-        document.getElementById('consentNombre').value = d.nombre || ''; 
-        document.getElementById('certNombre').value = d.nombre || ''; 
-        document.getElementById('certEdad').value = d.edad || ''; 
-    }
-
-    function guardarExpediente() { 
-        if (pacienteActual) { 
-            pacienteActual.data = { 
-                nombre: document.getElementById('expNombre').value, 
-                edad: document.getElementById('expEdad').value, 
-                telefono: document.getElementById('expTelefono').value, 
-                email: document.getElementById('expEmail').value, 
-                alergias: document.getElementById('expAlergias').value, 
-                antecedentes: document.getElementById('expAntecedentes').value 
-            }; 
-            guardarTodoLocal(); 
-            mostrarToast('Expediente guardado'); 
-            actualizarSelectPacientes();
-        } 
-    }
-
-    function mostrarToast(msg) { 
-        let t = document.createElement('div'); 
-        t.className = 'toast'; 
-        t.innerText = msg; 
-        document.body.appendChild(t); 
-        setTimeout(() => t.remove(), 2500); 
-    }
-
-    function irAPagina(p) { 
-        window.location.hash = p; 
-        mostrarPagina(p); 
-    }
-
-    function irAlMenu() { 
-        window.location.hash = ''; 
-        mostrarPagina('menu'); 
-    }
-
-    function mostrarPagina(p) { 
-        document.querySelectorAll('.pagina').forEach(pg => pg.classList.remove('activa')); 
-        if (p === 'menu' || p === '') { 
-            document.getElementById('pagina-menu').classList.add('activa'); 
-            document.getElementById('btnVolver').style.display = 'none'; 
-        } else { 
-            let el = document.getElementById(`pagina-${p}`); 
-            if (el) { 
-                el.classList.add('activa'); 
-                document.getElementById('btnVolver').style.display = 'inline-flex'; 
-            } 
-        } 
-        actualizarEstadisticas(); 
-    }
-
-    function actualizarEstadisticas() { 
-        let tp = Object.keys(pacientes).length, tc = 0, tr = 0, tp2 = 0; 
-        Object.values(pacientes).forEach(p => { 
-            tc += (p.citas || []).length; 
-            tr += (p.recetas || []).length; 
-            tp2 += (p.presupuestos || []).length; 
-        }); 
-        document.getElementById('totalPacientes').innerText = tp; 
-        document.getElementById('totalCitas').innerText = tc; 
-        document.getElementById('totalRecetas').innerText = tr; 
-        document.getElementById('totalPresupuestos').innerText = tp2; 
-    }
-
-    function exportarReporte() { 
-        let blob = new Blob([JSON.stringify(pacientes)], { type: 'application/json' }); 
-        let a = document.createElement('a'); 
-        a.href = URL.createObjectURL(blob); 
-        a.download = 'reporte_dental.json'; 
-        a.click(); 
-        mostrarToast('Reporte exportado'); 
-    }
-
-    // ========== FUNCIONES DEL BUSCADOR DE PACIENTES (CORREGIDAS) ==========
-    function abrirListaPacientes() { 
-        let modal = document.getElementById('modalPacientes');
-        modal.classList.add('activo');
-        document.getElementById('buscadorPacientes').value = '';
-        actualizarListaPacientes('');
-    }
-    
-    function cerrarListaPacientes() { 
-        document.getElementById('modalPacientes').classList.remove('activo'); 
-    }
-    
-    function actualizarListaPacientes(filtro) {
-        let contenedor = document.getElementById('listaPacientesItems');
-        if (!contenedor) return;
-        
-        let pacientesArray = Object.entries(pacientes);
-        
-        if(filtro && filtro.trim() !== ''){
-            filtro = filtro.toLowerCase();
-            pacientesArray = pacientesArray.filter(([k, p]) => {
-                let nombre = p.data?.nombre || k;
-                return nombre.toLowerCase().includes(filtro);
-            });
-        }
-        
-        if(pacientesArray.length === 0){
-            contenedor.innerHTML = '<div style="padding:20px;text-align:center;">No hay pacientes registrados</div>';
-            return;
-        }
-        
-        contenedor.innerHTML = pacientesArray.map(([k, p]) => {
-            let nombre = p.data?.nombre || k;
-            let telefono = p.data?.telefono || '';
-            return `<div class="paciente-item-modal" onclick="seleccionarPacienteDesdeLista('${k}')">
-                        <span><i class="fas fa-user"></i> ${escapeHtml(nombre)}</span>
-                        <span style="font-size:0.7rem;">${telefono ? escapeHtml(telefono) : ''}</span>
-                    </div>`;
-        }).join('');
-    }
-    
-    function filtrarListaPacientes() {
-        let filtro = document.getElementById('buscadorPacientes').value;
-        actualizarListaPacientes(filtro);
-    }
-    
-    function seleccionarPacienteDesdeLista(key) {
-        let select = document.getElementById('selectPaciente');
-        select.value = key;
-        cambiarPaciente();
-        cerrarListaPacientes();
-        mostrarToast(`Paciente seleccionado: ${pacientes[key].data?.nombre || key}`);
-    }
-    
-    function escapeHtml(str) {
-        if(!str) return '';
-        return str.replace(/[&<>]/g, function(m) {
-            if(m === '&') return '&amp;';
-            if(m === '<') return '&lt;';
-            if(m === '>') return '&gt;';
-            return m;
+            s.innerHTML += `<option value="${k}">${nombre}</option>`;
         });
     }
 
-    function mostrarRecetas() { 
-        let d = document.getElementById('listaRecetas'); 
-        if (d && pacienteActual) d.innerHTML = (pacienteActual.recetas || []).map((r, i) => `<div class="exp-item">📄 ${r.fecha} <button onclick="eliminarReceta(${i})">X</button></div>`).join('') || 'Sin recetas'; 
-    }
-
-    function mostrarPresupuestos() { 
-        let d = document.getElementById('listaPresupuestos'); 
-        if (d && pacienteActual) d.innerHTML = (pacienteActual.presupuestos || []).map((p, i) => `<div class="exp-item">💰 ${p.fecha} $${p.total || 0} <button onclick="eliminarPresupuesto(${i})">X</button></div>`).join('') || 'No hay presupuestos'; 
-    }
-
-    function mostrarCitas() { 
-        let d = document.getElementById('listaCitas'); 
-        if (d && pacienteActual) d.innerHTML = (pacienteActual.citas || []).map((c, i) => `<div class="cita-item">📅 ${c.fecha} ${c.hora} - ${c.tratamiento}<button onclick="eliminarCita(${i})">X</button></div>`).join('') || 'No hay citas'; 
-    }
-
-    function mostrarConsentimientos() { 
-        let d = document.getElementById('listaConsentimientos'); 
-        if (d && pacienteActual) d.innerHTML = (pacienteActual.consentimientos || []).map((c, i) => `<div class="exp-item">📝 ${c.fecha}<button onclick="eliminarConsentimiento(${i})">X</button></div>`).join('') || 'No hay consentimientos'; 
-    }
-
-    function mostrarCertificados() { 
-        let d = document.getElementById('listaCertificados'); 
-        if (d && pacienteActual) d.innerHTML = (pacienteActual.certificados || []).map((c, i) => `<div class="exp-item">📜 ${c.fecha}<button onclick="eliminarCertificado(${i})">X</button></div>`).join('') || 'No hay certificados'; 
-    }
-
-    window.eliminarReceta = function(i) { pacienteActual.recetas.splice(i,1); guardarTodoLocal(); mostrarRecetas(); };
-    window.eliminarPresupuesto = function(i) { pacienteActual.presupuestos.splice(i,1); guardarTodoLocal(); mostrarPresupuestos(); };
-    window.eliminarCita = function(i) { pacienteActual.citas.splice(i,1); guardarTodoLocal(); mostrarCitas(); };
-    window.eliminarConsentimiento = function(i) { pacienteActual.consentimientos.splice(i,1); guardarTodoLocal(); mostrarConsentimientos(); };
-    window.eliminarCertificado = function(i) { pacienteActual.certificados.splice(i,1); guardarTodoLocal(); mostrarCertificados(); };
-
-    function agregarServicioPresupuesto() { 
-        let val = document.getElementById('presServicioSelect').value; 
-        if(val){ 
-            let [n,c] = val.split('|'); 
-            presupuestoItems.push({nombre:n, costo:parseFloat(c)}); 
-            renderPresupuestoItems(); 
-            calcularTotalPresupuesto(); 
-        } 
-    }
-
-    function renderPresupuestoItems() { 
-        let d = document.getElementById('listaPresupuestoItems'); 
-        if(d) d.innerHTML = presupuestoItems.map((i,idx)=>`<div class="presupuesto-item">${i.nombre} - $${i.costo} <button onclick="eliminarItemPresupuesto(${idx})">X</button></div>`).join('')||'Agrega servicios'; 
-    }
-
-    function eliminarItemPresupuesto(i){ presupuestoItems.splice(i,1); renderPresupuestoItems(); calcularTotalPresupuesto(); }
-
-    function calcularTotalPresupuesto(){ 
-        let s=presupuestoItems.reduce((a,b)=>a+b.costo,0), d=parseFloat(document.getElementById('presDescuento').value)||0, t=s*(1-d/100); 
-        document.getElementById('totalPresupuestoDisplay').innerHTML=`Total: $${t.toFixed(2)}`; 
-    }
-
-    function guardarPresupuesto(){ 
-        if(pacienteActual){ 
-            let s=presupuestoItems.reduce((a,b)=>a+b.costo,0), d=parseFloat(document.getElementById('presDescuento').value)||0; 
-            pacienteActual.presupuestos.push({fecha:new Date().toLocaleString(), items:[...presupuestoItems], descuento:d, total:s*(1-d/100)}); 
-            guardarTodoLocal(); 
-            presupuestoItems=[]; 
-            renderPresupuestoItems(); 
-            calcularTotalPresupuesto(); 
-            mostrarPresupuestos(); 
-            mostrarToast('Presupuesto guardado'); 
-        } 
-    }
-
-    function guardarCertificado(){ 
-        if(pacienteActual){ 
-            let omitir = document.getElementById('certOmitir').checked;
-            let diagnostico = omitir ? "Por motivos de salud dental" : document.getElementById('certDiagnostico').value;
-            pacienteActual.certificados.push({
-                fecha:new Date().toLocaleString(), 
-                diagnostico: diagnostico,
-                lugar: document.getElementById('certLugar').value,
-                dias: document.getElementById('certDias').value
-            }); 
-            guardarTodoLocal(); 
-            mostrarCertificados(); 
-            mostrarToast('Certificado guardado'); 
-        } 
-    }
-
-    function guardarRecetaProfesional(){ 
-        if(pacienteActual){ 
-            pacienteActual.recetas.push({
-                fecha:new Date().toLocaleString(), 
-                medicamentos: JSON.parse(JSON.stringify(recetaMedicamentos)),
-                paciente: document.getElementById('recNombre').value
-            }); 
-            guardarTodoLocal(); 
-            mostrarRecetas(); 
-            mostrarToast('Receta guardada'); 
-        } 
-    }
-
-    function guardarConsentimientoConFirma(){ 
-        if(pacienteActual){ 
-            pacienteActual.consentimientos.push({
-                fecha:new Date().toLocaleString(), 
-                texto:document.getElementById('consentTexto').value,
-                procedimiento: document.getElementById('consentProcedimiento').value
-            }); 
-            guardarTodoLocal(); 
-            mostrarConsentimientos(); 
-            mostrarToast('Consentimiento guardado'); 
-        } 
-    }
-
-    function guardarCita(){ 
-        if(pacienteActual){ 
-            let fecha = document.getElementById('citaFecha').value;
-            let hora = document.getElementById('citaHora').value;
-            if(!fecha || !hora) {
-                mostrarToast('Selecciona fecha y hora');
-                return;
-            }
-            pacienteActual.citas.push({
-                fecha: fecha, 
-                hora: hora, 
-                tratamiento: document.getElementById('citaTratamiento').value,
-                notas: document.getElementById('citaNotas').value
-            }); 
-            guardarTodoLocal(); 
-            mostrarCitas(); 
-            mostrarToast('Cita agendada');
-            document.getElementById('citaFecha').value = '';
-            document.getElementById('citaHora').value = '';
-            document.getElementById('citaTratamiento').value = '';
-            document.getElementById('citaNotas').value = '';
-        } 
-    }
-
-    function sincronizarCalendario(){ mostrarToast('Sincronización con Calendar (demo)'); }
-    function generarPresupuestoPDF(){ alert('Función PDF - Presupuesto'); }
-    function generarCertificadoPDF(){ alert('Función PDF - Certificado'); }
-    function generarRecetaPDFProfesional(){ alert('Vista previa Receta'); }
-    function imprimirRecetaProfesional(){ alert('Imprimir Receta'); }
-    function generarConsentimientoPDFConFirma(){ alert('PDF Consentimiento'); }
-
-    function agregarMedicamentoReceta(){ recetaMedicamentos.push({nombre:"", presentacion:"", dosis:"", frecuencia:""}); renderizarMedicamentosReceta(); }
-    function cargarEjemploMedicamentos(){ recetaMedicamentos=[{nombre:"Amoxicilina 500mg", presentacion:"Cápsulas", dosis:"1 cápsula", frecuencia:"Cada 8 horas"}]; renderizarMedicamentosReceta(); }
-    function renderizarMedicamentosReceta(){ 
-        let cont=document.getElementById('medicamentosContainer'); 
-        if(cont) {
-            if(recetaMedicamentos.length === 0) {
-                cont.innerHTML = '<div style="padding:20px;text-align:center;">No hay medicamentos agregados</div>';
-                return;
-            }
-            cont.innerHTML = recetaMedicamentos.map((m,i)=>`
-                <div style="border:1px solid var(--border); border-radius:12px; padding:10px; margin-bottom:10px;">
-                    <div class="row">
-                        <div><label>Medicamento:</label><input value="${m.nombre}" onchange="recetaMedicamentos[${i}].nombre=this.value" placeholder="Nombre"></div>
-                        <div><label>Presentación:</label><input value="${m.presentacion}" onchange="recetaMedicamentos[${i}].presentacion=this.value" placeholder="Presentación"></div>
-                    </div>
-                    <div class="row">
-                        <div><label>Dosis:</label><input value="${m.dosis}" onchange="recetaMedicamentos[${i}].dosis=this.value" placeholder="Dosis"></div>
-                        <div><label>Frecuencia:</label><input value="${m.frecuencia}" onchange="recetaMedicamentos[${i}].frecuencia=this.value" placeholder="Frecuencia"></div>
-                    </div>
-                    <button onclick="eliminarMedicamentoReceta(${i})" style="background:#c0392b; margin-top:5px;">Eliminar</button>
-                </div>`).join('');
-        }
-    }
-    function eliminarMedicamentoReceta(i){ recetaMedicamentos.splice(i,1); renderizarMedicamentosReceta(); }
-
-    function conectarGoogle(){ 
-        let clientIdGuardado = localStorage.getItem('googleClientId');
-        if(clientIdGuardado) {
-            mostrarToast('✅ Conectado a Google Drive (sesión guardada)');
-            document.getElementById('googleBtn').classList.add('connected');
+    function cambiarPaciente() {
+        let k = document.getElementById('selectPaciente').value;
+        if (k && pacientes[k]) {
+            pacienteActual = pacientes[k];
+            document.getElementById('infoPacienteActual').innerHTML = `✅ ${pacienteActual.data.nombre || k}`;
+            // Llenar campos comunes
+            document.getElementById('expNombre').value = pacienteActual.data.nombre || '';
+            document.getElementById('expEdad').value = pacienteActual.data.edad || '';
+            document.getElementById('expTelefono').value = pacienteActual.data.telefono || '';
+            document.getElementById('expEmail').value = pacienteActual.data.email || '';
+            document.getElementById('expAlergias').value = pacienteActual.data.alergias || '';
+            document.getElementById('expAntecedentes').value = pacienteActual.data.antecedentes || '';
+            document.getElementById('recNombre').value = pacienteActual.data.nombre || '';
+            document.getElementById('presNombre').value = pacienteActual.data.nombre || '';
+            document.getElementById('citaNombre').value = pacienteActual.data.nombre || '';
+            document.getElementById('citaTelefono').value = pacienteActual.data.telefono || '';
+            document.getElementById('citaEmail').value = pacienteActual.data.email || '';
+            document.getElementById('consentNombre').value = pacienteActual.data.nombre || '';
+            document.getElementById('certNombre').value = pacienteActual.data.nombre || '';
+            document.getElementById('certEdad').value = pacienteActual.data.edad || '';
+            // Mostrar listas
+            mostrarRecetas();
+            mostrarPresupuestos();
+            mostrarCitas();
+            mostrarConsentimientos();
+            mostrarCertificados();
+            actualizarEstadisticas();
         } else {
-            document.getElementById('configPanel').classList.remove('hidden');
-        }
-    }
-    
-    function guardarClientId(){ 
-        let id = document.getElementById('clientIdInput').value; 
-        if(id){ 
-            localStorage.setItem('googleClientId', id); 
-            document.getElementById('configPanel').classList.add('hidden'); 
-            mostrarToast('✅ Client ID guardado'); 
-            document.getElementById('googleBtn').classList.add('connected');
-        } else { 
-            mostrarToast('❌ Ingresa un Client ID'); 
-        } 
-    }
-    
-    function cerrarConfig(){ 
-        document.getElementById('configPanel').classList.add('hidden'); 
-    }
-
-    function verificarConexionGuardada() {
-        let clientIdGuardado = localStorage.getItem('googleClientId');
-        if(clientIdGuardado) {
-            document.getElementById('googleBtn').classList.add('connected');
+            pacienteActual = null;
+            document.getElementById('infoPacienteActual').innerHTML = '';
         }
     }
 
-    function crearNuevoPaciente(){ 
-        let n = prompt('Nombre completo del paciente:'); 
-        if(n && n.trim()){ 
+    function crearNuevoPaciente() {
+        let n = prompt('Nombre completo del paciente:');
+        if (n && n.trim()) {
             let telefono = prompt('Teléfono (opcional):') || '';
             let email = prompt('Email (opcional):') || '';
-            let k = n.toLowerCase().replace(/\s/g,'_') + Date.now(); 
+            let k = n.toLowerCase().replace(/\s/g,'_') + Date.now();
             pacientes[k] = {
-                data: {nombre:n.trim(), edad:'', telefono:telefono, email:email, alergias:'', antecedentes:''}, 
-                recetas: [], 
-                presupuestos: [], 
-                citas: [], 
-                consentimientos: [], 
-                certificados: []
-            }; 
-            guardarTodoLocal(); 
-            actualizarSelectPacientes(); 
+                data: {nombre:n.trim(), edad:'', telefono:telefono, email:email, alergias:'', antecedentes:''},
+                recetas: [], presupuestos: [], citas: [], consentimientos: [], certificados: [], folderId: null
+            };
+            guardarTodoLocal();
+            actualizarSelectPacientes();
             document.getElementById('selectPaciente').value = k;
-            cambiarPaciente(); 
-            mostrarToast(`Paciente ${n} creado`); 
-        } else if(n) {
-            mostrarToast('Nombre no válido');
+            cambiarPaciente();
+            mostrarToast(`Paciente ${n} creado`);
         }
     }
 
-    function importarExpedienteJSON(){ 
-        if(!pacienteActual) {
-            mostrarToast('Selecciona un paciente primero');
-            return;
-        }
+    function guardarTodoLocal() {
+        localStorage.setItem('pacientes', JSON.stringify(pacientes));
+        localStorage.setItem('servicios', JSON.stringify(servicios));
+        localStorage.setItem('medicamentos', JSON.stringify(medicamentos));
+    }
+
+    // ==================== EXPEDIENTE ====================
+    function guardarExpediente() {
+        if (!pacienteActual) { mostrarToast('Selecciona un paciente'); return; }
+        pacienteActual.data = {
+            nombre: document.getElementById('expNombre').value,
+            edad: document.getElementById('expEdad').value,
+            telefono: document.getElementById('expTelefono').value,
+            email: document.getElementById('expEmail').value,
+            alergias: document.getElementById('expAlergias').value,
+            antecedentes: document.getElementById('expAntecedentes').value
+        };
+        guardarTodoLocal();
+        mostrarToast('Expediente guardado');
+        actualizarSelectPacientes();
+    }
+
+    function exportarExpedienteJSON() {
+        if (!pacienteActual) { mostrarToast('Selecciona un paciente'); return; }
+        let expediente = {
+            nombre: pacienteActual.data.nombre || '',
+            edad: pacienteActual.data.edad || '',
+            telefono: pacienteActual.data.telefono || '',
+            email: pacienteActual.data.email || '',
+            alergias: pacienteActual.data.alergias || '',
+            antecedentes: pacienteActual.data.antecedentes || ''
+        };
+        let blob = new Blob([JSON.stringify(expediente, null, 2)], {type:'application/json'});
+        let a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `expediente_${(pacienteActual.data.nombre || 'paciente').replace(/ /g, '_')}.json`;
+        a.click();
+        mostrarToast('Expediente exportado');
+    }
+
+    function importarExpedienteJSON() {
+        if (!pacienteActual) { mostrarToast('Selecciona un paciente'); return; }
         let input = document.createElement('input');
         input.type = 'file';
         input.accept = 'application/json';
         input.onchange = (e) => {
             let file = e.target.files[0];
-            if(!file) return;
+            if (!file) return;
             let reader = new FileReader();
             reader.onload = (event) => {
                 try {
                     let datos = JSON.parse(event.target.result);
-                    if(datos.nombre) document.getElementById('expNombre').value = datos.nombre;
-                    if(datos.edad) document.getElementById('expEdad').value = datos.edad;
-                    if(datos.telefono) document.getElementById('expTelefono').value = datos.telefono;
-                    if(datos.email) document.getElementById('expEmail').value = datos.email;
-                    if(datos.alergias) document.getElementById('expAlergias').value = datos.alergias;
-                    if(datos.antecedentes) document.getElementById('expAntecedentes').value = datos.antecedentes;
+                    if (datos.nombre) document.getElementById('expNombre').value = datos.nombre;
+                    if (datos.edad) document.getElementById('expEdad').value = datos.edad;
+                    if (datos.telefono) document.getElementById('expTelefono').value = datos.telefono;
+                    if (datos.email) document.getElementById('expEmail').value = datos.email;
+                    if (datos.alergias) document.getElementById('expAlergias').value = datos.alergias;
+                    if (datos.antecedentes) document.getElementById('expAntecedentes').value = datos.antecedentes;
                     guardarExpediente();
-                    mostrarToast('Expediente importado correctamente');
+                    mostrarToast('Expediente importado');
                 } catch(e) { mostrarToast('Error al leer archivo'); }
             };
             reader.readAsText(file);
         };
         input.click();
     }
-    
-    function exportarExpedienteJSON(){ 
-        if(pacienteActual){ 
-            let expediente = {
-                nombre: pacienteActual.data.nombre || '',
-                edad: pacienteActual.data.edad || '',
-                telefono: pacienteActual.data.telefono || '',
-                email: pacienteActual.data.email || '',
-                alergias: pacienteActual.data.alergias || '',
-                antecedentes: pacienteActual.data.antecedentes || ''
-            };
-            let blob = new Blob([JSON.stringify(expediente, null, 2)], {type:'application/json'}); 
-            let a = document.createElement('a'); 
-            a.href = URL.createObjectURL(blob); 
-            a.download = `expediente_${(pacienteActual.data.nombre || 'paciente').replace(/ /g, '_')}.json`; 
-            a.click(); 
-            mostrarToast('Expediente exportado');
-        } else {
-            mostrarToast('Selecciona un paciente');
+
+    // ==================== RECETA ====================
+    function renderizarMedicamentosReceta() {
+        let container = document.getElementById('medicamentosContainer');
+        if (!container) return;
+        if (recetaMedicamentos.length === 0) {
+            container.innerHTML = '<div style="padding:20px;text-align:center;">📋 No hay medicamentos</div>';
+            return;
         }
+        let html = '';
+        recetaMedicamentos.forEach((med, idx) => {
+            html += `<div style="border:1px solid var(--border); border-radius:8px; margin-bottom:12px; padding:12px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <span style="font-weight:bold;">Medicamento ${idx+1}</span>
+                    <button type="button" onclick="eliminarMedicamentoReceta(${idx})" style="background:#c0392b; padding:4px 12px;">✕ Eliminar</button>
+                </div>
+                <div class="row"><div><label>Nombre:</label><input type="text" id="medNombre_${idx}" value="${escapeHtml(med.nombre||'')}"></div><div><label>Presentación:</label><input type="text" id="medPresentacion_${idx}" value="${escapeHtml(med.presentacion||'')}"></div></div>
+                <div class="row"><div><label>Dosis:</label><input type="text" id="medDosis_${idx}" value="${escapeHtml(med.dosis||'')}"></div><div><label>Frecuencia:</label><input type="text" id="medFrecuencia_${idx}" value="${escapeHtml(med.frecuencia||'')}"></div></div>
+                <div class="row"><div><label>Duración:</label><input type="text" id="medDuracion_${idx}" value="${escapeHtml(med.duracion||'')}"></div><div><label>Indicación extra:</label><input type="text" id="medIndicacion_${idx}" value="${escapeHtml(med.indicacionExtra||'')}"></div></div>
+            </div>`;
+        });
+        container.innerHTML = html;
+        recetaMedicamentos.forEach((med, idx) => {
+            document.getElementById(`medNombre_${idx}`)?.addEventListener('input', e => med.nombre = e.target.value);
+            document.getElementById(`medPresentacion_${idx}`)?.addEventListener('input', e => med.presentacion = e.target.value);
+            document.getElementById(`medDosis_${idx}`)?.addEventListener('input', e => med.dosis = e.target.value);
+            document.getElementById(`medFrecuencia_${idx}`)?.addEventListener('input', e => med.frecuencia = e.target.value);
+            document.getElementById(`medDuracion_${idx}`)?.addEventListener('input', e => med.duracion = e.target.value);
+            document.getElementById(`medIndicacion_${idx}`)?.addEventListener('input', e => med.indicacionExtra = e.target.value);
+        });
     }
 
-    function inicializarDatos(){ 
-        let s = localStorage.getItem('servicios'); 
-        if(s) servicios = JSON.parse(s); 
-        else servicios = [{nombre:"Consulta General", costo:500, descripcion:"Valoración inicial"},{nombre:"Limpieza Dental", costo:700, descripcion:"Profilaxis"},{nombre:"Extracción", costo:950, descripcion:"Extracción simple"},{nombre:"Endodoncia", costo:3800, descripcion:"Conductos"}]; 
-        
-        let m = localStorage.getItem('medicamentos'); 
-        if(m) medicamentos = JSON.parse(m); 
-        else medicamentos = [{nombre:"Amoxicilina", categoria:"Antibiótico", uso:"Infecciones"},{nombre:"Ibuprofeno", categoria:"Analgésico", uso:"Dolor"},{nombre:"Ketorolaco", categoria:"Analgésico", uso:"Dolor moderado"}]; 
-        
-        let p = localStorage.getItem('pacientes'); 
-        if(p) pacientes = JSON.parse(p); 
-        else pacientes = {}; 
-        
-        actualizarSelectPacientes(); 
-        mostrarServicios(); 
-        mostrarMedicamentos(); 
-        actualizarSelectServicios(); 
-        verificarConexionGuardada();
+    function agregarMedicamentoReceta() {
+        recetaMedicamentos.push({nombre:"", presentacion:"", dosis:"", frecuencia:"", duracion:"", indicacionExtra:""});
+        renderizarMedicamentosReceta();
+    }
+    function eliminarMedicamentoReceta(idx) { recetaMedicamentos.splice(idx,1); renderizarMedicamentosReceta(); }
+    function cargarEjemploMedicamentos() {
+        recetaMedicamentos = [{nombre:"Amoxicilina 500 mg", presentacion:"Cápsulas", dosis:"1 cápsula", frecuencia:"Cada 8 horas", duracion:"7 días", indicacionExtra:"Completar tratamiento"}];
+        renderizarMedicamentosReceta();
+        mostrarToast('Ejemplo cargado');
+    }
+    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+
+    function guardarRecetaProfesional() {
+        if (!pacienteActual) { mostrarToast('Selecciona paciente'); return; }
+        let receta = {
+            fecha: new Date().toLocaleString(),
+            clinica: document.getElementById('clinicaNombre')?.value,
+            paciente: document.getElementById('recNombre')?.value,
+            edad: document.getElementById('recEdad')?.value,
+            sexo: document.getElementById('recSexo')?.value,
+            expediente: document.getElementById('expediente')?.value,
+            diagnostico: document.getElementById('diagnostico')?.value,
+            indicaciones: document.getElementById('indicacionesGenerales')?.value,
+            alergias: document.getElementById('recAlergias')?.value,
+            proximaCita: document.getElementById('proximaCita')?.value,
+            notasExtra: document.getElementById('notasExtra')?.value,
+            folio: document.getElementById('folioReceta')?.value,
+            medicamentos: JSON.parse(JSON.stringify(recetaMedicamentos)),
+            tieneFirma: !!firmaDoctorData
+        };
+        pacienteActual.recetas.push(receta);
+        guardarTodoLocal();
+        mostrarRecetas();
+        actualizarEstadisticas();
+        mostrarToast('Receta guardada');
+    }
+    function mostrarRecetas() {
+        let d = document.getElementById('listaRecetas');
+        if (!d || !pacienteActual) return;
+        d.innerHTML = pacienteActual.recetas.map((r,i) => `<div class="exp-item">📄 ${r.fecha}<br>${r.paciente || ''}${r.tieneFirma ? ' ✍️' : ''}<button onclick="eliminarReceta(${i})">X</button></div>`).join('') || '<div>No hay recetas</div>';
+    }
+    function eliminarReceta(i) { pacienteActual.recetas.splice(i,1); guardarTodoLocal(); mostrarRecetas(); actualizarEstadisticas(); }
+    function generarRecetaPDFProfesional() {
+        let content = getRecetaHTML();
+        let styles = `<style>body{font-family:sans-serif;padding:20px}.receta-profesional{max-width:700px;margin:0 auto}.clinica-nombre{font-size:1.3rem;font-weight:700;color:#1c4e44}.doctor-info{background:#f4f8fb;padding:10px;margin:12px 0}.patient-box{background:#fefaf0;padding:12px;border-left:4px solid #2c6e5c}.section-title{font-weight:700;margin:16px 0}.med-item-preview{padding:8px 0}.firma-section{margin-top:20px;text-align:center}</style>`;
+        let full = `<!DOCTYPE html><html><head><meta charset="UTF-8">${styles}</head><body>${content}</body></html>`;
+        let blob = new Blob([full], {type:'text/html'});
+        let a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.target = '_blank';
+        a.click();
+        mostrarToast('Abriendo receta...');
+    }
+    function imprimirRecetaProfesional() { generarRecetaPDFProfesional(); }
+    function getRecetaHTML() {
+        let clinica = document.getElementById('clinicaNombre')?.value || 'C&C Dental Group';
+        let doctor = document.getElementById('doctorNombre')?.value || DOCTOR.nombre;
+        let cedula = document.getElementById('doctorCedula')?.value || DOCTOR.cedula;
+        let telefono = document.getElementById('telefono')?.value || DOCTOR.telefono;
+        let fecha = document.getElementById('fechaReceta')?.value || new Date().toLocaleDateString();
+        let paciente = document.getElementById('recNombre')?.value || '';
+        let edad = document.getElementById('recEdad')?.value || '';
+        let sexo = document.getElementById('recSexo')?.value || '';
+        let expediente = document.getElementById('expediente')?.value || '';
+        let diagnostico = document.getElementById('diagnostico')?.value || '';
+        let indicaciones = document.getElementById('indicacionesGenerales')?.value || '';
+        let alergias = document.getElementById('recAlergias')?.value || '';
+        let medsHtml = '';
+        let medsActivos = recetaMedicamentos.filter(m => m.nombre && m.nombre.trim());
+        if (medsActivos.length) {
+            medsHtml = '<div class="section-title">PRESCRIPCIÓN</div>';
+            medsActivos.forEach((m,i) => {
+                medsHtml += `<div class="med-item-preview"><strong>${i+1}. ${escapeHtml(m.nombre)}</strong><br>${escapeHtml(m.dosis||'')} · ${escapeHtml(m.frecuencia||'')} · ${escapeHtml(m.duracion||'')} · ${escapeHtml(m.indicacionExtra||'')}</div>`;
+            });
+        }
+        let firmaHtml = firmaDoctorData ? `<div class="firma-section"><strong>Firma del Médico:</strong><br><img src="${firmaDoctorData}" style="max-width:200px; max-height:80px;"></div>` : '';
+        return `<div class="receta-profesional"><div class="clinica-nombre">${escapeHtml(clinica)}</div><div class="doctor-info">${escapeHtml(doctor)} - Cédula ${escapeHtml(cedula)}<br>Tel: ${escapeHtml(telefono)}<br>Fecha: ${escapeHtml(fecha)}</div><div class="patient-box"><strong>Paciente:</strong> ${escapeHtml(paciente)} | Edad: ${escapeHtml(edad)} | Sexo: ${escapeHtml(sexo)} | Exp: ${escapeHtml(expediente)}<br><strong>Diagnóstico:</strong> ${escapeHtml(diagnostico)}<br>${alergias ? `<strong>Alergias:</strong> ${escapeHtml(alergias)}` : ''}</div>${medsHtml}<div class="section-title">INDICACIONES</div><div>${escapeHtml(indicaciones)}</div>${firmaHtml}<div class="firma-section">Firma y sello del médico</div></div>`;
+    }
+
+    // ==================== FIRMA DOCTOR ====================
+    function inicializarFirmaDoctor() {
+        firmaDoctorCanvas = document.getElementById('firmaDoctorCanvas');
+        if (!firmaDoctorCanvas) return;
+        firmaDoctorCtx = firmaDoctorCanvas.getContext('2d');
+        firmaDoctorCtx.fillStyle = 'white';
+        firmaDoctorCtx.fillRect(0,0,firmaDoctorCanvas.width,firmaDoctorCanvas.height);
+        firmaDoctorCtx.strokeStyle = '#1e2a32';
+        firmaDoctorCtx.lineWidth = 2;
+        let saved = localStorage.getItem('firmaDoctor');
+        if (saved) {
+            let img = new Image();
+            img.onload = () => { firmaDoctorCtx.drawImage(img,0,0,firmaDoctorCanvas.width,firmaDoctorCanvas.height); firmaDoctorData = saved; document.getElementById('firmaDoctorPreview').innerHTML = 'Firma guardada'; };
+            img.src = saved;
+        }
+        function start(e) { firmandoDoctor = true; draw(e); }
+        function move(e) { if (firmandoDoctor) draw(e); }
+        function draw(e) {
+            let rect = firmaDoctorCanvas.getBoundingClientRect();
+            let scaleX = firmaDoctorCanvas.width / rect.width;
+            let scaleY = firmaDoctorCanvas.height / rect.height;
+            let x, y;
+            if (e.touches) { x = (e.touches[0].clientX - rect.left) * scaleX; y = (e.touches[0].clientY - rect.top) * scaleY; }
+            else { x = (e.clientX - rect.left) * scaleX; y = (e.clientY - rect.top) * scaleY; }
+            firmaDoctorCtx.lineTo(x,y);
+            firmaDoctorCtx.stroke();
+            firmaDoctorCtx.beginPath();
+            firmaDoctorCtx.moveTo(x,y);
+        }
+        function end() { firmandoDoctor = false; firmaDoctorCtx.beginPath(); }
+        firmaDoctorCanvas.addEventListener('mousedown', (e) => { e.preventDefault(); start(e); });
+        firmaDoctorCanvas.addEventListener('mousemove', move);
+        firmaDoctorCanvas.addEventListener('mouseup', end);
+        firmaDoctorCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); start(e); });
+        firmaDoctorCanvas.addEventListener('touchmove', move);
+        firmaDoctorCanvas.addEventListener('touchend', end);
+    }
+    function limpiarFirmaDoctor() {
+        if (!firmaDoctorCtx) return;
+        firmaDoctorCtx.fillStyle = 'white';
+        firmaDoctorCtx.fillRect(0,0,firmaDoctorCanvas.width,firmaDoctorCanvas.height);
+        firmaDoctorData = null;
+        localStorage.removeItem('firmaDoctor');
+        document.getElementById('firmaDoctorPreview').innerHTML = 'Sin firma.';
+        mostrarToast('Firma eliminada');
+    }
+    function guardarFirmaDoctorLocal() {
+        if (!firmaDoctorCanvas) return;
+        firmaDoctorData = firmaDoctorCanvas.toDataURL();
+        localStorage.setItem('firmaDoctor', firmaDoctorData);
+        document.getElementById('firmaDoctorPreview').innerHTML = 'Firma guardada';
+        mostrarToast('✅ Firma guardada');
+    }
+
+    // ==================== FIRMA PACIENTE ====================
+    function inicializarFirmaPaciente() {
+        firmaPacienteCanvas = document.getElementById('firmaPacienteCanvas');
+        if (!firmaPacienteCanvas) return;
+        firmaPacienteCtx = firmaPacienteCanvas.getContext('2d');
+        firmaPacienteCtx.fillStyle = 'white';
+        firmaPacienteCtx.fillRect(0,0,firmaPacienteCanvas.width,firmaPacienteCanvas.height);
+        firmaPacienteCtx.strokeStyle = '#1e2a32';
+        firmaPacienteCtx.lineWidth = 2;
+        function start(e) { firmandoPaciente = true; draw(e); }
+        function move(e) { if (firmandoPaciente) draw(e); }
+        function draw(e) {
+            let rect = firmaPacienteCanvas.getBoundingClientRect();
+            let scaleX = firmaPacienteCanvas.width / rect.width;
+            let scaleY = firmaPacienteCanvas.height / rect.height;
+            let x, y;
+            if (e.touches) { x = (e.touches[0].clientX - rect.left) * scaleX; y = (e.touches[0].clientY - rect.top) * scaleY; }
+            else { x = (e.clientX - rect.left) * scaleX; y = (e.clientY - rect.top) * scaleY; }
+            firmaPacienteCtx.lineTo(x,y);
+            firmaPacienteCtx.stroke();
+            firmaPacienteCtx.beginPath();
+            firmaPacienteCtx.moveTo(x,y);
+        }
+        function end() { firmandoPaciente = false; firmaPacienteCtx.beginPath(); }
+        firmaPacienteCanvas.addEventListener('mousedown', start);
+        firmaPacienteCanvas.addEventListener('mousemove', move);
+        firmaPacienteCanvas.addEventListener('mouseup', end);
+        firmaPacienteCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); start(e); });
+        firmaPacienteCanvas.addEventListener('touchmove', move);
+        firmaPacienteCanvas.addEventListener('touchend', end);
+    }
+    function limpiarFirmaPaciente() {
+        if (!firmaPacienteCtx) return;
+        firmaPacienteCtx.fillStyle = 'white';
+        firmaPacienteCtx.fillRect(0,0,firmaPacienteCanvas.width,firmaPacienteCanvas.height);
+        firmaPacienteData = null;
+        document.getElementById('firmaPacientePreview').innerHTML = 'Sin firma.';
+        mostrarToast('Firma eliminada');
+    }
+    function guardarFirmaPacienteLocal() {
+        if (!firmaPacienteCanvas) return;
+        firmaPacienteData = firmaPacienteCanvas.toDataURL();
+        document.getElementById('firmaPacientePreview').innerHTML = 'Firma guardada';
+        mostrarToast('✅ Firma del paciente guardada temporalmente');
+    }
+
+    // ==================== CONSENTIMIENTO ====================
+    function guardarConsentimientoConFirma() {
+        if (!pacienteActual) { mostrarToast('Selecciona paciente'); return; }
+        let consentimiento = {
+            fecha: new Date().toLocaleString(),
+            procedimiento: document.getElementById('consentProcedimiento').value,
+            texto: document.getElementById('consentTexto').value,
+            firma: firmaPacienteData || null
+        };
+        pacienteActual.consentimientos.push(consentimiento);
+        guardarTodoLocal();
+        mostrarConsentimientos();
+        mostrarToast('Consentimiento guardado');
+        limpiarFirmaPaciente();
+    }
+    function mostrarConsentimientos() {
+        let d = document.getElementById('listaConsentimientos');
+        if (!d || !pacienteActual) return;
+        d.innerHTML = pacienteActual.consentimientos.map((c,i) => `<div class="exp-item">📝 ${c.fecha}<br>${c.procedimiento}<br>${c.firma ? '✍️ Con firma' : '📄 Sin firma'}<button onclick="eliminarConsentimiento(${i})">X</button></div>`).join('') || '<div>No hay consentimientos</div>';
+    }
+    function eliminarConsentimiento(i) { pacienteActual.consentimientos.splice(i,1); guardarTodoLocal(); mostrarConsentimientos(); }
+    function generarConsentimientoPDFConFirma() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.text("C&C Dental Group - Consentimiento Informado", 20,20);
+        doc.text(`Paciente: ${document.getElementById('consentNombre').value || ''}`,20,45);
+        doc.text(`Procedimiento: ${document.getElementById('consentProcedimiento').value || ''}`,20,65);
+        doc.text(`Fecha: ${new Date().toLocaleString()}`,20,85);
+        let texto = document.getElementById('consentTexto').value || '';
+        let lineas = doc.splitTextToSize(texto, 170);
+        doc.text(lineas,20,105);
+        if (firmaPacienteData) {
+            doc.text("Firma del Paciente:",20,180);
+            doc.addImage(firmaPacienteData, 'PNG',20,190,80,30);
+        } else {
+            doc.text("_________________________",20,200);
+            doc.text("Firma del Paciente",20,210);
+        }
+        doc.save('consentimiento.pdf');
+        mostrarToast('PDF generado');
+    }
+
+    // ==================== PRESUPUESTO ====================
+    function agregarServicioPresupuesto() {
+        let val = document.getElementById('presServicioSelect').value;
+        if (val) { let [n,c] = val.split('|'); presupuestoItems.push({nombre:n, costo:parseFloat(c)}); renderPresupuestoItems(); calcularTotalPresupuesto(); }
+    }
+    function agregarExtraPresupuesto() {
+        let n = document.getElementById('extraNombre').value, m = parseFloat(document.getElementById('extraMonto').value);
+        if (n && m) { presupuestoItems.push({nombre:n, costo:m}); renderPresupuestoItems(); calcularTotalPresupuesto(); }
+    }
+    function renderPresupuestoItems() {
+        let d = document.getElementById('listaPresupuestoItems');
+        d.innerHTML = presupuestoItems.map((i,idx) => `<div class="presupuesto-item">${i.nombre} - $${i.costo}<button onclick="eliminarItemPresupuesto(${idx})">X</button></div>`).join('') || '<div>No hay servicios</div>';
+    }
+    function eliminarItemPresupuesto(i) { presupuestoItems.splice(i,1); renderPresupuestoItems(); calcularTotalPresupuesto(); }
+    function calcularTotalPresupuesto() {
+        let s = presupuestoItems.reduce((a,b)=>a+b.costo,0);
+        let d = parseFloat(document.getElementById('presDescuento').value) || 0;
+        let t = s * (1 - d/100);
+        document.getElementById('totalPresupuestoDisplay').innerHTML = `Total: $${t.toFixed(2)}`;
+    }
+    function guardarPresupuesto() {
+        if (!pacienteActual) { mostrarToast('Selecciona paciente'); return; }
+        let s = presupuestoItems.reduce((a,b)=>a+b.costo,0);
+        let d = parseFloat(document.getElementById('presDescuento').value) || 0;
+        let p = { fecha: new Date().toLocaleString(), items: [...presupuestoItems], descuento: d, total: s*(1-d/100), vigencia: document.getElementById('presVigencia').value };
+        pacienteActual.presupuestos.push(p);
+        guardarTodoLocal();
+        mostrarPresupuestos();
+        presupuestoItems = [];
+        renderPresupuestoItems();
+        calcularTotalPresupuesto();
+        actualizarEstadisticas();
+        mostrarToast('Presupuesto guardado');
+    }
+    function mostrarPresupuestos() {
+        let d = document.getElementById('listaPresupuestos');
+        if (!d || !pacienteActual) return;
+        d.innerHTML = pacienteActual.presupuestos.map((p,i) => `<div class="exp-item">💰 ${p.fecha} - Total: $${p.total.toFixed(2)}<button onclick="eliminarPresupuesto(${i})">X</button></div>`).join('') || '<div>No hay presupuestos</div>';
+    }
+    function eliminarPresupuesto(i) { pacienteActual.presupuestos.splice(i,1); guardarTodoLocal(); mostrarPresupuestos(); actualizarEstadisticas(); }
+    function generarPresupuestoPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.text("C&C Dental Group - Presupuesto",20,20);
+        doc.text(`Dr. ${DOCTOR.nombre}`,20,30);
+        doc.text(`Paciente: ${document.getElementById('presNombre').value || ''}`,20,45);
+        let y=65;
+        presupuestoItems.forEach(i => { doc.text(`${i.nombre}: $${i.costo}`,20,y); y+=10; });
+        let total = presupuestoItems.reduce((a,b)=>a+b.costo,0)*(1-(parseFloat(document.getElementById('presDescuento').value)||0)/100);
+        doc.text(`Total: $${total.toFixed(2)}`,20,y+10);
+        doc.save('presupuesto.pdf');
+        mostrarToast('PDF generado');
+    }
+
+    // ==================== CERTIFICADO ====================
+    function guardarCertificado() {
+        if (!pacienteActual) { mostrarToast('Selecciona paciente'); return; }
+        let omitir = document.getElementById('certOmitir').checked;
+        let c = {
+            fecha: new Date().toLocaleString(),
+            lugar: document.getElementById('certLugar').value,
+            fecha_expedicion: document.getElementById('certFecha').value,
+            diagnostico: omitir ? "Por motivos de salud dental" : document.getElementById('certDiagnostico').value,
+            dias_reposo: document.getElementById('certDias').value,
+            desde: document.getElementById('certDesde').value,
+            hasta: document.getElementById('certHasta').value
+        };
+        pacienteActual.certificados.push(c);
+        guardarTodoLocal();
+        mostrarCertificados();
+        mostrarToast('Certificado guardado');
+    }
+    function mostrarCertificados() {
+        let d = document.getElementById('listaCertificados');
+        if (!d || !pacienteActual) return;
+        d.innerHTML = pacienteActual.certificados.map((c,i) => `<div class="exp-item">📜 ${c.fecha}<br>${c.diagnostico}<button onclick="eliminarCertificado(${i})">X</button></div>`).join('') || '<div>No hay certificados</div>';
+    }
+    function eliminarCertificado(i) { pacienteActual.certificados.splice(i,1); guardarTodoLocal(); mostrarCertificados(); }
+    function generarCertificadoPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.text("C&C Dental Group - Certificado Médico",20,20);
+        doc.text(`Dr. ${DOCTOR.nombre} - Cédula: ${DOCTOR.cedula}`,20,35);
+        doc.text(`Paciente: ${document.getElementById('certNombre').value || ''}`,20,55);
+        let diag = document.getElementById('certOmitir').checked ? "Por motivos de salud dental" : document.getElementById('certDiagnostico').value;
+        doc.text(`Diagnóstico: ${diag}`,20,75);
+        doc.text(`Reposo: ${document.getElementById('certDias').value || 0} días`,20,95);
+        doc.save('certificado.pdf');
+        mostrarToast('PDF generado');
+    }
+
+    // ==================== SERVICIOS Y MEDICAMENTOS ====================
+    function mostrarServicios() {
+        let t = document.getElementById('listaServicios');
+        if (!t) return;
+        t.innerHTML = servicios.map((s,i) => `<tr><td>${s.nombre}</td><td>${s.descripcion || ''}</td><td>$${s.costo}</td>}<button onclick="eliminarServicio(${i})">X</button></td>`).join('');
+        actualizarSelectServicios();
+        guardarTodoLocal();
+    }
+    function agregarServicio() {
+        let n = document.getElementById('servNombre').value, c = parseFloat(document.getElementById('servCosto').value);
+        if (n && c) {
+            servicios.push({nombre:n, costo:c, descripcion:document.getElementById('servDesc').value});
+            mostrarServicios();
+            mostrarToast('Servicio agregado');
+        }
+    }
+    function eliminarServicio(i) { servicios.splice(i,1); mostrarServicios(); }
+    function actualizarSelectServicios() {
+        let s = document.getElementById('presServicioSelect');
+        if (s) s.innerHTML = servicios.map(sv => `<option value="${sv.nombre}|${sv.costo}">${sv.nombre} - $${sv.costo}</option>`).join('');
+    }
+    function mostrarMedicamentos() {
+        let t = document.getElementById('listaMedicamentos');
+        if (!t) return;
+        t.innerHTML = medicamentos.map((m,i) => `<tr><td>${m.nombre}</td><td>${m.categoria||''}</td><td>${m.uso||''}</td><td><button onclick="eliminarMedicamento(${i})">X</button></td></tr>`).join('');
+        guardarTodoLocal();
+    }
+    function agregarMedicamento() {
+        let n = document.getElementById('medNombre').value;
+        if (n) {
+            medicamentos.push({nombre:n, categoria:document.getElementById('medCategoria').value, uso:document.getElementById('medUso').value});
+            mostrarMedicamentos();
+            mostrarToast('Medicamento agregado');
+        }
+    }
+    function eliminarMedicamento(i) { medicamentos.splice(i,1); mostrarMedicamentos(); }
+
+    // ==================== CITAS ====================
+    function guardarCita() {
+        if (!pacienteActual) { mostrarToast('Selecciona paciente'); return; }
+        let fecha = document.getElementById('citaFecha').value;
+        let hora = document.getElementById('citaHora').value;
+        let tratamiento = document.getElementById('citaTratamiento').value;
+        let notas = document.getElementById('citaNotas').value;
+        if (!fecha || !hora) { mostrarToast('Selecciona fecha y hora'); return; }
+        let cita = { fecha, hora, tratamiento, notas, fechaCreacion: new Date().toISOString() };
+        pacienteActual.citas.push(cita);
+        guardarTodoLocal();
+        mostrarCitas();
+        actualizarEstadisticas();
+        mostrarToast('Cita guardada');
+        document.getElementById('citaFecha').value = '';
+        document.getElementById('citaHora').value = '';
+        document.getElementById('citaTratamiento').value = '';
+        document.getElementById('citaNotas').value = '';
+    }
+    function mostrarCitas() {
+        let d = document.getElementById('listaCitas');
+        if (!d || !pacienteActual) return;
+        let citas = pacienteActual.citas || [];
+        if (citas.length === 0) { d.innerHTML = '<div>No hay citas</div>'; return; }
+        d.innerHTML = citas.map((c,i) => `<div class="cita-item"><strong>📅 ${c.fecha} ${c.hora}</strong><br>🦷 ${c.tratamiento}<br>${c.notas ? `📝 ${c.notas}` : ''}<button onclick="eliminarCita(${i})">X</button></div>`).join('');
+    }
+    function eliminarCita(i) { pacienteActual.citas.splice(i,1); guardarTodoLocal(); mostrarCitas(); actualizarEstadisticas(); }
+    async function sincronizarCalendario() { mostrarToast('Para Calendar, conecta Google Drive primero'); }
+
+    // ==================== LISTA DE PACIENTES (MODAL) ====================
+    function abrirListaPacientes() {
+        document.getElementById('modalPacientes').classList.add('activo');
+        document.getElementById('buscadorPacientes').value = '';
+        actualizarListaPacientes('');
+    }
+    function cerrarListaPacientes() { document.getElementById('modalPacientes').classList.remove('activo'); }
+    function actualizarListaPacientes(filtro) {
+        let contenedor = document.getElementById('listaPacientesItems');
+        let arr = Object.entries(pacientes);
+        if (filtro) {
+            filtro = filtro.toLowerCase();
+            arr = arr.filter(([k,p]) => (p.data?.nombre || k).toLowerCase().includes(filtro));
+        }
+        if (arr.length === 0) { contenedor.innerHTML = '<div style="padding:20px;text-align:center;">No hay pacientes</div>'; return; }
+        contenedor.innerHTML = arr.map(([k,p]) => `<div class="paciente-item-modal" onclick="seleccionarPacienteDesdeLista('${k}')"><span><i class="fas fa-user"></i> ${escapeHtml(p.data?.nombre || k)}</span><span>${p.data?.telefono || ''}</span></div>`).join('');
+    }
+    function filtrarListaPacientes() { actualizarListaPacientes(document.getElementById('buscadorPacientes').value); }
+    function seleccionarPacienteDesdeLista(key) {
+        document.getElementById('selectPaciente').value = key;
+        cambiarPaciente();
+        cerrarListaPacientes();
+        mostrarToast(`Paciente seleccionado`);
+    }
+
+    // ==================== ESTADÍSTICAS ====================
+    function actualizarEstadisticas() {
+        let tp = Object.keys(pacientes).length, tc = 0, tr = 0, tp2 = 0;
+        Object.values(pacientes).forEach(p => {
+            tc += (p.citas || []).length;
+            tr += (p.recetas || []).length;
+            tp2 += (p.presupuestos || []).length;
+        });
+        document.getElementById('totalPacientes').innerText = tp;
+        document.getElementById('totalCitas').innerText = tc;
+        document.getElementById('totalRecetas').innerText = tr;
+        document.getElementById('totalPresupuestos').innerText = tp2;
+    }
+    function exportarReporte() {
+        let blob = new Blob([JSON.stringify(pacientes,null,2)], {type:'application/json'});
+        let a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `reporte_${new Date().toISOString().slice(0,10)}.json`;
+        a.click();
+        mostrarToast('Reporte exportado');
+    }
+
+    // ==================== GOOGLE DRIVE (básico) ====================
+    function conectarGoogle() {
+        let id = localStorage.getItem('googleClientId');
+        if (id) { mostrarToast('Conectado a Drive (demo)'); document.getElementById('googleBtn').classList.add('connected'); }
+        else document.getElementById('configPanel').classList.remove('hidden');
+    }
+    function guardarClientId() {
+        let id = document.getElementById('clientIdInput').value;
+        if (id) { localStorage.setItem('googleClientId', id); document.getElementById('configPanel').classList.add('hidden'); mostrarToast('Client ID guardado'); document.getElementById('googleBtn').classList.add('connected'); }
+    }
+    function cerrarConfig() { document.getElementById('configPanel').classList.add('hidden'); }
+
+    // ==================== NAVEGACIÓN ====================
+    function irAPagina(p) {
+        window.location.hash = p;
+        mostrarPagina(p);
+    }
+    function irAlMenu() {
+        window.location.hash = '';
+        mostrarPagina('menu');
+    }
+    function mostrarPagina(p) {
+        document.querySelectorAll('.pagina').forEach(pg => pg.classList.remove('activa'));
+        if (p === 'menu' || p === '') {
+            document.getElementById('pagina-menu').classList.add('activa');
+            document.getElementById('btnVolver').style.display = 'none';
+        } else {
+            let el = document.getElementById(`pagina-${p}`);
+            if (el) {
+                el.classList.add('activa');
+                document.getElementById('btnVolver').style.display = 'inline-flex';
+            } else {
+                document.getElementById('pagina-menu').classList.add('activa');
+            }
+        }
         actualizarEstadisticas();
     }
 
-    function mostrarServicios(){ 
-        let t = document.getElementById('listaServicios'); 
-        if(t) t.innerHTML = servicios.map((s,i)=>`<tr><td>${s.nombre}</td><td>$${s.costo}</td><td><button onclick="eliminarServicio(${i})" style="padding:4px 12px; font-size:0.7rem;">X</button></td></tr>`).join(''); 
+    // ==================== INICIALIZACIÓN ====================
+    function inicializarDatos() {
+        let s = localStorage.getItem('servicios');
+        if (s) servicios = JSON.parse(s);
+        else servicios = [{nombre:"Consulta General", costo:500, descripcion:"Valoración inicial"},{nombre:"Limpieza Dental", costo:700, descripcion:"Profilaxis"},{nombre:"Extracción", costo:950, descripcion:"Extracción simple"},{nombre:"Endodoncia", costo:3800, descripcion:"Conductos"}];
+        let m = localStorage.getItem('medicamentos');
+        if (m) medicamentos = JSON.parse(m);
+        else medicamentos = [{nombre:"Amoxicilina", categoria:"Antibiótico", uso:"Infecciones"},{nombre:"Ibuprofeno", categoria:"Analgésico", uso:"Dolor"},{nombre:"Ketorolaco", categoria:"Analgésico", uso:"Dolor moderado"}];
+        let p = localStorage.getItem('pacientes');
+        if (p) pacientes = JSON.parse(p);
+        else pacientes = {};
+        actualizarSelectPacientes();
+        mostrarServicios();
+        mostrarMedicamentos();
+        actualizarSelectServicios();
+        actualizarEstadisticas();
+        setThemeFromStorage();
+        setTimeout(() => { inicializarFirmaDoctor(); inicializarFirmaPaciente(); }, 500);
+        let hash = window.location.hash.substring(1);
+        if (hash) mostrarPagina(hash);
     }
-
-    function eliminarServicio(i){ servicios.splice(i,1); mostrarServicios(); guardarTodoLocal(); actualizarSelectServicios(); }
-
-    function agregarServicio(){ 
-        let n = document.getElementById('servNombre').value; 
-        let c = parseFloat(document.getElementById('servCosto').value); 
-        if(n && c && !isNaN(c)){ 
-            servicios.push({nombre:n, costo:c, descripcion:document.getElementById('servDesc').value}); 
-            mostrarServicios(); 
-            guardarTodoLocal(); 
-            actualizarSelectServicios();
-            document.getElementById('servNombre').value = '';
-            document.getElementById('servCosto').value = '';
-            document.getElementById('servDesc').value = '';
-            mostrarToast('Servicio agregado');
-        } else { 
-            mostrarToast('Ingresa nombre y costo válido'); 
-        } 
-    }
-
-    function mostrarMedicamentos(){ 
-        let t = document.getElementById('listaMedicamentos'); 
-        if(t) t.innerHTML = medicamentos.map((m,i)=>`<tr><td>${m.nombre}</td><td>${m.categoria||''}</td><td><button onclick="eliminarMedicamento(${i})" style="padding:4px 12px; font-size:0.7rem;">X</button></td></tr>`).join(''); 
-    }
-
-    function agregarMedicamento(){ 
-        let n = document.getElementById('medNombre').value; 
-        if(n){ 
-            medicamentos.push({nombre:n, categoria:document.getElementById('medCategoria').value, uso:document.getElementById('medUso').value}); 
-            mostrarMedicamentos(); 
-            guardarTodoLocal();
-            document.getElementById('medNombre').value = '';
-            document.getElementById('medCategoria').value = '';
-            document.getElementById('medUso').value = '';
-            mostrarToast('Medicamento agregado');
-        } else { 
-            mostrarToast('Ingresa nombre del medicamento'); 
-        } 
-    }
-
-    function eliminarMedicamento(i){ medicamentos.splice(i,1); mostrarMedicamentos(); guardarTodoLocal(); }
-
-    function actualizarSelectServicios(){ 
-        let s = document.getElementById('presServicioSelect'); 
-        if(s) s.innerHTML = servicios.map(sv => `<option value="${sv.nombre}|${sv.costo}">${sv.nombre} - $${sv.costo}</option>`).join(''); 
-    }
-
-    setThemeFromStorage();
+    window.addEventListener('hashchange', () => mostrarPagina(window.location.hash.substring(1)));
     inicializarDatos();
-    window.addEventListener('hashchange', () => { mostrarPagina(window.location.hash.substring(1)); });
-    mostrarPagina(window.location.hash.substring(1));
 </script>
 </body>
 </html>
