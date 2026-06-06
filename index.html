@@ -10,8 +10,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         /* ========================================================== */
-        /* ESTILOS CON PSICOLOGÍA DEL COLOR (AZUL + VERDE)            */
-        /* BASADO 100% EN EL CÓDIGO ORIGINAL DEL USUARIO              */
+        /* SOLO ESTILOS - PSICOLOGÍA DEL COLOR (AZUL + VERDE)         */
+        /* EL RESTO DEL CÓDIGO (HTML + JS) ES 100% ORIGINAL DEL USER  */
         /* ========================================================== */
         *{margin:0;padding:0;box-sizing:border-box}
         body{
@@ -1276,7 +1276,7 @@ function eliminarServicio(i){servicios.splice(i,1);mostrarServicios()}
 function actualizarSelectServicios(){let s=document.getElementById('presServicioSelect');if(s)s.innerHTML=servicios.map(s=>`<option value="${s.nombre}|${s.costo}">${s.nombre} - $${s.costo}</option>`).join('')}
 
 // ========== MEDICAMENTOS ==========
-function mostrarMedicamentos(){let t=document.getElementById('listaMedicamentos');t.innerHTML=medicamentos.map((m,i)=>`<td>${m.nombre}</td><td style="padding:8px">${m.categoria||''}</td><td style="padding:8px">${m.uso||''}</td><td style="padding:8px"><button onclick="eliminarMedicamento(${i})" style="padding:4px 8px;font-size:0.7rem">X</button></td></tr>`).join('');guardarTodoLocal();}
+function mostrarMedicamentos(){let t=document.getElementById('listaMedicamentos');t.innerHTML=medicamentos.map((m,i)=>`<td>${m.nombre}</td><td style="padding:8px">${m.categoria||''}</td><td style="padding:8px">${m.uso||''}</td><td style="padding:8px"><button onclick="eliminarMedicamento(${i})" style="padding:4px 8px;font-size:0.7rem">X</button>NonNull} None`).join('');guardarTodoLocal();}
 function agregarMedicamento(){let n=document.getElementById('medNombre').value;if(n){medicamentos.push({nombre:n,categoria:document.getElementById('medCategoria').value,uso:document.getElementById('medUso').value});mostrarMedicamentos();mostrarToast('Medicamento agregado')}}
 function eliminarMedicamento(i){medicamentos.splice(i,1);mostrarMedicamentos()}
 
