@@ -74,17 +74,15 @@
         .btn-google:hover,.btn-theme:hover{background:var(--hover-card);border-color:var(--primary)}
         .btn-google{border-left:3px solid #EF4444}
         .btn-google.connected{border-left-color:var(--secondary)}
-        
         .btn-icono{background:var(--card);border:1px solid var(--border);color:var(--text);padding:8px 12px !important;border-radius:6px;font-size:0.75rem;display:inline-flex;align-items:center;gap:5px;transition:all 0.2s;white-space:nowrap;cursor:pointer;box-shadow:var(--shadow)}
         .btn-icono:hover{background:var(--secondary);color:white;border-color:var(--secondary)}
         .btn-icono i{font-size:0.8rem}
         @media (max-width:550px){.btn-icono .btn-text{display:none}.btn-icono{padding:8px 10px !important}.btn-icono i{font-size:1rem}}
-        
         .selector-paciente{background:var(--card);border-radius:8px;padding:12px;margin-bottom:20px;border:1px solid var(--border);box-shadow:var(--shadow)}
         .selector-paciente select{background:var(--input);color:var(--text);border:1px solid var(--border);padding:8px 12px;border-radius:6px;font-size:0.85rem;flex:2;min-width:150px}
         .selector-paciente .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-        
-        .btn-volver{background:var(--card);padding:8px 16px;border-radius:6px;cursor:pointer;margin-bottom:15px;display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border);box-shadow:var(--shadow)}
+        .btn-volver{background:var(--card);padding:8px 16px;border-radius:6px;cursor:pointer;margin-bottom:15px;display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border);box-shadow:var(--shadow);color:var(--text)}
+        .btn-volver:hover{background:var(--hover-card);border-color:var(--primary)}
         .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:15px;margin-top:20px}
         .modulo{background:var(--card);border-radius:8px;padding:15px;text-align:center;cursor:pointer;border:1px solid var(--border);transition:.2s;box-shadow:var(--shadow)}
         .modulo:hover{border-color:var(--primary);transform:translateY(-2px);background:var(--hover-card);box-shadow:0 4px 12px rgba(26,82,118,0.1)}
@@ -115,55 +113,12 @@
         hr{margin:12px 0;border-color:var(--border)}
         .calendar-link{font-size:0.7rem;color:var(--secondary);margin-left:10px;text-decoration:none}
         .calendar-link:hover{text-decoration:underline}
-        
-        .firma-container, .firma-receta-container {
-            border: 1px dashed var(--border);
-            border-radius: 8px;
-            padding: 10px;
-            margin: 10px 0;
-            background: var(--input);
-        }
-        canvas.firma-canvas, canvas.firma-receta-canvas {
-            background: white;
-            border-radius: 6px;
-            border: 1px solid var(--border);
-            cursor: crosshair;
-            width: 100%;
-            max-width: 400px;
-            height: auto;
-            touch-action: none;
-            display: block;
-            margin: 0 auto;
-        }
-        .firma-preview, .firma-preview-receta {
-            margin-top: 8px;
-            padding: 6px;
-            background: var(--bg);
-            border-radius: 6px;
-            font-size: 0.7rem;
-            text-align: center;
-        }
-        .btn-firma, .btn-firma-receta {
-            background: var(--card);
-            border: 1px solid var(--border);
-            padding: 5px 12px;
-            font-size: 0.7rem;
-            margin: 5px;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-        .btn-firma:hover, .btn-firma-receta:hover {
-            background: var(--primary);
-            color: white;
-        }
-        
-        input:disabled, input[readonly], textarea:disabled {
-            background: var(--input);
-            color: var(--text);
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-        
+        .firma-container, .firma-receta-container{border:1px dashed var(--border);border-radius:8px;padding:10px;margin:10px 0;background:var(--input)}
+        canvas.firma-canvas, canvas.firma-receta-canvas{background:white;border-radius:6px;border:1px solid var(--border);cursor:crosshair;width:100%;max-width:400px;height:auto;touch-action:none;display:block;margin:0 auto}
+        .firma-preview, .firma-preview-receta{margin-top:8px;padding:6px;background:var(--bg);border-radius:6px;font-size:0.7rem;text-align:center}
+        .btn-firma, .btn-firma-receta{background:var(--card);border:1px solid var(--border);padding:5px 12px;font-size:0.7rem;margin:5px;border-radius:6px;cursor:pointer;color:var(--text)}
+        .btn-firma:hover, .btn-firma-receta:hover{background:var(--primary);color:white}
+        input:disabled, input[readonly], textarea:disabled{background:var(--input);color:var(--text);opacity:0.7;cursor:not-allowed}
         .lista-pacientes-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:2000;display:flex;align-items:center;justify-content:center;visibility:hidden;opacity:0;transition:.2s}
         .lista-pacientes-modal.activo{visibility:visible;opacity:1}
         .modal-contenido{background:var(--card);border-radius:10px;width:90%;max-width:500px;max-height:80vh;overflow:auto;padding:20px;border:1px solid var(--border)}
@@ -172,7 +127,6 @@
         .lista-pacientes-items{max-height:300px;overflow-y:auto}
         .paciente-item-modal{padding:10px;border-bottom:1px solid var(--border);cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:background 0.2s}
         .paciente-item-modal:hover{background:var(--primary);color:white}
-        
         .receta-profesional{font-family:'Inter','Segoe UI',Georgia,serif;color:#1e2a32;line-height:1.45;font-size:0.85rem;position:relative;z-index:2;background:white;padding:20px;border-radius:10px;max-width:800px;margin:0 auto}
         .receta-header{text-align:center;border-bottom:2px solid #2c6e5c;padding-bottom:12px;margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;background:transparent}
         .clinica-nombre{font-size:1.3rem;font-weight:700;color:#1c4e44;text-transform:uppercase}
@@ -187,7 +141,6 @@
         .firma-section{margin-top:24px;padding-top:12px;border-top:1px dashed #bcccd6;text-align:center}
         .validez{font-size:0.55rem;text-align:center;margin-top:10px;color:#6f8f9c}
         .folio-badge{font-size:0.65rem;color:#6f8f9c;text-align:right;margin-bottom:8px;font-style:italic}
-        
         @media(max-width:600px){body{padding:10px}.modulo{padding:10px}.modulo i{font-size:1.3rem}.modulo h3{font-size:.7rem}}
     </style>
 </head>
@@ -204,7 +157,6 @@
         </div>
     </div>
     
-    <!-- PANEL DE CONFIGURACIÓN -->
     <div id="configPanel" class="card hidden">
         <h3><i class="fab fa-google"></i> ⚙️ Configuración de Google</h3>
         <div class="alert-warning" style="margin-bottom:15px;">
@@ -218,7 +170,6 @@
         </div>
     </div>
     
-    <!-- SELECTOR DE PACIENTES -->
     <div class="selector-paciente">
         <div class="row">
             <select id="selectPaciente" onchange="cambiarPaciente()">
@@ -526,7 +477,11 @@ function importarExpedienteJSON(){
 function toggleModo(){
     document.body.classList.toggle('modo-claro');
     let i=document.querySelector('.btn-theme i');
-    i.className=i.className==='fas fa-moon'?'fas fa-sun':'fas fa-moon';
+    if(document.body.classList.contains('modo-claro')){
+        i.className = 'fas fa-sun';
+    } else {
+        i.className = 'fas fa-moon';
+    }
     localStorage.setItem('modo',document.body.classList.contains('modo-claro')?'claro':'oscuro');
 }
 
@@ -1053,7 +1008,6 @@ async function crearEventoCalendar(pacienteNombre, fecha, hora, tratamiento, tel
             reminders: { useDefault: true }
         };
         
-        // Si el paciente tiene correo Y es de Gmail, agregar como invitado
         if(correoPaciente && correoPaciente.trim() !== '' && correoPaciente.toLowerCase().includes('@gmail.com')) {
             evento.attendees = [{ email: correoPaciente.trim() }];
             evento.sendUpdates = 'all';
@@ -1316,13 +1270,13 @@ function mostrarCertificados(){let d=document.getElementById('listaCertificados'
 function eliminarCertificado(i){pacienteActual.certificados.splice(i,1);guardarTodoLocal();if(accessToken&&pacienteActual.folderId) guardarArchivoEnDrive(pacienteActual.folderId,'certificados.json',pacienteActual.certificados);mostrarCertificados();}
 
 // ========== SERVICIOS ==========
-function mostrarServicios(){let t=document.getElementById('listaServicios');t.innerHTML=servicios.map((s,i)=>`<tr><td style="padding:8px">${s.nombre}</td><td style="padding:8px">${s.descripcion||''}</td><td style="padding:8px">$${s.costo}</td><td style="padding:8px"><button onclick="eliminarServicio(${i})" style="padding:4px 8px;font-size:0.7rem">X</button></td>`).join('');actualizarSelectServicios();guardarTodoLocal();}
+function mostrarServicios(){let t=document.getElementById('listaServicios');t.innerHTML=servicios.map((s,i)=>`<td>${s.nombre}</td><td style="padding:8px">${s.descripcion||''}</td><td style="padding:8px">$${s.costo}</td><td style="padding:8px"><button onclick="eliminarServicio(${i})" style="padding:4px 8px;font-size:0.7rem">X</button></td></tr>`).join('');actualizarSelectServicios();guardarTodoLocal();}
 function agregarServicio(){let n=document.getElementById('servNombre').value,c=parseFloat(document.getElementById('servCosto').value);if(n&&c){servicios.push({nombre:n,costo:c,descripcion:document.getElementById('servDesc').value});mostrarServicios();mostrarToast('Servicio agregado')}}
 function eliminarServicio(i){servicios.splice(i,1);mostrarServicios()}
 function actualizarSelectServicios(){let s=document.getElementById('presServicioSelect');if(s)s.innerHTML=servicios.map(s=>`<option value="${s.nombre}|${s.costo}">${s.nombre} - $${s.costo}</option>`).join('')}
 
 // ========== MEDICAMENTOS ==========
-function mostrarMedicamentos(){let t=document.getElementById('listaMedicamentos');t.innerHTML=medicamentos.map((m,i)=>`<tr><td style="padding:8px">${m.nombre}</td><td style="padding:8px">${m.categoria||''}</td><td style="padding:8px">${m.uso||''}</td><td style="padding:8px"><button onclick="eliminarMedicamento(${i})" style="padding:4px 8px;font-size:0.7rem">X</button></td>`).join('');guardarTodoLocal();}
+function mostrarMedicamentos(){let t=document.getElementById('listaMedicamentos');t.innerHTML=medicamentos.map((m,i)=>`<td>${m.nombre}</td><td style="padding:8px">${m.categoria||''}</td><td style="padding:8px">${m.uso||''}</td><td style="padding:8px"><button onclick="eliminarMedicamento(${i})" style="padding:4px 8px;font-size:0.7rem">X</button></td></tr>`).join('');guardarTodoLocal();}
 function agregarMedicamento(){let n=document.getElementById('medNombre').value;if(n){medicamentos.push({nombre:n,categoria:document.getElementById('medCategoria').value,uso:document.getElementById('medUso').value});mostrarMedicamentos();mostrarToast('Medicamento agregado')}}
 function eliminarMedicamento(i){medicamentos.splice(i,1);mostrarMedicamentos()}
 
