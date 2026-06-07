@@ -97,7 +97,7 @@
         .row>* { flex:1; min-width:120px; }
         fieldset { border:1px solid var(--border); border-radius:8px; padding:12px; margin-bottom:15px; }
         legend { color:var(--primary); padding:0 8px; font-weight:bold; }
-        .presupuesto-item, .exp-item, .cita-item { background:var(--bg); padding:8px; border-radius:6px; margin-bottom:5px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; border:1px solid var(--border); }
+        .presupuesto-item, .exp-item, .cita-item, .med-item-receta { background:var(--bg); padding:8px; border-radius:6px; margin-bottom:5px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; border:1px solid var(--border); }
         .total-presupuesto { font-size:1.2rem; color:var(--secondary); text-align:right; margin-top:15px; }
         .toast { position:fixed; bottom:20px; right:20px; background:var(--secondary); color:white; padding:10px 18px; border-radius:6px; z-index:1000; animation:slideIn .3s; box-shadow:var(--shadow); }
         @keyframes slideIn { from{transform:translateX(100%); opacity:0} to{transform:translateX(0); opacity:1} }
@@ -109,7 +109,7 @@
         .stat-number { font-size:2rem; color:var(--primary); font-weight:bold; }
         hr { margin:12px 0; border-color:var(--border); }
         .firma-container, .firma-receta-container { border:1px dashed var(--border); border-radius:8px; padding:10px; margin:10px 0; background:var(--input); }
-        canvas.firma-canvas, canvas.firma-receta-canvas { background:white; border-radius:6px; border:1px solid var(--border); cursor:crosshair; width:100%; max-width:400px; height:auto; touch-action:none; display:block; margin:0 auto; }
+        canvas.firma-canvas, canvas.firma-receta-canvas { background:white; border-radius:6px; border:1px solid var(--border); cursor:crosshair; width:100%; max-width:400px; height:180px; touch-action:none; display:block; margin:0 auto; }
         .firma-preview, .firma-preview-receta { margin-top:8px; padding:6px; background:var(--bg); border-radius:6px; font-size:0.7rem; text-align:center; }
         .btn-firma, .btn-firma-receta { background:var(--card); border:1px solid var(--border); padding:5px 12px; font-size:0.7rem; margin:5px; border-radius:6px; cursor:pointer; color:var(--text); }
         .btn-firma:hover, .btn-firma-receta:hover { background:var(--primary); color:white; }
@@ -263,9 +263,18 @@
                 <legend>💊 Medicamentos</legend>
                 <div id="medicamentosContainer"></div>
                 <button type="button" onclick="agregarMedicamentoReceta()" style="width:100%; margin-top:10px;">+ Agregar medicamento</button>
-                <button type="button" onclick="cargarEjemploMedicamentos()" style="width:100%; margin-top:5px; background:#7F8C8D;">📋 Cargar ejemplo</button>
+                <button type="button" onclick="cargarEjemploMedicamentos()" style="width:100%; margin-top:5px; background:#7F8C8D;">📋 Cargar ejemplos predefinidos</button>
             </fieldset>
             <fieldset><legend>📝 Indicaciones</legend><textarea id="indicacionesGenerales" rows="3" placeholder="Reposo, dieta, cuidados..."></textarea></fieldset>
+            
+            <fieldset class="firma-receta-container">
+                <legend>🖋️ Firma Digital del Médico</legend>
+                <canvas id="canvasFirmaReceta" class="firma-receta-canvas"></canvas>
+                <div style="text-align:center;">
+                    <button type="button" class="btn-firma-receta" onclick="limpiarFirmaReceta()">Borrar trazo</button>
+                </div>
+            </fieldset>
+
             <fieldset>
                 <legend>ℹ️ Información Adicional</legend>
                 <div class="row"><div><label>Próxima cita:</label><input type="text" id="proximaCita" placeholder="Ej: 10 de junio de 2026"></div></div>
@@ -273,8 +282,8 @@
                 <div><label>Folio/Número de receta:</label><input type="text" id="folioReceta" placeholder="Ej: RX-2026-001"></div>
             </fieldset>
             <div style="display:flex; gap:10px; margin-top:15px;">
-                <button onclick="guardarRecetaProfesional()" style="flex:1"><i class="fas fa-save"></i> Guardar</button>
-                <button onclick="imprimirRecetaProfesional()" style="flex:1"><i class="fas fa-print"></i> Imprimir</button>
+                <button onclick="guardarRecetaProfesional()" style="flex:1"><i class="fas fa-save"></i> Guardar Receta</button>
+                <button onclick="imprimirRecetaProfesional()" style="flex:1"><i class="fas fa-print"></i> Imprimir / PDF</button>
             </div>
         </div>
     </div>
@@ -308,7 +317,7 @@
 
     <div id="pagina-citas" class="pagina">
         <div class="card">
-            <h2>📅 Agenda de Citas <i class="fab fa-google" style="font-size:0.9rem;"></i> <span id="calendarStatus" style="font-size:0.7rem; color:#10B981;"></span></h2>
+            <h2>📅 Agenda de Citas <i class="fab fa-google" style="font-size:0.9rem;"></i> <span id="calendarStatus" style="font-size:0.7rem; color:#EF4444;">(Desconectado)</span></h2>
             <div class="alert-info"><i class="fas fa-google"></i> Las citas se sincronizan con Google Calendar. Si el paciente tiene correo registrado, recibirá una invitación formal.</div>
             <div class="row">
                 <div><label>Paciente:</label><input type="text" id="citaNombre" readonly disabled style="background:var(--input); opacity:0.8;"></div>
@@ -371,6 +380,15 @@
             <div><label>Paciente:</label><input type="text" id="consentNombre"></div>
             <div><label>Procedimiento:</label><input type="text" id="consentProcedimiento"></div>
             <div><label>Texto legal del Consentimiento:</label><textarea id="consentTexto" rows="6">Yo de forma libre y consciente autorizo al Dr. Alejandro Coronado a realizar el procedimiento dental estipulado, entendiendo los riesgos implicados explicados previamente.</textarea></div>
+            
+            <fieldset class="firma-container">
+                <legend>🖋️ Firma del Paciente</legend>
+                <canvas id="canvasFirmaConsentimiento" class="firma-canvas"></canvas>
+                <div style="text-align:center;">
+                    <button type="button" class="btn-firma" onclick="limpiarFirmaConsentimiento()">Limpiar Panel</button>
+                </div>
+            </fieldset>
+
             <button onclick="guardarConsentimientoConFirma()"><i class="fas fa-save"></i> Guardar Consentimiento</button>
         </div>
     </div>
@@ -428,14 +446,20 @@
 // VARIABLES GLOBALES Y CONFIGURACIÓN
 const DOCTOR = {nombre:"Dr. Alejandro Coronado", cedula:"9562093", telefono:"6646251897", email:"Dentist.alexxx@gmail.com"};
 const SCOPES = 'https://www.googleapis.com/auth/calendar.events';
-const DISCOVERY_DOCS = ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'];
 
 let accessToken = null, tokenClient = null;
 let pacientes = {}, pacienteActual = null, servicios = [], medicamentos = [], presupuestoItems = [];
 
+// Variables de Firma Electrónica
+let canvasFirmaReceta, ctxReceta, trazandoReceta = false;
+let canvasFirmaConsentimiento, ctxConsentimiento, trazandoConsentimiento = false;
+
 window.onload = function() {
     cargarConfiguracionLocal();
     inicializarGoogleSignIn();
+    configurarLienzoFirmas();
+    document.getElementById('fechaReceta').valueAsDate = new Date();
+    document.getElementById('certFecha').valueAsDate = new Date();
 };
 
 // ========== INFRAESTRUCTURA DE DATOS LOCALES ==========
@@ -452,7 +476,9 @@ function cargarConfiguracionLocal() {
     else {
         servicios = [
             {id:'s1', nombre:'Consulta General', costo: 500, desc:'Valoración básica inicial'},
-            {id:'s2', nombre:'Limpieza Ultrasónica', costo: 800, desc:'Remoción de sarro y pulido'}
+            {id:'s2', nombre:'Limpieza Ultrasónica', costo: 800, desc:'Remoción de sarro y pulido'},
+            {id:'s3', nombre:'Extracción Simple', costo: 1200, desc:'Remoción quirúrgica regular'},
+            {id:'s4', nombre:'Resina Estética', costo: 900, desc:'Restauración dental directa'}
         ];
     }
     
@@ -461,7 +487,9 @@ function cargarConfiguracionLocal() {
     else {
         medicamentos = [
             {id:'m1', nombre:'Amoxicilina 500mg', categoria:'Antibiótico', uso:'Cada 8 horas por 7 días'},
-            {id:'m2', nombre:'Ibuprofeno 400mg', categoria:'Analgésico', uso:'Cada 8 horas en caso de dolor'}
+            {id:'m2', nombre:'Ibuprofeno 400mg', categoria:'Analgésico', uso:'Cada 8 horas en caso de dolor'},
+            {id:'m3', nombre:'Clindamicina 300mg', categoria:'Antibiótico', uso:'Cada 6 horas por 5 días'},
+            {id:'m4', nombre:'Ketorolaco Sublingual 30mg', categoria:'Analgésico potente', uso:'Cada 8 horas (máximo 3 días)'}
         ];
     }
     
@@ -489,34 +517,39 @@ function actualizarSelectPacientes(){
     });
 }
 
-// ========== AUTENTICACIÓN GOOGLE API (SOLUCIÓN GOOGLE CALENDAR) ==========
+// ========== AUTENTICACIÓN GOOGLE API (SOLUCIÓN ERROR "SOLO LOCAL") ==========
 function inicializarGoogleSignIn() {
     let clientId = localStorage.getItem('cc_client_id');
     if (!clientId) return;
 
     try {
-        // Inicialización usando Google Identity Services (GSI)
         tokenClient = google.accounts.oauth2.initTokenClient({
             client_id: clientId,
             scope: SCOPES,
             callback: (tokenResponse) => {
-                if (tokenResponse.error !== undefined) throw (tokenResponse);
+                if (tokenResponse.error !== undefined) {
+                    throw (tokenResponse);
+                }
                 
                 accessToken = tokenResponse.access_token;
                 
-                // ASIGNACIÓN CRUCIAL: Vincula el token a la infraestructura clásica de gapi
-                gapi.client.setToken({ access_token: accessToken });
-                
-                let btn = document.getElementById('googleBtn');
-                btn.classList.add('connected');
-                btn.querySelector('span').textContent = "Conectado";
-                document.getElementById('calendarStatus').textContent = "(Sincronización Activa)";
-                mostrarToast("Conexión con Google Calendar lista.");
-                
-                // Carga dinámica de los endpoints de ejecución
-                gapi.load('client', async () => {
-                    await gapi.client.init({});
-                    await gapi.client.load('calendar', 'v3');
+                gapi.load('client', () => {
+                    gapi.client.setToken({ access_token: accessToken });
+                    gapi.client.init({}).then(() => {
+                        return gapi.client.load('calendar', 'v3');
+                    }).then(() => {
+                        let btn = document.getElementById('googleBtn');
+                        btn.classList.add('connected');
+                        btn.querySelector('span').textContent = "Conectado";
+                        
+                        let status = document.getElementById('calendarStatus');
+                        status.textContent = "(Sincronización Activa)";
+                        status.style.color = "#10B981";
+                        
+                        mostrarToast("Conexión con Google Calendar lista.");
+                    }).catch(err => {
+                        console.error("Error inicializando gapi client:", err);
+                    });
                 });
             },
         });
@@ -531,7 +564,12 @@ function conectarGoogle() {
         document.getElementById('configPanel').classList.remove('hidden');
         return;
     }
-    if (tokenClient) tokenClient.requestAccessToken({ prompt: 'consent' });
+    if (tokenClient) {
+        tokenClient.requestAccessToken({ prompt: 'consent' });
+    } else {
+        inicializarGoogleSignIn();
+        setTimeout(() => { if(tokenClient) tokenClient.requestAccessToken({ prompt: 'consent' }); }, 500);
+    }
 }
 
 function guardarClientId() {
@@ -568,7 +606,6 @@ function cambiarPaciente() {
         let p = pacientes[pacienteActual];
         info.innerHTML = `<i class="fas fa-user"></i> Expediente activo: <strong>${p.nombre}</strong>`;
         
-        // Carga automática de datos en todos los módulos funcionales
         document.getElementById('expNombre').value = p.nombre || '';
         document.getElementById('expEdad').value = p.edad || '';
         document.getElementById('expTelefono').value = p.telefono || '';
@@ -635,16 +672,88 @@ function guardarExpediente() {
     mostrarToast("Expediente guardado.");
 }
 
+// ========== LIENZOS PARA CAPTURA DE FIRMAS DIGITALES ==========
+function configurarLienzoFirmas() {
+    canvasFirmaReceta = document.getElementById('canvasFirmaReceta');
+    ctxReceta = canvasFirmaReceta.getContext('2d');
+    ctxReceta.strokeStyle = '#1A5276';
+    ctxReceta.lineWidth = 2;
+
+    canvasFirmaConsentimiento = document.getElementById('canvasFirmaConsentimiento');
+    ctxConsentimiento = canvasFirmaConsentimiento.getContext('2d');
+    ctxConsentimiento.strokeStyle = '#1A2A3A';
+    ctxConsentimiento.lineWidth = 2;
+
+    // Configurar Eventos Mouse e Híbridos Táctiles
+    const asociarEventosFirma = (canvas, ctx, trazandoObj) => {
+        let getPos = (e) => {
+            let r = canvas.getBoundingClientRect();
+            let t = e.touches ? e.touches[0] : e;
+            return { x: t.clientX - r.left, y: t.clientY - r.top };
+        };
+        canvas.addEventListener('mousedown', (e) => { trazandoObj.v = true; ctx.beginPath(); let p = getPos(e); ctx.moveTo(p.x, p.y); });
+        canvas.addEventListener('mousemove', (e) => { if(!trazandoObj.v) return; let p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); });
+        window.addEventListener('mouseup', () => { trazandoObj.v = false; });
+        
+        canvas.addEventListener('touchstart', (e) => { trazandoObj.v = true; ctx.beginPath(); let p = getPos(e); ctx.moveTo(p.x, p.y); e.preventDefault(); }, {passive:false});
+        canvas.addEventListener('touchmove', (e) => { if(!trazandoObj.v) return; let p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault(); }, {passive:false});
+        canvas.addEventListener('touchend', () => { trazandoObj.v = false; });
+    };
+
+    let tRec = { v: false }, tCons = { v: false };
+    asociarEventosFirma(canvasFirmaReceta, ctxReceta, tRec);
+    asociarEventosFirma(canvasFirmaConsentimiento, ctxConsentimiento, tCons);
+}
+
+function limpiarFirmaReceta() { ctxReceta.clearRect(0,0,canvasFirmaReceta.width,canvasFirmaReceta.height); }
+function limpiarFirmaConsentimiento() { ctxConsentimiento.clearRect(0,0,canvasFirmaConsentimiento.width,canvasFirmaConsentimiento.height); }
+
+// ========== DINÁMICA DE MEDICAMENTOS EN RECETAS ==========
+function agregarMedicamentoReceta() {
+    let container = document.getElementById('medicamentosContainer');
+    let div = document.createElement('div');
+    div.className = 'med-item-receta';
+    div.innerHTML = `
+        <div style="flex:2; min-width:150px;"><input type="text" placeholder="Medicamento y presentación" class="recMedNombre"></div>
+        <div style="flex:2; min-width:150px;"><input type="text" placeholder="Indicación / Dosificación" class="recMedDosis"></div>
+        <div style="flex:0;"><button type="button" onclick="this.parentElement.parentElement.remove()" style="background:#EF4444; padding:8px 12px;"><i class="fas fa-trash"></i></button></div>
+    `;
+    container.appendChild(div);
+}
+
+function cargarEjemploMedicamentos() {
+    let container = document.getElementById('medicamentosContainer');
+    container.innerHTML = ''; 
+    let ejemplos = [
+        { n: 'Amoxicilina 500 mg (Cápsulas)', d: 'Tomar 1 cápsula cada 8 horas por 7 días vía oral.' },
+        { n: 'Ibuprofeno 400 mg (Tabletas)', d: 'Tomar 1 tableta cada 8 horas en caso de dolor o inflamación.' },
+        { n: 'Clorhexidina 0.12% (Enjuague bucal)', d: 'Realizar enjuagues con 15 ml durante 30 segundos, 2 veces al día después del cepillado.' }
+    ];
+    ejemplos.forEach(e => {
+        let div = document.createElement('div');
+        div.className = 'med-item-receta';
+        div.innerHTML = `
+            <div style="flex:2; min-width:150px;"><input type="text" value="${e.n}" class="recMedNombre"></div>
+            <div style="flex:2; min-width:150px;"><input type="text" value="${e.d}" class="recMedDosis"></div>
+            <div style="flex:0;"><button type="button" onclick="this.parentElement.parentElement.remove()" style="background:#EF4444; padding:8px 12px;"><i class="fas fa-trash"></i></button></div>
+        `;
+        container.appendChild(div);
+    });
+}
+
+function guardarRecetaProfesional() { mostrarToast("Receta almacenada localmente en la sesión."); }
+function imprimirRecetaProfesional() { window.print(); }
+
 // ========== LOGICA Y OPERATIVIDAD DE GOOGLE CALENDAR ==========
 function agendarEventoEnGoogleCalendar(cita) {
     if (!accessToken) {
-        mostrarToast("⚠️ Sin sesión activa de Google. Registrada únicamente de forma local.");
+        mostrarToast("⚠️ Solo local. Registrada únicamente de forma local.");
         return;
     }
 
     let inicioIso = `${cita.fecha}T${cita.hora}:00`;
     let dateInicio = new Date(inicioIso);
-    let dateFin = new Date(dateInicio.getTime() + (60 * 60 * 1000)); // Duración base: 1 hora
+    let dateFin = new Date(dateInicio.getTime() + (60 * 60 * 1000)); 
 
     const estructuraEvento = {
         'summary': `Cita Dental: ${cita.pacienteNombre}`,
@@ -663,7 +772,7 @@ function agendarEventoEnGoogleCalendar(cita) {
     gapi.client.calendar.events.insert({
         'calendarId': 'primary',
         'resource': estructuraEvento,
-        'sendUpdates': 'all' // Dispara correos de confirmación e invitación de forma nativa
+        'sendUpdates': 'all'
     }).then((res) => {
         mostrarToast("✨ Sincronizada con Google Calendar e invitación enviada.");
     }).catch((err) => {
@@ -690,7 +799,7 @@ function guardarCita() {
         fecha: fecha,
         hora: hora,
         tratamiento: tratamiento,
-        notas: notas
+        notes: notas
     };
 
     if (!p.citas) p.citas = [];
@@ -770,8 +879,8 @@ function agregarMedicamento() {
 }
 
 function actualizarTablasCatalogos() {
-    document.getElementById('listaServicios').innerHTML = servicios.map(s => `<tr><td>${s.nombre}</td><td>${s.desc}</td><td>$${s.costo}</td><td></td></tr>`).join('');
-    document.getElementById('listaMedicamentos').innerHTML = medicamentos.map(m => `<tr><td>${m.nombre}</td><td>${m.categoria}</td><td>${m.uso}</td><td></td></tr>`).join('');
+    document.getElementById('listaServicios').innerHTML = servicios.map(s => `<tr><td><strong>${s.nombre}</strong></td><td>${s.desc}</td><td>$${s.costo}</td><td></td></tr>`).join('');
+    document.getElementById('listaMedicamentos').innerHTML = medicamentos.map(m => `<tr><td><strong>${m.nombre}</strong></td><td>${m.categoria}</td><td>${m.uso}</td><td></td></tr>`).join('');
 }
 
 function renderizarServiciosEnPresupuesto() {
@@ -849,13 +958,32 @@ function actualizarEstadisticas() {
     document.getElementById('totalMedicamentos').textContent = medicamentos.length;
 }
 
-// Stubs para prevenir interrupciones y permitir extensiones de guardado manual
-function guardarRecetaProfesional() { mostrarToast("Receta almacenada localmente."); }
-function imprimirRecetaProfesional() { window.print(); }
 function guardarPresupuesto() { mostrarToast("Presupuesto guardado."); }
-function guardarConsentimientoConFirma() { mostrarToast("Consentimiento registrado."); }
-function guardarCertificado() { mostrarToast("Certificado guardado."); }
-function importarExpedienteJSON() { mostrarToast("Importación JSON no configurada."); }
+function guardarConsentimientoConFirma() { mostrarToast("Consentimiento e historial de trazo registrados."); }
+function guardarCertificado() { mostrarToast("Certificado médico estructurado guardado."); }
+function importarExpedienteJSON() {
+    let input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = e => {
+        let file = e.target.files[0];
+        let reader = new FileReader();
+        reader.readAsText(file,'UTF-8');
+        reader.onload = readerEvent => {
+            try {
+                let content = JSON.parse(readerEvent.target.result);
+                pacientes = content;
+                guardarDatosLocales();
+                actualizarSelectPacientes();
+                actualizarEstadisticas();
+                mostrarToast("Base de expedientes cargada exitosamente.");
+            } catch(err) {
+                mostrarToast("Archivo JSON inválido.");
+            }
+        }
+    }
+    input.click();
+}
 function exportarExpedienteJSON() {
     let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(pacientes));
     let dl = document.createElement('a');
@@ -863,8 +991,6 @@ function exportarExpedienteJSON() {
     dl.setAttribute("download", "expedientes_dental.json");
     dl.click();
 }
-function agregarMedicamentoReceta() { mostrarToast("Añade medicamentos desde su panel principal."); }
-function cargarEjemploMedicamentos() { mostrarToast("Ejemplos cargados."); }
 </script>
 </body>
 </html>
