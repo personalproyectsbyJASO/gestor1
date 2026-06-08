@@ -333,7 +333,13 @@
 
     <!-- ===== RESUMEN GLOBAL — aparece en todas las pantallas ===== -->
     <div id="seccionResumen" class="card" style="margin-top:24px;border-top:2px solid var(--primary);">
-        <h2 style="font-size:1rem;margin-bottom:12px;"><i class="fas fa-clipboard-list"></i> Resumen</h2>
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+            <h2 style="font-size:1rem;margin:0;"><i class="fas fa-clipboard-list"></i> Resumen</h2>
+            <div style="display:flex;gap:8px;">
+                <button onclick="imprimirResumen()" style="background:var(--primary);padding:7px 14px;font-size:0.78rem;"><i class="fas fa-print"></i> Imprimir</button>
+                <button onclick="exportarResumenPDF()" style="background:var(--secondary);padding:7px 14px;font-size:0.78rem;"><i class="fas fa-file-pdf"></i> PDF</button>
+            </div>
+        </div>
         <div id="resumenContenido" style="font-size:0.82rem;color:var(--text-muted);">
             <div style="text-align:center;padding:10px;">Selecciona un paciente para ver el resumen.</div>
         </div>
@@ -1129,14 +1135,14 @@ async function conectarGoogle(){let id=localStorage.getItem('googleClientId');if
 function guardarClientId(){let id=document.getElementById('clientIdInput').value;if(id){localStorage.setItem('googleClientId',id);document.getElementById('configPanel').classList.add('hidden');iniciarAuth(id);}}
 function cerrarConfig(){document.getElementById('configPanel').classList.add('hidden');}
 async function iniciarAuth(clientId){
-    tokenClient=google.accounts.oauth2.initTokenClient({client_id:clientId,scope:'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/calendar.events',callback:async(resp)=>{if(resp.access_token){accessToken=resp.access_token;localStorage.setItem('driveToken',accessToken);document.getElementById('googleBtn').style.borderLeftColor='#10B981';mostrarToast('Drive y Calendar conectados');await crearCarpetaPrincipal();}}});
+    tokenClient=google.accounts.oauth2.initTokenClient({client_id:clientId,scope:'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/calendar.events',callback:async(resp)=>{if(resp.access_token){accessToken=resp.access_token;localStorage.setItem('driveToken',accessToken);document.getElementById('googleBtn').style.borderLeftColor='#10B981';document.getElementById('googleBtn').innerHTML='<i class="fab fa-google"></i><span>✅ Conectado</span>';mostrarToast('Drive y Calendar conectados');await crearCarpetaPrincipal();}}});
     let st=localStorage.getItem('driveToken');
     if(st){
         try{
             let test=await fetch('https://www.googleapis.com/calendar/v3/calendars/primary',{headers:{'Authorization':`Bearer ${st}`}});
-            if(test.status===200){accessToken=st;document.getElementById('googleBtn').style.borderLeftColor='#10B981';mostrarToast('Sesión restaurada');await crearCarpetaPrincipal();}
+            if(test.status===200){accessToken=st;document.getElementById('googleBtn').style.borderLeftColor='#10B981';document.getElementById('googleBtn').innerHTML='<i class="fab fa-google"></i><span>✅ Conectado</span>';mostrarToast('Sesión restaurada');await crearCarpetaPrincipal();}
             else{localStorage.removeItem('driveToken');tokenClient.requestAccessToken({prompt:''});}
-        }catch(e){accessToken=st;document.getElementById('googleBtn').style.borderLeftColor='#10B981';await crearCarpetaPrincipal();}
+        }catch(e){accessToken=st;document.getElementById('googleBtn').style.borderLeftColor='#10B981';document.getElementById('googleBtn').innerHTML='<i class="fab fa-google"></i><span>✅ Conectado</span>';await crearCarpetaPrincipal();}
     }else{tokenClient.requestAccessToken({prompt:'consent'});}
 }
 async function refrescarToken(){let st=localStorage.getItem('driveToken');if(st)return st;if(!tokenClient)return null;return new Promise(r=>{tokenClient.callback=resp=>{if(resp.access_token){localStorage.setItem('driveToken',resp.access_token);r(resp.access_token);}else r(null);};tokenClient.requestAccessToken({prompt:''});});}
@@ -1317,6 +1323,64 @@ function actualizarResumen(){
                 <div style="padding:4px 0">${certHTML}</div>
             </fieldset>
         </div>`;
+}
+
+// ========== IMPRIMIR / PDF RESUMEN ==========
+function getResumenHTML(){
+    if(!pacienteActual)return '<p>Sin paciente seleccionado</p>';
+    return document.getElementById('resumenContenido').innerHTML;
+}
+function imprimirResumen(){
+    if(!pacienteActual){mostrarToast('Selecciona un paciente primero');return;}
+    let nombre=pacienteActual.data.nombre||'Paciente';
+    let contenido=getResumenHTML();
+    let estilos=`<style>
+        body{font-family:'Segoe UI',Arial,sans-serif;padding:24px;color:#1A2535;font-size:13px;line-height:1.5}
+        h2{color:#1B4F8A;margin-bottom:12px}
+        fieldset{border:1px solid #C8D6E5;border-radius:8px;padding:12px;margin-bottom:12px}
+        legend{color:#1B4F8A;font-weight:bold;padding:0 8px}
+        .doctor-fijo{background:#EBF7F2;border-left:3px solid #1A7A5E;padding:10px 14px;border-radius:6px;margin-bottom:14px;font-size:0.85rem}
+        ul{margin:4px 0 0 16px;padding:0}
+        .row{display:flex;gap:12px;flex-wrap:wrap}
+        .row>fieldset{flex:1;min-width:200px}
+        @media print{body{padding:10px}}
+    </style>`;
+    let win=window.open('','_blank');
+    win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Resumen — ${nombre}</title>${estilos}</head><body>
+        <h2><i>📋</i> Resumen del Paciente — ${nombre}</h2>
+        <p style="font-size:0.75rem;color:#888;margin-bottom:12px">Generado: ${new Date().toLocaleString()}</p>
+        ${contenido}
+    </body></html>`);
+    win.document.close();
+    win.focus();
+    setTimeout(()=>{win.print();},400);
+}
+function exportarResumenPDF(){
+    if(!pacienteActual){mostrarToast('Selecciona un paciente primero');return;}
+    let nombre=pacienteActual.data.nombre||'Paciente';
+    let contenido=getResumenHTML();
+    let estilos=`<style>
+        body{font-family:'Segoe UI',Arial,sans-serif;padding:24px;color:#1A2535;font-size:13px;line-height:1.5}
+        h2{color:#1B4F8A;margin-bottom:12px}
+        fieldset{border:1px solid #C8D6E5;border-radius:8px;padding:12px;margin-bottom:12px}
+        legend{color:#1B4F8A;font-weight:bold;padding:0 8px}
+        .doctor-fijo{background:#EBF7F2;border-left:3px solid #1A7A5E;padding:10px 14px;border-radius:6px;margin-bottom:14px;font-size:0.85rem}
+        ul{margin:4px 0 0 16px;padding:0}
+        .row{display:flex;gap:12px;flex-wrap:wrap}
+        .row>fieldset{flex:1;min-width:200px}
+    </style>`;
+    let fullHTML=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Resumen — ${nombre}</title>${estilos}</head><body>
+        <h2>📋 Resumen del Paciente — ${nombre}</h2>
+        <p style="font-size:0.75rem;color:#888;margin-bottom:12px">Generado: ${new Date().toLocaleString()} · C&C Dental Group · Dr. Alejandro Coronado</p>
+        ${contenido}
+    </body></html>`;
+    let blob=new Blob([fullHTML],{type:'text/html'});
+    let url=URL.createObjectURL(blob);
+    let a=document.createElement('a');
+    a.href=url;a.download=`resumen_${nombre.replace(/ /g,'_')}_${new Date().toISOString().slice(0,10)}.html`;
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),5000);
+    mostrarToast('📄 Resumen exportado');
 }
 function cargarFirmaPacienteGuardada(){
     if(!pacienteActual||!firmaPacienteCanvas)return;
