@@ -14,55 +14,78 @@
         /* EL RESTO DEL CÓDIGO (HTML + JS) ES 100% ORIGINAL DEL USER  */
         /* ========================================================== */
         *{margin:0;padding:0;box-sizing:border-box}
+
+        /* ── MODO CLARO (default) ─────────────────────────────────────────
+           Psicología: Azul índigo = confianza, autoridad médica
+                       Verde esmeralda = salud, tranquilidad, higiene
+                       Fondos crema-blanco = limpieza clínica, claridad
+        ─────────────────────────────────────────────────────────────────── */
         body{
-            --bg: #F4F6F9;
-            --card: #FFFFFF;
-            --input: #FFFFFF;
-            --text: #1A2A3A;
-            --text-muted: #5D6D7E;
-            --border: #D5D8DC;
-            --primary: #1A5276;
-            --primary-hover: #2471A3;
-            --secondary: #2E7D64;
-            --secondary-hover: #239B56;
-            --hover-card: #F8F9FA;
-            --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-            
+            --bg:            #F0F4F8;
+            --card:          #FFFFFF;
+            --input:         #FAFDFF;
+            --text:          #1A2535;
+            --text-muted:    #5A6A7E;
+            --border:        #C8D6E5;
+            --primary:       #1B4F8A;
+            --primary-hover: #2563A8;
+            --secondary:     #1A7A5E;
+            --secondary-hover:#22967A;
+            --hover-card:    #EBF3FF;
+            --accent:        #0EA5E9;
+            --danger:        #E53E3E;
+            --shadow:        0 1px 4px rgba(27,79,138,0.10);
+            --shadow-md:     0 4px 16px rgba(27,79,138,0.13);
+
             font-family: 'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
             background: var(--bg);
             color: var(--text);
             padding: 24px;
             font-size: 14px;
             line-height: 1.5;
-            transition: background 0.2s, color 0.2s;
+            transition: background 0.35s, color 0.35s;
         }
+
+        /* ── MODO OSCURO ─────────────────────────────────────────────────
+           Psicología: Azul medianoche = seriedad nocturna, descanso visual
+                       Teal/aguamarina = acción, tecnología, salud digital
+                       Oscuros saturados = reduce fatiga, mantiene foco
+        ─────────────────────────────────────────────────────────────────── */
         body.modo-oscuro{
-            --bg: #1A2A3A;
-            --card: #2C3E50;
-            --input: #1A2A3A;
-            --text: #EAECEE;
-            --text-muted: #AAB7B8;
-            --border: #3E5A6F;
-            --primary: #5DADE2;
-            --primary-hover: #85C1E9;
-            --secondary: #58D68D;
-            --secondary-hover: #7DCEA0;
-            --hover-card: #34495E;
-            --shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            --bg:            #0F1923;
+            --card:          #1A2535;
+            --input:         #111D2B;
+            --text:          #E2EAF4;
+            --text-muted:    #7A96B4;
+            --border:        #253547;
+            --primary:       #38BDF8;
+            --primary-hover: #7DD3FC;
+            --secondary:     #2DD4BF;
+            --secondary-hover:#5EEAD4;
+            --hover-card:    #1E3048;
+            --accent:        #F59E0B;
+            --danger:        #F87171;
+            --shadow:        0 1px 4px rgba(0,0,0,0.35);
+            --shadow-md:     0 4px 16px rgba(0,0,0,0.45);
         }
+
+        /* modo-claro explícito (toggle) — idéntico al default */
         body.modo-claro{
-            --bg: #F4F6F9;
-            --card: #FFFFFF;
-            --input: #FFFFFF;
-            --text: #1A2A3A;
-            --text-muted: #5D6D7E;
-            --border: #D5D8DC;
-            --primary: #1A5276;
-            --primary-hover: #2471A3;
-            --secondary: #2E7D64;
-            --secondary-hover: #239B56;
-            --hover-card: #F8F9FA;
-            --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            --bg:            #F0F4F8;
+            --card:          #FFFFFF;
+            --input:         #FAFDFF;
+            --text:          #1A2535;
+            --text-muted:    #5A6A7E;
+            --border:        #C8D6E5;
+            --primary:       #1B4F8A;
+            --primary-hover: #2563A8;
+            --secondary:     #1A7A5E;
+            --secondary-hover:#22967A;
+            --hover-card:    #EBF3FF;
+            --accent:        #0EA5E9;
+            --danger:        #E53E3E;
+            --shadow:        0 1px 4px rgba(27,79,138,0.10);
+            --shadow-md:     0 4px 16px rgba(27,79,138,0.13);
         }
         .container{max-width:1200px;margin:0 auto}
         .header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:20px}
@@ -459,14 +482,17 @@ function importarExpedienteJSON(){
 
 // ========== FUNCIONES PRINCIPALES ==========
 function toggleModo(){
-    document.body.classList.toggle('modo-claro');
-    let i=document.querySelector('.btn-theme i');
-    if(document.body.classList.contains('modo-claro')){
-        i.className = 'fas fa-sun';
+    let oscuro = document.body.classList.contains('modo-oscuro');
+    document.body.classList.remove('modo-oscuro','modo-claro');
+    if(oscuro){
+        document.body.classList.add('modo-claro');
+        document.querySelector('.btn-theme i').className='fas fa-moon';
+        localStorage.setItem('modo','claro');
     } else {
-        i.className = 'fas fa-moon';
+        document.body.classList.add('modo-oscuro');
+        document.querySelector('.btn-theme i').className='fas fa-sun';
+        localStorage.setItem('modo','oscuro');
     }
-    localStorage.setItem('modo',document.body.classList.contains('modo-claro')?'claro':'oscuro');
 }
 
 function guardarTodoLocal(){
@@ -491,7 +517,8 @@ function inicializarDatos(){
     actualizarSelectServicios();
     actualizarEstadisticas();
     let modo=localStorage.getItem('modo');
-    if(modo==='claro') document.body.classList.add('modo-claro');
+    if(modo==='oscuro'){ document.body.classList.add('modo-oscuro'); document.querySelector('.btn-theme i').className='fas fa-sun'; }
+    else { document.body.classList.add('modo-claro'); document.querySelector('.btn-theme i').className='fas fa-moon'; }
     
     setTimeout(() => {
         inicializarFirmaDoctor();
