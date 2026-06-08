@@ -229,15 +229,11 @@
         <input type="hidden" id="direccion" value="Emiliano Zapata 2751, Ejido Matamoros">
         <input type="hidden" id="municipio" value="Tijuana">
         <div style="margin-bottom:10px"><label>Fecha:</label><input type="date" id="fechaReceta"></div>
+        <input type="hidden" id="recNombre"><input type="hidden" id="recEdad"><input type="hidden" id="recAlergias">
         <fieldset><legend>📋 Datos del Paciente</legend>
             <div class="row">
-                <div><label>Nombre:</label><input type="text" id="recNombre" placeholder="Nombre del paciente"></div>
-                <div><label>Edad:</label><input type="text" id="recEdad" placeholder="Edad"></div>
                 <div><label>Sexo:</label><select id="recSexo"><option>Masculino</option><option>Femenino</option></select></div>
-            </div>
-            <div class="row">
                 <div><label>Expediente:</label><input type="text" id="expediente" placeholder="DEN-0000"></div>
-                <div><label>Alergias:</label><input type="text" id="recAlergias" placeholder="Ej: Penicilina"></div>
             </div>
             <div><label>Diagnóstico:</label><textarea id="diagnostico" rows="2" placeholder="Pulpitis irreversible..."></textarea></div>
         </fieldset>
