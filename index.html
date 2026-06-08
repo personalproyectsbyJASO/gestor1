@@ -1059,6 +1059,10 @@ async function crearEventoCalendar(pacienteNombre, fecha, hora, tratamiento, tel
             console.log("✅ Evento creado en Calendar:", data.htmlLink);
             return data;
         }
+        // Mostrar el error real en toast para diagnóstico
+        let errorMsg = data?.error?.message || data?.error?.status || JSON.stringify(data);
+        mostrarToast('❌ Calendar: ' + errorMsg);
+        console.error("❌ Respuesta Calendar:", data);
         return null;
     } catch(e) {
         console.log("❌ Error en Calendar:", e);
