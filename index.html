@@ -221,24 +221,14 @@
     <!-- RECETA -->
     <div id="pagina-receta" class="pagina"><div class="card"><h2>📄 Receta Médica Profesional</h2>
         <div class="doctor-fijo">Dr. Alejandro Coronado - Cédula 9562093</div>
-        <fieldset><legend>🏥 Datos de la Clínica (Fijos)</legend>
-            <div class="row"><div><label>Nombre Clínica:</label><input type="text" id="clinicaNombre" value="C&C Dental Group" readonly disabled style="background:#e2e8f0; color:#1e293b; opacity:0.8;"></div></div>
-        </fieldset>
-        <fieldset><legend>👨‍⚕️ Datos del Médico (Fijos)</legend>
-            <div class="row">
-                <div><label>Doctor:</label><input type="text" id="doctorNombre" value="Dr. Alejandro Coronado" readonly disabled style="background:#e2e8f0; color:#1e293b; opacity:0.8;"></div>
-                <div><label>Cédula:</label><input type="text" id="doctorCedula" value="9562093" readonly disabled style="background:#e2e8f0; color:#1e293b; opacity:0.8;"></div>
-            </div>
-            <div class="row">
-                <div><label>Teléfono:</label><input type="text" id="telefono" value="6646251897" readonly disabled style="background:#e2e8f0; color:#1e293b; opacity:0.8;"></div>
-                <div><label>Email:</label><input type="text" id="email" value="Dentist.alexxx@gmail.com" readonly disabled style="background:#e2e8f0; color:#1e293b; opacity:0.8;"></div>
-            </div>
-            <div class="row">
-                <div><label>Dirección:</label><input type="text" id="direccion" value="Emiliano Zapata 2751, Ejido Matamoros" readonly disabled style="background:#e2e8f0; color:#1e293b; opacity:0.8;"></div>
-                <div><label>Municipio:</label><input type="text" id="municipio" value="Tijuana" readonly disabled style="background:#e2e8f0; color:#1e293b; opacity:0.8;"></div>
-            </div>
-            <div><label>Fecha:</label><input type="date" id="fechaReceta"></div>
-        </fieldset>
+        <input type="hidden" id="clinicaNombre" value="C&C Dental Group">
+        <input type="hidden" id="doctorNombre" value="Dr. Alejandro Coronado">
+        <input type="hidden" id="doctorCedula" value="9562093">
+        <input type="hidden" id="telefono" value="6646251897">
+        <input type="hidden" id="email" value="Dentist.alexxx@gmail.com">
+        <input type="hidden" id="direccion" value="Emiliano Zapata 2751, Ejido Matamoros">
+        <input type="hidden" id="municipio" value="Tijuana">
+        <div style="margin-bottom:10px"><label>Fecha:</label><input type="date" id="fechaReceta"></div>
         <fieldset><legend>📋 Datos del Paciente</legend>
             <div class="row">
                 <div><label>Nombre:</label><input type="text" id="recNombre" placeholder="Nombre del paciente"></div>
@@ -283,13 +273,12 @@
     </div></div>
 
     <!-- PRESUPUESTO -->
-    <div id="pagina-presupuesto" class="pagina"><div class="card"><h2>💰 Presupuesto</h2><div><label>Paciente:</label><input type="text" id="presNombre"></div><div class="row"><div style="flex:3"><select id="presServicioSelect"></select></div><div><button onclick="agregarServicioPresupuesto()">+</button></div></div><div class="row"><div><input type="text" id="extraNombre" placeholder="Extra"></div><div><input type="number" id="extraMonto" placeholder="$"></div><div><button onclick="agregarExtraPresupuesto()">+</button></div></div><div id="listaPresupuestoItems"></div><div class="row"><div><label>Descuento %:</label><input type="number" id="presDescuento" value="0" oninput="calcularTotalPresupuesto()"></div><div><label>Vigencia/Nota:</label><input type="text" id="presVigencia"></div></div><div class="total-presupuesto" id="totalPresupuestoDisplay">Total: $0.00</div><button onclick="guardarPresupuesto()">Guardar</button><button onclick="generarPresupuestoPDF()">PDF</button><hr><h3>Historial</h3><div id="listaPresupuestos"></div></div></div>
+    <div id="pagina-presupuesto" class="pagina"><div class="card"><h2>💰 Presupuesto</h2><input type="hidden" id="presNombre"><div class="row"><div style="flex:3"><select id="presServicioSelect"></select></div><div><button onclick="agregarServicioPresupuesto()">+</button></div></div><div class="row"><div><input type="text" id="extraNombre" placeholder="Extra"></div><div><input type="number" id="extraMonto" placeholder="$"></div><div><button onclick="agregarExtraPresupuesto()">+</button></div></div><div id="listaPresupuestoItems"></div><div class="row"><div><label>Descuento %:</label><input type="number" id="presDescuento" value="0" oninput="calcularTotalPresupuesto()"></div><div><label>Vigencia/Nota:</label><input type="text" id="presVigencia"></div></div><div class="total-presupuesto" id="totalPresupuestoDisplay">Total: $0.00</div><button onclick="guardarPresupuesto()">Guardar</button><button onclick="generarPresupuestoPDF()">PDF</button><hr><h3>Historial</h3><div id="listaPresupuestos"></div></div></div>
 
     <!-- CITAS CON INVITACIONES A CALENDAR -->
     <div id="pagina-citas" class="pagina"><div class="card"><h2>📅 Agenda de Citas <i class="fab fa-google" style="font-size:0.9rem;"></i> <span id="calendarStatus" style="font-size:0.7rem; color:#10B981;"></span></h2>
         <div class="alert-info"><i class="fas fa-google"></i> Las citas se sincronizan con Google Calendar. Si el paciente tiene correo Gmail, recibirá invitación.</div>
-        <div class="row"><div><label>Paciente:</label><input type="text" id="citaNombre" readonly disabled style="background:var(--input); opacity:0.8;"></div><div><label>Teléfono:</label><input type="text" id="citaTelefono" readonly disabled style="background:var(--input); opacity:0.8;"></div></div>
-        <div class="row"><div><label>Correo del paciente:</label><input type="email" id="citaEmail" readonly disabled style="background:var(--input); opacity:0.8;"></div></div>
+        <input type="hidden" id="citaNombre"><input type="hidden" id="citaTelefono"><input type="hidden" id="citaEmail">
         <div class="row"><div><label>Fecha:</label><input type="date" id="citaFecha"></div><div><label>Hora:</label><input type="time" id="citaHora"></div></div>
         <div><label>Tratamiento:</label><input type="text" id="citaTratamiento"></div>
         <div><label>Notas de la cita:</label><textarea id="citaNotas" rows="2" placeholder="Información adicional..."></textarea></div>
@@ -335,8 +324,7 @@
     <!-- MI CONSULTORIO -->
     <div id="pagina-consultorio" class="pagina"><div class="card"><h2>🏢 Mi Consultorio</h2><div class="doctor-fijo"><strong>DATOS FIJOS</strong><br>Dr. Alejandro Coronado | Cédula: 9562093<br>Tel: 6646251897 | Email: Dentist.alexxx@gmail.com</div>
         <fieldset><legend>Logo Oficial</legend><div style="text-align:center;padding:20px;background:var(--input);border-radius:8px"><i class="fas fa-tooth" style="font-size:4rem;color:var(--secondary)"></i><p style="margin-top:10px">C&C Dental Group</p></div></fieldset>
-        <div><fieldset><legend>Nombre</legend><input value="C&C Dental Group" disabled></fieldset></div>
-        <div><fieldset><legend>Dirección</legend><textarea rows="2" disabled>Emiliano Zapata 2751, Ejido Matamoros, Tijuana, CP 22204</textarea></fieldset></div>
+
     </div></div>
 
     <!-- ESTADÍSTICAS -->
