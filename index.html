@@ -994,6 +994,25 @@ function generarRecetaPDFProfesional(){
 function imprimirRecetaProfesional(){ generarRecetaPDFProfesional(); }
 
 // ========== CALENDAR CON INVITACIONES ==========
+async function obtenerTokenValido() {
+    // Intenta renovar el token de forma silenciosa primero
+    if(!tokenClient) return accessToken;
+    return new Promise(resolve => {
+        const timeoutId = setTimeout(() => resolve(accessToken), 5000); // fallback al token actual
+        tokenClient.callback = resp => {
+            clearTimeout(timeoutId);
+            if(resp.access_token) {
+                accessToken = resp.access_token;
+                localStorage.setItem('driveToken', accessToken);
+                resolve(accessToken);
+            } else {
+                resolve(accessToken);
+            }
+        };
+        tokenClient.requestAccessToken({ prompt: '' });
+    });
+}
+
 async function crearEventoCalendar(pacienteNombre, fecha, hora, tratamiento, telefono, correoPaciente, notas) {
     if(!accessToken) return null;
     try {
@@ -1016,14 +1035,24 @@ async function crearEventoCalendar(pacienteNombre, fecha, hora, tratamiento, tel
             console.log(`📧 Correo detectado (no Gmail): ${correoPaciente} - no se envía invitación automática`);
         }
         
+        let token = accessToken;
         let response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
             method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
             body: JSON.stringify(evento)
         });
+        
+        // Si el token expiró (401), renovar y reintentar automáticamente
+        if(response.status === 401) {
+            console.log("🔄 Token expirado, renovando...");
+            token = await obtenerTokenValido();
+            if(!token) return null;
+            response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify(evento)
+            });
+        }
         
         let data = await response.json();
         if(data.id) {
@@ -1056,14 +1085,24 @@ async function actualizarEventoCalendar(eventoId, pacienteNombre, fecha, hora, t
             evento.sendUpdates = 'all';
         }
         
+        let token = accessToken;
         let response = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventoId}`, {
             method: 'PUT',
-            headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
             body: JSON.stringify(evento)
         });
+        
+        // Si el token expiró (401), renovar y reintentar automáticamente
+        if(response.status === 401) {
+            console.log("🔄 Token expirado al actualizar, renovando...");
+            token = await obtenerTokenValido();
+            if(!token) return null;
+            response = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventoId}`, {
+                method: 'PUT',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify(evento)
+            });
+        }
         
         let data = await response.json();
         if(data.id) return data;
@@ -1360,10 +1399,26 @@ async function iniciarAuth(clientId){
     });
     let st = localStorage.getItem('driveToken');
     if(st){
-        accessToken = st;
-        document.getElementById('googleBtn').style.borderLeftColor = '#10B981';
-        mostrarToast('Sesión restaurada');
-        await crearCarpetaPrincipal();
+        // Verificar si el token guardado sigue siendo válido
+        try {
+            let test = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary', {
+                headers: { 'Authorization': `Bearer ${st}` }
+            });
+            if(test.status === 200) {
+                accessToken = st;
+                document.getElementById('googleBtn').style.borderLeftColor = '#10B981';
+                mostrarToast('Sesión restaurada');
+                await crearCarpetaPrincipal();
+            } else {
+                // Token expirado, solicitar nuevo
+                localStorage.removeItem('driveToken');
+                tokenClient.requestAccessToken({prompt: ''});
+            }
+        } catch(e) {
+            accessToken = st;
+            document.getElementById('googleBtn').style.borderLeftColor = '#10B981';
+            await crearCarpetaPrincipal();
+        }
     } else {
         tokenClient.requestAccessToken({prompt: 'consent'});
     }
