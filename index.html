@@ -1016,14 +1016,19 @@ async function obtenerTokenValido() {
 async function crearEventoCalendar(pacienteNombre, fecha, hora, tratamiento, telefono, correoPaciente, notas) {
     if(!accessToken) return null;
     try {
-        let fechaTime = new Date(`${fecha}T${hora}:00`);
-        let fechaFin = new Date(fechaTime.getTime() + 60 * 60 * 1000);
-        
+        // Usar el string local directamente — NO convertir a UTC con toISOString()
+        let fechaInicio = `${fecha}T${hora}:00`;
+        let [h, m] = hora.split(':').map(Number);
+        let finMin = m;
+        let finH = h + 1;
+        if(finH >= 24) finH = 23;
+        let fechaFin = `${fecha}T${String(finH).padStart(2,'0')}:${String(finMin).padStart(2,'0')}:00`;
+
         let evento = {
             summary: `🦷 Cita Dental - ${pacienteNombre}`,
             description: `Paciente: ${pacienteNombre}\nTeléfono: ${telefono}\nTratamiento: ${tratamiento}\n${notas ? `Notas: ${notas}` : ''}\n\nCita agendada desde C&C Dental Group`,
-            start: { dateTime: fechaTime.toISOString(), timeZone: 'America/Tijuana' },
-            end: { dateTime: fechaFin.toISOString(), timeZone: 'America/Tijuana' },
+            start: { dateTime: fechaInicio, timeZone: 'America/Tijuana' },
+            end: { dateTime: fechaFin, timeZone: 'America/Tijuana' },
             reminders: { useDefault: true }
         };
         
@@ -1073,14 +1078,16 @@ async function crearEventoCalendar(pacienteNombre, fecha, hora, tratamiento, tel
 async function actualizarEventoCalendar(eventoId, pacienteNombre, fecha, hora, tratamiento, telefono, correoPaciente, notas) {
     if(!accessToken || !eventoId) return null;
     try {
-        let fechaTime = new Date(`${fecha}T${hora}:00`);
-        let fechaFin = new Date(fechaTime.getTime() + 60 * 60 * 1000);
-        
+        let fechaInicio = `${fecha}T${hora}:00`;
+        let [h, m] = hora.split(':').map(Number);
+        let finH = h + 1; if(finH >= 24) finH = 23;
+        let fechaFin = `${fecha}T${String(finH).padStart(2,'0')}:${String(m).padStart(2,'0')}:00`;
+
         let evento = {
             summary: `🦷 Cita Dental - ${pacienteNombre}`,
             description: `Paciente: ${pacienteNombre}\nTeléfono: ${telefono}\nTratamiento: ${tratamiento}\n${notas ? `Notas: ${notas}` : ''}\n\nActualizado desde C&C Dental Group`,
-            start: { dateTime: fechaTime.toISOString(), timeZone: 'America/Tijuana' },
-            end: { dateTime: fechaFin.toISOString(), timeZone: 'America/Tijuana' },
+            start: { dateTime: fechaInicio, timeZone: 'America/Tijuana' },
+            end: { dateTime: fechaFin, timeZone: 'America/Tijuana' },
             reminders: { useDefault: true }
         };
         
