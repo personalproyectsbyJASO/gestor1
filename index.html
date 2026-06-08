@@ -174,7 +174,7 @@
         <div class="doctor-fijo"><i class="fas fa-user-md"></i> Dr. Alejandro Coronado | Cédula: 9562093</div>
         <fieldset><legend><i class="fas fa-user"></i> Datos Personales</legend>
             <div class="row">
-                <div><label>Nombre completo:</label><input type="text" id="expNombre" placeholder="Nombre del paciente"></div>
+                <div><label>Nombre completo:</label><input type="text" id="expNombre" placeholder="Nombre del paciente" disabled style="opacity:0.7;cursor:not-allowed"></div>
                 <div><label>Edad:</label><input type="number" id="expEdad" placeholder="Años" min="0" max="120"></div>
             </div>
             <div class="row">
@@ -303,7 +303,31 @@
         <hr><h3>Historial de Consentimientos</h3><div id="listaConsentimientos"></div>
     </div></div>
 
-    <div id="pagina-certificado" class="pagina"><div class="card"><h2>📜 Certificado</h2><div class="doctor-fijo">Dr. Alejandro Coronado</div><input type="hidden" id="certNombre"><input type="hidden" id="certEdad"><div class="row"><div><label>Lugar:</label><input type="text" id="certLugar"></div><div><label>Fecha:</label><input type="date" id="certFecha"></div></div><div><label>Diagnóstico:</label><textarea id="certDiagnostico" rows="2"></textarea></div><div class="row"><div><label>Días reposo:</label><input type="number" id="certDias"></div><div><label>Desde:</label><input type="date" id="certDesde"></div><div><label>Hasta:</label><input type="date" id="certHasta"></div></div><label><input type="checkbox" id="certOmitir"> Omitir diagnóstico</label><br><br><button onclick="guardarCertificado()">Guardar</button><button onclick="generarCertificadoPDF()">PDF</button><hr><h3>Historial</h3><div id="listaCertificados"></div></div></div>
+    <div id="pagina-certificado" class="pagina"><div class="card">
+        <h2>📜 Certificado Médico</h2>
+        <div class="doctor-fijo"><i class="fas fa-user-md"></i> Dr. Alejandro Coronado | Cédula: 9562093</div>
+        <input type="hidden" id="certNombre">
+        <input type="hidden" id="certEdad">
+        <div class="row">
+            <div><label>Lugar de expedición:</label><input type="text" id="certLugar" placeholder="Ej: Tijuana, B.C."></div>
+            <div><label>Fecha:</label><input type="date" id="certFecha"></div>
+        </div>
+        <div><label>Diagnóstico:</label><textarea id="certDiagnostico" rows="2" placeholder="Diagnóstico del paciente..."></textarea></div>
+        <div class="row">
+            <div><label>Días de reposo:</label><input type="number" id="certDias" placeholder="Ej: 3" min="0"></div>
+            <div><label>Desde:</label><input type="date" id="certDesde"></div>
+            <div><label>Hasta:</label><input type="date" id="certHasta"></div>
+        </div>
+        <div style="margin:10px 0;display:flex;align-items:center;gap:8px;">
+            <input type="checkbox" id="certOmitir" style="width:auto;margin:0;cursor:pointer">
+            <label for="certOmitir" style="margin:0;cursor:pointer;font-size:0.85rem">Omitir diagnóstico en el documento</label>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:10px;">
+            <button onclick="guardarCertificado()" style="flex:1"><i class="fas fa-save"></i> Guardar</button>
+            <button onclick="generarCertificadoPDF()" style="flex:1"><i class="fas fa-file-pdf"></i> PDF</button>
+        </div>
+        <hr><h3>Historial</h3><div id="listaCertificados"></div>
+    </div></div>
 
     <div id="pagina-estadisticas" class="pagina"><div class="card"><h2>📊 Estadísticas</h2><div class="row"><div class="chart-container"><div class="stat-number" id="totalPacientes">0</div><div>Pacientes</div></div><div class="chart-container"><div class="stat-number" id="totalCitas">0</div><div>Citas</div></div><div class="chart-container"><div class="stat-number" id="totalRecetas">0</div><div>Recetas</div></div><div class="chart-container"><div class="stat-number" id="totalPresupuestos">0</div><div>Presupuestos</div></div></div><button onclick="exportarReporte()"><i class="fas fa-download"></i> Exportar</button></div></div>
 
@@ -473,6 +497,9 @@ function cambiarPaciente(){
         document.getElementById('infoPacienteActual').innerHTML = nombreMostrar ? `✅ ${nombreMostrar}` : '';
         // Expediente
         document.getElementById('expNombre').value=pacienteActual.data.nombre||'';
+        // Nombre siempre deshabilitado al seleccionar paciente existente
+        let _nm=document.getElementById('expNombre');
+        if(_nm){_nm.disabled=true;_nm.style.opacity='0.7';_nm.style.cursor='not-allowed';_nm.style.borderColor='';}
         document.getElementById('expEdad').value=pacienteActual.data.edad||'';
         document.getElementById('expTelefono').value=pacienteActual.data.telefono||'';
         document.getElementById('expEmail').value=pacienteActual.data.email||'';
@@ -523,15 +550,26 @@ function cambiarPaciente(){
 }
 
 function crearNuevoPaciente(){
-    let n=prompt('Nombre completo:');if(!n)return;
-    let e=prompt('Edad:');let t=prompt('Teléfono:');let c=prompt('Correo electrónico (opcional):');
-    let k=n.toLowerCase().replace(/ /g,'_')+Date.now();
-    pacientes[k]={data:{nombre:n,edad:e,telefono:t,email:c||'',alergias:'',antecedentes:''},recetas:[],presupuestos:[],citas:[],consentimientos:[],certificados:[],folderId:null};
-    if(accessToken&&principalFolderId)crearSubcarpeta(principalFolderId,k).then(fid=>{if(fid)pacientes[k].folderId=fid;guardarTodoLocal()});
-    guardarTodoLocal();actualizarSelectPacientes();
+    // Crear paciente vacío y abrir expediente con nombre editable
+    let k='nuevo_paciente_'+Date.now();
+    pacientes[k]={data:{nombre:'',edad:'',telefono:'',email:'',alergias:'',antecedentes:''},recetas:[],presupuestos:[],citas:[],consentimientos:[],certificados:[],folderId:null};
+    guardarTodoLocal();
+    actualizarSelectPacientes();
     document.getElementById('selectPaciente').value=k;
-    cambiarPaciente();actualizarEstadisticas();
-    mostrarToast(`Paciente ${n} creado`);
+    cambiarPaciente();
+    actualizarEstadisticas();
+    // Ir al expediente con nombre habilitado para escribir
+    irAPagina('expediente');
+    let campoNombre=document.getElementById('expNombre');
+    if(campoNombre){
+        campoNombre.disabled=false;
+        campoNombre.style.opacity='1';
+        campoNombre.style.cursor='text';
+        campoNombre.style.borderColor='var(--secondary)';
+        campoNombre.placeholder='Escribe el nombre del paciente...';
+        campoNombre.focus();
+    }
+    mostrarToast('✏️ Escribe el nombre y completa el expediente');
 }
 
 function guardarExpediente(){
@@ -565,6 +603,9 @@ function guardarExpediente(){
     let k=Object.keys(pacientes).find(k=>pacientes[k]===pacienteActual);
     if(k)document.getElementById('selectPaciente').value=k;
     document.getElementById('infoPacienteActual').innerHTML=pacienteActual.data.nombre?`✅ ${pacienteActual.data.nombre}`:'';
+    // Después de guardar, bloquear el nombre (ya quedó registrado)
+    let _nm2=document.getElementById('expNombre');
+    if(_nm2){_nm2.disabled=true;_nm2.style.opacity='0.7';_nm2.style.cursor='not-allowed';_nm2.style.borderColor='';}
     guardarTodoLocal();
     if(accessToken&&pacienteActual.folderId)guardarArchivoEnDrive(pacienteActual.folderId,'expediente.json',pacienteActual.data);
     actualizarResumen();
