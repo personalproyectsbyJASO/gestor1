@@ -169,7 +169,59 @@
         <div class="modulo" onclick="irAPagina('estadisticas')"><i class="fas fa-chart-line"></i><h3>Estadísticas</h3></div>
     </div></div>
 
-    <div id="pagina-expediente" class="pagina"><div class="card"><h2>📋 Expediente Clínico</h2><div class="doctor-fijo"><i class="fas fa-user-md"></i> Dr. Alejandro Coronado | Cédula: 9562093</div><input type="hidden" id="expNombre"><input type="hidden" id="expEdad"><input type="hidden" id="expTelefono"><input type="hidden" id="expEmail"><fieldset><legend>Datos Clínicos</legend><div><label>Alergias:</label><textarea id="expAlergias" rows="2"></textarea></div><div><label>Antecedentes:</label><textarea id="expAntecedentes" rows="3"></textarea></div></fieldset><button onclick="guardarExpediente()">Guardar</button></div></div>
+    <div id="pagina-expediente" class="pagina"><div class="card">
+        <h2>📋 Expediente Clínico</h2>
+        <div class="doctor-fijo"><i class="fas fa-user-md"></i> Dr. Alejandro Coronado | Cédula: 9562093</div>
+        <fieldset><legend><i class="fas fa-user"></i> Datos Personales</legend>
+            <div class="row">
+                <div><label>Nombre completo:</label><input type="text" id="expNombre" placeholder="Nombre del paciente"></div>
+                <div><label>Edad:</label><input type="number" id="expEdad" placeholder="Años" min="0" max="120"></div>
+            </div>
+            <div class="row">
+                <div><label>Teléfono:</label><input type="tel" id="expTelefono" placeholder="Número de teléfono"></div>
+                <div><label>Correo electrónico:</label><input type="email" id="expEmail" placeholder="correo@ejemplo.com"></div>
+            </div>
+            <div class="row">
+                <div><label>Fecha de nacimiento:</label><input type="date" id="expFechaNac"></div>
+                <div><label>Sexo:</label><select id="expSexo"><option value="">-- Seleccionar --</option><option>Masculino</option><option>Femenino</option><option>Otro</option></select></div>
+            </div>
+            <div class="row">
+                <div><label>Ocupación:</label><input type="text" id="expOcupacion" placeholder="Ej: Maestro, Estudiante..."></div>
+                <div><label>Estado civil:</label><select id="expEstadoCivil"><option value="">-- Seleccionar --</option><option>Soltero/a</option><option>Casado/a</option><option>Divorciado/a</option><option>Viudo/a</option><option>Unión libre</option></select></div>
+            </div>
+            <div><label>Dirección:</label><input type="text" id="expDireccion" placeholder="Calle, número, colonia, ciudad"></div>
+        </fieldset>
+        <fieldset><legend><i class="fas fa-notes-medical"></i> Datos Clínicos</legend>
+            <div><label>Alergias:</label><textarea id="expAlergias" rows="2" placeholder="Medicamentos, materiales o sustancias a los que es alérgico..."></textarea></div>
+            <div><label>Enfermedades sistémicas / Antecedentes médicos:</label><textarea id="expAntecedentes" rows="3" placeholder="Diabetes, hipertensión, cardiopatías, cirugías previas..."></textarea></div>
+            <div class="row">
+                <div><label>Medicamentos actuales:</label><textarea id="expMedicamentosActuales" rows="2" placeholder="Nombre, dosis y frecuencia de medicamentos que toma..."></textarea></div>
+                <div><label>Motivo de consulta:</label><textarea id="expMotivoConsulta" rows="2" placeholder="¿Por qué acude hoy?"></textarea></div>
+            </div>
+        </fieldset>
+        <fieldset><legend><i class="fas fa-tooth"></i> Antecedentes Odontológicos</legend>
+            <div class="row">
+                <div><label>Tratamientos previos:</label><textarea id="expTratamientosPrevios" rows="2" placeholder="Extracciones, ortodoncia, implantes..."></textarea></div>
+                <div><label>Última visita al dentista:</label><input type="text" id="expUltimaVisita" placeholder="Ej: hace 6 meses, enero 2025..."></div>
+            </div>
+            <div class="row">
+                <div><label>Higiene oral:</label><select id="expHigieneOral"><option value="">-- Seleccionar --</option><option>Buena</option><option>Regular</option><option>Deficiente</option></select></div>
+                <div><label>Frecuencia de cepillado:</label><select id="expFreqCepillado"><option value="">-- Seleccionar --</option><option>1 vez al día</option><option>2 veces al día</option><option>3 o más veces al día</option><option>Irregular</option></select></div>
+            </div>
+            <div><label>Observaciones odontológicas:</label><textarea id="expObsOdonto" rows="2" placeholder="Notas relevantes sobre la salud bucal del paciente..."></textarea></div>
+        </fieldset>
+        <fieldset><legend><i class="fas fa-user-friends"></i> Contacto de Emergencia</legend>
+            <div class="row">
+                <div><label>Nombre:</label><input type="text" id="expEmergenciaNombre" placeholder="Nombre del contacto"></div>
+                <div><label>Parentesco:</label><input type="text" id="expEmergenciaParentesco" placeholder="Ej: Esposo/a, Hijo/a, Madre..."></div>
+                <div><label>Teléfono:</label><input type="tel" id="expEmergenciaTel" placeholder="Número de emergencia"></div>
+            </div>
+        </fieldset>
+        <div style="display:flex;gap:10px;margin-top:5px;">
+            <button onclick="guardarExpediente()" style="flex:1"><i class="fas fa-save"></i> Guardar Expediente</button>
+            <button onclick="exportarExpedienteJSON()" style="flex:1;background:var(--primary)"><i class="fas fa-file-export"></i> Exportar</button>
+        </div>
+    </div></div>
 
     <div id="pagina-receta" class="pagina"><div class="card"><h2>📄 Receta Médica Profesional</h2>
         <div class="doctor-fijo">Dr. Alejandro Coronado - Cédula 9562093</div>
@@ -307,7 +359,8 @@ function seleccionarPacienteDesdeLista(key){
 
 function exportarExpedienteJSON(){
     if(!pacienteActual){mostrarToast('❌ Selecciona un paciente');return}
-    let exp={nombre:pacienteActual.data.nombre||'',edad:pacienteActual.data.edad||'',telefono:pacienteActual.data.telefono||'',email:pacienteActual.data.email||'',alergias:pacienteActual.data.alergias||'',antecedentes:pacienteActual.data.antecedentes||'',fechaExportacion:new Date().toISOString()};
+    let d2=pacienteActual.data;
+    let exp={nombre:d2.nombre||'',edad:d2.edad||'',telefono:d2.telefono||'',email:d2.email||'',fechaNac:d2.fechaNac||'',sexo:d2.sexo||'',ocupacion:d2.ocupacion||'',estadoCivil:d2.estadoCivil||'',direccion:d2.direccion||'',alergias:d2.alergias||'',antecedentes:d2.antecedentes||'',medicamentosActuales:d2.medicamentosActuales||'',motivoConsulta:d2.motivoConsulta||'',tratamientosPrevios:d2.tratamientosPrevios||'',ultimaVisita:d2.ultimaVisita||'',higieneOral:d2.higieneOral||'',freqCepillado:d2.freqCepillado||'',obsOdonto:d2.obsOdonto||'',emergenciaNombre:d2.emergenciaNombre||'',emergenciaParentesco:d2.emergenciaParentesco||'',emergenciaTel:d2.emergenciaTel||'',fechaExportacion:new Date().toISOString()};
     let blob=new Blob([JSON.stringify(exp,null,2)],{type:'application/json'});
     let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`expediente_${(pacienteActual.data.nombre||'paciente').replace(/ /g,'_')}.json`;a.click();URL.revokeObjectURL(a.href);
     mostrarToast('✅ Expediente exportado');
@@ -324,7 +377,15 @@ function importarExpedienteJSON(){
                 if(datos.nombre)document.getElementById('expNombre').value=datos.nombre;
                 if(datos.alergias)document.getElementById('expAlergias').value=datos.alergias;
                 if(datos.antecedentes)document.getElementById('expAntecedentes').value=datos.antecedentes;
-                pacienteActual.data={nombre:document.getElementById('expNombre').value,edad:datos.edad||'',telefono:datos.telefono||'',email:datos.email||'',alergias:document.getElementById('expAlergias').value,antecedentes:document.getElementById('expAntecedentes').value};
+                pacienteActual.data={
+                    nombre:document.getElementById('expNombre').value,edad:datos.edad||'',telefono:datos.telefono||'',email:datos.email||'',
+                    fechaNac:datos.fechaNac||'',sexo:datos.sexo||'',ocupacion:datos.ocupacion||'',estadoCivil:datos.estadoCivil||'',direccion:datos.direccion||'',
+                    alergias:document.getElementById('expAlergias').value,antecedentes:document.getElementById('expAntecedentes').value,
+                    medicamentosActuales:datos.medicamentosActuales||'',motivoConsulta:datos.motivoConsulta||'',
+                    tratamientosPrevios:datos.tratamientosPrevios||'',ultimaVisita:datos.ultimaVisita||'',
+                    higieneOral:datos.higieneOral||'',freqCepillado:datos.freqCepillado||'',obsOdonto:datos.obsOdonto||'',
+                    emergenciaNombre:datos.emergenciaNombre||'',emergenciaParentesco:datos.emergenciaParentesco||'',emergenciaTel:datos.emergenciaTel||''
+                };
                 guardarTodoLocal();
                 if(accessToken&&pacienteActual.folderId)await guardarArchivoEnDrive(pacienteActual.folderId,'expediente.json',pacienteActual.data);
                 actualizarSelectPacientes();
@@ -417,6 +478,22 @@ function cambiarPaciente(){
         document.getElementById('expEmail').value=pacienteActual.data.email||'';
         document.getElementById('expAlergias').value=pacienteActual.data.alergias||'';
         document.getElementById('expAntecedentes').value=pacienteActual.data.antecedentes||'';
+        // Nuevos campos
+        if(document.getElementById('expFechaNac'))document.getElementById('expFechaNac').value=pacienteActual.data.fechaNac||'';
+        if(document.getElementById('expSexo'))document.getElementById('expSexo').value=pacienteActual.data.sexo||'';
+        if(document.getElementById('expOcupacion'))document.getElementById('expOcupacion').value=pacienteActual.data.ocupacion||'';
+        if(document.getElementById('expEstadoCivil'))document.getElementById('expEstadoCivil').value=pacienteActual.data.estadoCivil||'';
+        if(document.getElementById('expDireccion'))document.getElementById('expDireccion').value=pacienteActual.data.direccion||'';
+        if(document.getElementById('expMedicamentosActuales'))document.getElementById('expMedicamentosActuales').value=pacienteActual.data.medicamentosActuales||'';
+        if(document.getElementById('expMotivoConsulta'))document.getElementById('expMotivoConsulta').value=pacienteActual.data.motivoConsulta||'';
+        if(document.getElementById('expTratamientosPrevios'))document.getElementById('expTratamientosPrevios').value=pacienteActual.data.tratamientosPrevios||'';
+        if(document.getElementById('expUltimaVisita'))document.getElementById('expUltimaVisita').value=pacienteActual.data.ultimaVisita||'';
+        if(document.getElementById('expHigieneOral'))document.getElementById('expHigieneOral').value=pacienteActual.data.higieneOral||'';
+        if(document.getElementById('expFreqCepillado'))document.getElementById('expFreqCepillado').value=pacienteActual.data.freqCepillado||'';
+        if(document.getElementById('expObsOdonto'))document.getElementById('expObsOdonto').value=pacienteActual.data.obsOdonto||'';
+        if(document.getElementById('expEmergenciaNombre'))document.getElementById('expEmergenciaNombre').value=pacienteActual.data.emergenciaNombre||'';
+        if(document.getElementById('expEmergenciaParentesco'))document.getElementById('expEmergenciaParentesco').value=pacienteActual.data.emergenciaParentesco||'';
+        if(document.getElementById('expEmergenciaTel'))document.getElementById('expEmergenciaTel').value=pacienteActual.data.emergenciaTel||'';
         // Receta — limpiar al cambiar paciente
         document.getElementById('recNombre').value=pacienteActual.data.nombre||'';
         document.getElementById('recEdad').value=pacienteActual.data.edad||'';
@@ -459,19 +536,71 @@ function crearNuevoPaciente(){
 
 function guardarExpediente(){
     if(!pacienteActual){mostrarToast('Selecciona paciente');return}
-    pacienteActual.data={...pacienteActual.data,nombre:document.getElementById('expNombre').value,edad:document.getElementById('expEdad').value,telefono:document.getElementById('expTelefono').value,email:document.getElementById('expEmail').value,alergias:document.getElementById('expAlergias').value,antecedentes:document.getElementById('expAntecedentes').value};
+    pacienteActual.data={
+        ...pacienteActual.data,
+        nombre:document.getElementById('expNombre')?.value||'',
+        edad:document.getElementById('expEdad')?.value||'',
+        telefono:document.getElementById('expTelefono')?.value||'',
+        email:document.getElementById('expEmail')?.value||'',
+        fechaNac:document.getElementById('expFechaNac')?.value||'',
+        sexo:document.getElementById('expSexo')?.value||'',
+        ocupacion:document.getElementById('expOcupacion')?.value||'',
+        estadoCivil:document.getElementById('expEstadoCivil')?.value||'',
+        direccion:document.getElementById('expDireccion')?.value||'',
+        alergias:document.getElementById('expAlergias')?.value||'',
+        antecedentes:document.getElementById('expAntecedentes')?.value||'',
+        medicamentosActuales:document.getElementById('expMedicamentosActuales')?.value||'',
+        motivoConsulta:document.getElementById('expMotivoConsulta')?.value||'',
+        tratamientosPrevios:document.getElementById('expTratamientosPrevios')?.value||'',
+        ultimaVisita:document.getElementById('expUltimaVisita')?.value||'',
+        higieneOral:document.getElementById('expHigieneOral')?.value||'',
+        freqCepillado:document.getElementById('expFreqCepillado')?.value||'',
+        obsOdonto:document.getElementById('expObsOdonto')?.value||'',
+        emergenciaNombre:document.getElementById('expEmergenciaNombre')?.value||'',
+        emergenciaParentesco:document.getElementById('expEmergenciaParentesco')?.value||'',
+        emergenciaTel:document.getElementById('expEmergenciaTel')?.value||''
+    };
+    // Actualizar select de paciente con nombre nuevo
+    actualizarSelectPacientes();
+    let k=Object.keys(pacientes).find(k=>pacientes[k]===pacienteActual);
+    if(k)document.getElementById('selectPaciente').value=k;
+    document.getElementById('infoPacienteActual').innerHTML=pacienteActual.data.nombre?`✅ ${pacienteActual.data.nombre}`:'';
     guardarTodoLocal();
     if(accessToken&&pacienteActual.folderId)guardarArchivoEnDrive(pacienteActual.folderId,'expediente.json',pacienteActual.data);
+    actualizarResumen();
     mostrarToast('Información actualizada');
 }
 
 function autoGuardarExpediente(){
     if(!pacienteActual)return;
-    pacienteActual.data={nombre:document.getElementById('expNombre')?.value||'',edad:document.getElementById('expEdad')?.value||'',telefono:document.getElementById('expTelefono')?.value||'',email:document.getElementById('expEmail')?.value||'',alergias:document.getElementById('expAlergias')?.value||'',antecedentes:document.getElementById('expAntecedentes')?.value||''};
+    pacienteActual.data={
+        ...pacienteActual.data,
+        nombre:document.getElementById('expNombre')?.value||'',
+        edad:document.getElementById('expEdad')?.value||'',
+        telefono:document.getElementById('expTelefono')?.value||'',
+        email:document.getElementById('expEmail')?.value||'',
+        fechaNac:document.getElementById('expFechaNac')?.value||'',
+        sexo:document.getElementById('expSexo')?.value||'',
+        ocupacion:document.getElementById('expOcupacion')?.value||'',
+        estadoCivil:document.getElementById('expEstadoCivil')?.value||'',
+        direccion:document.getElementById('expDireccion')?.value||'',
+        alergias:document.getElementById('expAlergias')?.value||'',
+        antecedentes:document.getElementById('expAntecedentes')?.value||'',
+        medicamentosActuales:document.getElementById('expMedicamentosActuales')?.value||'',
+        motivoConsulta:document.getElementById('expMotivoConsulta')?.value||'',
+        tratamientosPrevios:document.getElementById('expTratamientosPrevios')?.value||'',
+        ultimaVisita:document.getElementById('expUltimaVisita')?.value||'',
+        higieneOral:document.getElementById('expHigieneOral')?.value||'',
+        freqCepillado:document.getElementById('expFreqCepillado')?.value||'',
+        obsOdonto:document.getElementById('expObsOdonto')?.value||'',
+        emergenciaNombre:document.getElementById('expEmergenciaNombre')?.value||'',
+        emergenciaParentesco:document.getElementById('expEmergenciaParentesco')?.value||'',
+        emergenciaTel:document.getElementById('expEmergenciaTel')?.value||''
+    };
     guardarTodoLocal();
     if(accessToken&&pacienteActual.folderId)guardarArchivoEnDrive(pacienteActual.folderId,'expediente.json',pacienteActual.data);
 }
-['expNombre','expEdad','expTelefono','expEmail','expAlergias','expAntecedentes'].forEach(id=>{const el=document.getElementById(id);if(el){el.addEventListener('input',autoGuardarExpediente);el.addEventListener('change',autoGuardarExpediente);}});
+['expNombre','expEdad','expTelefono','expEmail','expFechaNac','expSexo','expOcupacion','expEstadoCivil','expDireccion','expAlergias','expAntecedentes','expMedicamentosActuales','expMotivoConsulta','expTratamientosPrevios','expUltimaVisita','expHigieneOral','expFreqCepillado','expObsOdonto','expEmergenciaNombre','expEmergenciaParentesco','expEmergenciaTel'].forEach(id=>{const el=document.getElementById(id);if(el){el.addEventListener('input',autoGuardarExpediente);el.addEventListener('change',autoGuardarExpediente);}});
 
 function autoGuardarReceta(){
     if(!pacienteActual)return;
@@ -1051,6 +1180,13 @@ function actualizarResumen(){
     let email=p.data.email||'—';
     let alergias=p.data.alergias||'Ninguna';
     let antecedentes=p.data.antecedentes||'Sin antecedentes';
+    let sexo=p.data.sexo||'';
+    let ocupacion=p.data.ocupacion||'';
+    let estadoCivil=p.data.estadoCivil||'';
+    let direccion=p.data.direccion||'';
+    let emergenciaNombre=p.data.emergenciaNombre||'';
+    let emergenciaTel=p.data.emergenciaTel||'';
+    let medicamentosActuales=p.data.medicamentosActuales||'';
 
     // Próxima cita
     let todasCitas=p.citas||[];
@@ -1107,13 +1243,20 @@ function actualizarResumen(){
     }
 
     d.innerHTML=`
-        <div class="doctor-fijo" style="margin-bottom:15px;">
+        <div class="doctor-fijo" style="margin-bottom:15px;line-height:1.8;">
             <i class="fas fa-user-circle"></i>
-            <strong>${escapeHtml(nombre)}</strong> &nbsp;|&nbsp;
-            Edad: ${escapeHtml(edad)} &nbsp;|&nbsp;
-            Tel: ${escapeHtml(tel)} &nbsp;|&nbsp;
-            ${email!=='—'?`Email: ${escapeHtml(email)} &nbsp;|&nbsp;`:''}
-            <span style="color:var(--danger)"><i class="fas fa-allergies"></i> Alergias: ${escapeHtml(alergias)}</span>
+            <strong style="font-size:1rem">${escapeHtml(nombre)}</strong>
+            ${sexo?` &nbsp;·&nbsp; ${escapeHtml(sexo)}`:''}
+            ${edad!=='—'?` &nbsp;·&nbsp; ${escapeHtml(edad)} años`:''}
+            ${estadoCivil?` &nbsp;·&nbsp; ${escapeHtml(estadoCivil)}`:''}
+            ${ocupacion?` &nbsp;·&nbsp; ${escapeHtml(ocupacion)}`:''}
+            <br>
+            <i class="fas fa-phone"></i> ${escapeHtml(tel)}
+            ${email!=='—'?` &nbsp;·&nbsp; <i class="fas fa-envelope"></i> ${escapeHtml(email)}`:''}
+            ${direccion?` &nbsp;·&nbsp; <i class="fas fa-map-marker-alt"></i> ${escapeHtml(direccion)}`:''}
+            ${emergenciaNombre?`<br><i class="fas fa-user-friends"></i> Emergencia: <strong>${escapeHtml(emergenciaNombre)}</strong>${emergenciaTel?' — '+escapeHtml(emergenciaTel):''}`:''}<br>
+            <span style="color:var(--danger)"><i class="fas fa-allergies"></i> <strong>Alergias:</strong> ${escapeHtml(alergias)}</span>
+            ${medicamentosActuales?` &nbsp;·&nbsp; <i class="fas fa-pills"></i> <strong>Medicamentos:</strong> ${escapeHtml(medicamentosActuales)}`:''}
         </div>
         ${antecedentes&&antecedentes!=='Sin antecedentes'?`<div style="font-size:0.8rem;margin-bottom:12px;padding:8px;background:var(--bg);border-radius:6px;border-left:3px solid var(--border)"><strong><i class="fas fa-notes-medical"></i> Antecedentes:</strong> ${escapeHtml(antecedentes)}</div>`:''}
         <fieldset style="margin-bottom:12px"><legend><i class="fas fa-calendar-alt"></i> Próxima Cita</legend>
