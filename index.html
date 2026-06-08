@@ -234,7 +234,7 @@
         <div class="modulo" onclick="irAPagina('medicamentos')"><i class="fas fa-capsules"></i><h3>Medicamentos</h3></div>
         <div class="modulo" onclick="irAPagina('consentimiento')"><i class="fas fa-file-signature"></i><h3>Consentimiento</h3></div>
         <div class="modulo" onclick="irAPagina('certificado')"><i class="fas fa-certificate"></i><h3>Certificado</h3></div>
-        <div class="modulo" onclick="irAPagina('consultorio')"><i class="fas fa-building"></i><h3>Mi Consultorio</h3></div>
+
         <div class="modulo" onclick="irAPagina('estadisticas')"><i class="fas fa-chart-line"></i><h3>Estadísticas</h3></div>
     </div></div>
 
@@ -262,7 +262,7 @@
         </fieldset>
         <fieldset><legend>💊 Medicamentos</legend><div id="medicamentosContainer"></div>
             <button type="button" onclick="agregarMedicamentoReceta()" style="width:100%; margin-top:10px;">+ Agregar medicamento</button>
-            <button type="button" onclick="cargarEjemploMedicamentos()" style="width:100%; margin-top:5px; background:#7F8C8D;">📋 Cargar ejemplo</button>
+
         </fieldset>
         <fieldset><legend>📝 Indicaciones</legend><textarea id="indicacionesGenerales" rows="3" placeholder="Reposo, dieta, cuidados..."></textarea></fieldset>
         <fieldset><legend>ℹ️ Información Adicional</legend>
@@ -296,7 +296,6 @@
 
     <!-- CITAS CON INVITACIONES A CALENDAR -->
     <div id="pagina-citas" class="pagina"><div class="card"><h2>📅 Agenda de Citas <i class="fab fa-google" style="font-size:0.9rem;"></i> <span id="calendarStatus" style="font-size:0.7rem; color:#10B981;"></span></h2>
-        <div class="alert-info"><i class="fas fa-google"></i> Las citas se sincronizan con Google Calendar. Si el paciente tiene correo Gmail, recibirá invitación.</div>
         <input type="hidden" id="citaNombre"><input type="hidden" id="citaTelefono"><input type="hidden" id="citaEmail">
         <div class="row"><div><label>Fecha:</label><input type="date" id="citaFecha"></div><div><label>Hora:</label><input type="time" id="citaHora"></div></div>
         <div><label>Tratamiento:</label><input type="text" id="citaTratamiento"></div>
@@ -341,10 +340,7 @@
     <div id="pagina-certificado" class="pagina"><div class="card"><h2>📜 Certificado</h2><div class="doctor-fijo">Dr. Alejandro Coronado</div><input type="hidden" id="certNombre"><input type="hidden" id="certEdad"><div class="row"><div><label>Lugar:</label><input type="text" id="certLugar"></div><div><label>Fecha:</label><input type="date" id="certFecha"></div></div><div><label>Diagnóstico:</label><textarea id="certDiagnostico" rows="2"></textarea></div><div class="row"><div><label>Días reposo:</label><input type="number" id="certDias"></div><div><label>Desde:</label><input type="date" id="certDesde"></div><div><label>Hasta:</label><input type="date" id="certHasta"></div></div><label><input type="checkbox" id="certOmitir"> Omitir diagnóstico</label><br><br><button onclick="guardarCertificado()">Guardar</button><button onclick="generarCertificadoPDF()">PDF</button><hr><h3>Historial</h3><div id="listaCertificados"></div></div></div>
 
     <!-- MI CONSULTORIO -->
-    <div id="pagina-consultorio" class="pagina"><div class="card"><h2>🏢 Mi Consultorio</h2><div class="doctor-fijo"><strong>DATOS FIJOS</strong><br>Dr. Alejandro Coronado | Cédula: 9562093<br>Tel: 6646251897 | Email: Dentist.alexxx@gmail.com</div>
-        <fieldset><legend>Logo Oficial</legend><div style="text-align:center;padding:20px;background:var(--input);border-radius:8px"><i class="fas fa-tooth" style="font-size:4rem;color:var(--secondary)"></i><p style="margin-top:10px">C&C Dental Group</p></div></fieldset>
 
-    </div></div>
 
     <!-- ESTADÍSTICAS -->
     <div id="pagina-estadisticas" class="pagina"><div class="card"><h2>📊 Estadísticas</h2><div class="row"><div class="chart-container"><div class="stat-number" id="totalPacientes">0</div><div>Pacientes</div></div><div class="chart-container"><div class="stat-number" id="totalCitas">0</div><div>Citas</div></div><div class="chart-container"><div class="stat-number" id="totalRecetas">0</div><div>Recetas</div></div><div class="chart-container"><div class="stat-number" id="totalPresupuestos">0</div><div>Presupuestos</div></div></div><button onclick="exportarReporte()"><i class="fas fa-download"></i> Exportar</button></div></div>
@@ -550,15 +546,26 @@ function cambiarPaciente(){
     if(k&&pacientes[k]){
         pacienteActual=pacientes[k];
         document.getElementById('infoPacienteActual').innerHTML=`✅ ${pacienteActual.data.nombre}`;
+        // Expediente
         document.getElementById('expNombre').value=pacienteActual.data.nombre||'';
         document.getElementById('expEdad').value=pacienteActual.data.edad||'';
         document.getElementById('expTelefono').value=pacienteActual.data.telefono||'';
         document.getElementById('expEmail').value=pacienteActual.data.email||'';
         document.getElementById('expAlergias').value=pacienteActual.data.alergias||'';
         document.getElementById('expAntecedentes').value=pacienteActual.data.antecedentes||'';
+        // Receta — limpiar campos propios al cambiar paciente
         document.getElementById('recNombre').value=pacienteActual.data.nombre||'';
         document.getElementById('recEdad').value=pacienteActual.data.edad||'';
         document.getElementById('recAlergias').value=pacienteActual.data.alergias||'';
+        document.getElementById('diagnostico').value='';
+        document.getElementById('indicacionesGenerales').value='';
+        document.getElementById('proximaCita').value='';
+        document.getElementById('notasExtra').value='';
+        document.getElementById('folioReceta').value='';
+        document.getElementById('expediente').value='';
+        recetaMedicamentos=[];
+        renderizarMedicamentosReceta();
+        // Resto de módulos
         document.getElementById('presNombre').value=pacienteActual.data.nombre||'';
         document.getElementById('citaNombre').value=pacienteActual.data.nombre||'';
         document.getElementById('citaTelefono').value=pacienteActual.data.telefono||'';
@@ -1152,8 +1159,9 @@ async function sincronizarCalendario() {
     }
     guardarTodoLocal();
     if(accessToken && pacienteActual.folderId) guardarArchivoEnDrive(pacienteActual.folderId, 'citas.json', pacienteActual.citas);
-    mostrarCitas();
-    mostrarToast(`✅ ${actualizadas} citas sincronizadas`);
+    mostrarCitas(); // re-renderiza con íconos actualizados
+    if(actualizadas > 0) mostrarToast(`✅ ${actualizadas} cita(s) sincronizada(s) con Calendar`);
+    else mostrarToast('✅ Todas las citas ya estaban sincronizadas');
 }
 
 function guardarCita(){
@@ -1337,7 +1345,7 @@ function eliminarServicio(i){servicios.splice(i,1);mostrarServicios()}
 function actualizarSelectServicios(){let s=document.getElementById('presServicioSelect');if(s)s.innerHTML=servicios.map(s=>`<option value="${s.nombre}|${s.costo}">${s.nombre} - $${s.costo}</option>`).join('')}
 
 // ========== MEDICAMENTOS ==========
-function mostrarMedicamentos(){let t=document.getElementById('listaMedicamentos');t.innerHTML=medicamentos.map((m,i)=>`<td>${m.nombre}</td><td style="padding:8px">${m.categoria||''}</td><td style="padding:8px">${m.uso||''}</td><td style="padding:8px"><button onclick="eliminarMedicamento(${i})" style="padding:4px 8px;font-size:0.7rem">X</button>NonNull} None`).join('');guardarTodoLocal();}
+function mostrarMedicamentos(){let t=document.getElementById('listaMedicamentos');t.innerHTML=medicamentos.map((m,i)=>`<tr><td>${m.nombre}</td><td style="padding:8px">${m.categoria||''}</td><td style="padding:8px">${m.uso||''}</td><td style="padding:8px"><button onclick="eliminarMedicamento(${i})" style="padding:4px 8px;font-size:0.7rem">X</button></td></tr>`).join('');guardarTodoLocal();}
 function agregarMedicamento(){let n=document.getElementById('medNombre').value;if(n){medicamentos.push({nombre:n,categoria:document.getElementById('medCategoria').value,uso:document.getElementById('medUso').value});mostrarMedicamentos();mostrarToast('Medicamento agregado')}}
 function eliminarMedicamento(i){medicamentos.splice(i,1);mostrarMedicamentos()}
 
