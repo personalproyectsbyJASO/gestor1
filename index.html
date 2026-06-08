@@ -174,8 +174,9 @@
             <i class="fas fa-tooth"></i>
             <div><h1>C&C Dental Group</h1><p>Gestión Clínica Dental con Google Drive y Calendar</p></div>
         </div>
-        <div style="display:flex;gap:10px">
+        <div style="display:flex;gap:10px;align-items:center">
             <div class="btn-google" id="googleBtn" onclick="conectarGoogle()"><i class="fab fa-google"></i><span>Conectar Drive</span></div>
+            <div class="btn-google" id="btnNotif" onclick="activarNotificaciones()" style="border-left-color:#F59E0B"><i class="fas fa-bell"></i><span>Notif.</span></div>
             <div class="btn-theme" onclick="toggleModo()"><i class="fas fa-moon"></i><span>Modo</span></div>
         </div>
     </div>
@@ -495,6 +496,38 @@ function guardarTodoLocal(){
     localStorage.setItem('pacientes',JSON.stringify(pacientes));
     localStorage.setItem('servicios',JSON.stringify(servicios));
     localStorage.setItem('medicamentos',JSON.stringify(medicamentos));
+}
+
+// Exportar todo como JSON descargable (respaldo manual)
+function exportarRespaldoCompleto(){
+    let datos = { exportado: new Date().toISOString(), pacientes, servicios, medicamentos };
+    let blob = new Blob([JSON.stringify(datos, null, 2)], {type:'application/json'});
+    let a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = `respaldo_dental_${new Date().toISOString().slice(0,10)}.json`;
+    a.click(); URL.revokeObjectURL(a.href);
+    mostrarToast('✅ Respaldo descargado');
+}
+
+function importarRespaldoCompleto(){
+    let input = document.createElement('input'); input.type='file'; input.accept='.json';
+    input.onchange = e => {
+        let reader = new FileReader();
+        reader.onload = ev => {
+            try {
+                let datos = JSON.parse(ev.target.result);
+                if(datos.pacientes) pacientes = datos.pacientes;
+                if(datos.servicios) servicios = datos.servicios;
+                if(datos.medicamentos) medicamentos = datos.medicamentos;
+                guardarTodoLocal();
+                actualizarSelectPacientes();
+                mostrarServicios(); mostrarMedicamentos(); actualizarEstadisticas();
+                programarTodasLasNotificaciones();
+                mostrarToast('✅ Respaldo restaurado correctamente');
+            } catch(e){ mostrarToast('❌ Archivo inválido'); }
+        };
+        reader.readAsText(e.target.files[0]);
+    };
+    input.click();
 }
 
 function inicializarDatos(){
@@ -1223,6 +1256,7 @@ function guardarCita(){
                 if(accessToken && pacienteActual.folderId) guardarArchivoEnDrive(pacienteActual.folderId, 'citas.json', pacienteActual.citas);
                 mostrarCitas();
                 actualizarEstadisticas();
+                programarNotifSiActivo(cita, pacienteActual.citas.length - 1);
                 limpiarCamposCita();
                 if(correoPaciente && correoPaciente.includes('@gmail.com')) {
                     mostrarToast('📧 Se envió invitación al correo del paciente');
@@ -1247,6 +1281,13 @@ function limpiarCamposCita() {
     document.getElementById('citaHora').value = '';
     document.getElementById('citaTratamiento').value = '';
     document.getElementById('citaNotas').value = '';
+}
+
+function programarNotifSiActivo(cita, idx){
+    if(localStorage.getItem('notifActivadas')==='1' && Notification.permission==='granted' && swRegistration){
+        let k = Object.keys(pacientes).find(k => pacientes[k] === pacienteActual) || 'p';
+        programarNotificacionCita(pacienteActual.data.nombre||'Paciente', cita.fecha, cita.hora, cita.tratamiento||'Consulta', k+'_'+idx);
+    }
 }
 
 function mostrarCitas(){
@@ -1456,7 +1497,27 @@ async function iniciarAuth(clientId){
 async function refrescarToken(){let st=localStorage.getItem('driveToken');if(st)return st;if(!tokenClient)return null;return new Promise(r=>{tokenClient.callback=resp=>{if(resp.access_token){localStorage.setItem('driveToken',resp.access_token);r(resp.access_token)}else r(null)};tokenClient.requestAccessToken({prompt:''})})}
 async function crearCarpetaPrincipal(){let t=await refrescarToken();if(!t)return;try{let b=await fetch(`https://www.googleapis.com/drive/v3/files?q=name='C-C Dental Group' and mimeType='application/vnd.google-apps.folder' and trashed=false`,{headers:{'Authorization':`Bearer ${t}`}});let r=await b.json();if(r.files&&r.files.length>0)principalFolderId=r.files[0].id;else{let c=await fetch('https://www.googleapis.com/drive/v3/files',{method:'POST',headers:{'Authorization':`Bearer ${t}`,'Content-Type':'application/json'},body:JSON.stringify({name:'C-C Dental Group',mimeType:'application/vnd.google-apps.folder'})});let n=await c.json();if(n.id)principalFolderId=n.id}await cargarPacientesDesdeDrive()}catch(e){}}
 async function crearSubcarpeta(pId,n){let t=await refrescarToken();if(!t)return null;try{let b=await fetch(`https://www.googleapis.com/drive/v3/files?q=name='${n}' and mimeType='application/vnd.google-apps.folder' and '${pId}' in parents and trashed=false`,{headers:{'Authorization':`Bearer ${t}`}});let r=await b.json();if(r.files&&r.files.length>0)return r.files[0].id;let c=await fetch('https://www.googleapis.com/drive/v3/files',{method:'POST',headers:{'Authorization':`Bearer ${t}`,'Content-Type':'application/json'},body:JSON.stringify({name:n,mimeType:'application/vnd.google-apps.folder',parents:[pId]})});let nw=await c.json();return nw.id||null}catch(e){return null}}
-async function cargarPacientesDesdeDrive(){if(!principalFolderId)return;let t=await refrescarToken();if(!t)return;try{let b=await fetch(`https://www.googleapis.com/drive/v3/files?q='${principalFolderId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`,{headers:{'Authorization':`Bearer ${t}`}});let r=await b.json();if(r.files){for(let f of r.files){if(!pacientes[f.name]){pacientes[f.name]={folderId:f.id,data:{},recetas:[],presupuestos:[],citas:[],consentimientos:[],certificados:[]};await cargarDatosPacienteDesdeDrive(f.name,f.id)}}guardarTodoLocal();actualizarSelectPacientes()}}catch(e){}}
+async function cargarPacientesDesdeDrive(){
+    if(!principalFolderId)return;
+    let t=await refrescarToken();if(!t)return;
+    try{
+        mostrarToast('☁️ Cargando desde Drive...');
+        let b=await fetch(`https://www.googleapis.com/drive/v3/files?q='${principalFolderId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`,{headers:{'Authorization':`Bearer ${t}`}});
+        let r=await b.json();
+        if(r.files){
+            for(let f of r.files){
+                // Siempre sincronizar — Drive es la fuente de verdad
+                if(!pacientes[f.name]) pacientes[f.name]={folderId:f.id,data:{},recetas:[],presupuestos:[],citas:[],consentimientos:[],certificados:[]};
+                pacientes[f.name].folderId=f.id;
+                await cargarDatosPacienteDesdeDrive(f.name,f.id);
+            }
+            guardarTodoLocal();
+            actualizarSelectPacientes();
+            programarTodasLasNotificaciones();
+            mostrarToast('✅ Datos sincronizados desde Drive');
+        }
+    }catch(e){ mostrarToast('⚠️ Sin conexión, usando datos locales'); }
+}
 async function cargarDatosPacienteDesdeDrive(k,fId){let t=await refrescarToken();if(!t)return;let archivos=['expediente.json','recetas.json','presupuestos.json','citas.json','consentimientos.json','certificados.json'];for(let a of archivos){try{let b=await fetch(`https://www.googleapis.com/drive/v3/files?q='${fId}' in parents and name='${a}' and trashed=false`,{headers:{'Authorization':`Bearer ${t}`}});let r=await b.json();if(r.files&&r.files.length>0){let c=await fetch(`https://www.googleapis.com/drive/v3/files/${r.files[0].id}?alt=media`,{headers:{'Authorization':`Bearer ${t}`}});let d=await c.json();if(a==='expediente.json')pacientes[k].data={...pacientes[k].data,...d};else if(a==='recetas.json')pacientes[k].recetas=d;else if(a==='presupuestos.json')pacientes[k].presupuestos=d;else if(a==='citas.json')pacientes[k].citas=d;else if(a==='consentimientos.json')pacientes[k].consentimientos=d;else if(a==='certificados.json')pacientes[k].certificados=d}}catch(e){}}}
 
 function irAPagina(p){window.location.hash=p;mostrarPagina(p)}
@@ -1470,7 +1531,128 @@ function mostrarPagina(p){
 window.addEventListener('hashchange',()=>{let h=window.location.hash.substring(1);if(h)mostrarPagina(h);else mostrarPagina('menu')});
 function mostrarToast(m){let t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),3000);}
 
-inicializarDatos();let hi=window.location.hash.substring(1);if(hi)mostrarPagina(hi);let idG=localStorage.getItem('googleClientId');if(idG)setTimeout(()=>{if(!accessToken)conectarGoogle()},500);
+// ══════════════════════════════════════════════════════
+// NOTIFICACIONES — Service Worker inline
+// ══════════════════════════════════════════════════════
+const SW_SCRIPT = `
+self.addEventListener('message', e => {
+    if(e.data.type === 'PROGRAMAR'){
+        let { id, titulo, cuerpo, ms } = e.data;
+        setTimeout(() => {
+            self.registration.showNotification(titulo, {
+                body: cuerpo,
+                icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦷</text></svg>',
+                badge: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦷</text></svg>',
+                tag: id,
+                requireInteraction: true
+            });
+        }, Math.max(ms, 0));
+    }
+    if(e.data.type === 'CANCELAR'){
+        // no hay API directa para cancelar timeout en SW, se ignora si ya pasó
+    }
+});
+self.addEventListener('notificationclick', e => { e.notification.close(); });
+`;
+
+let swRegistration = null;
+
+async function iniciarServiceWorker(){
+    if(!('serviceWorker' in navigator) || !('Notification' in window)) return;
+    try {
+        let blob = new Blob([SW_SCRIPT], {type:'application/javascript'});
+        let swUrl = URL.createObjectURL(blob);
+        swRegistration = await navigator.serviceWorker.register(swUrl, {scope:'/'});
+        await navigator.serviceWorker.ready;
+        console.log('✅ Service Worker listo');
+    } catch(e){ console.warn('SW no disponible:', e); }
+}
+
+async function pedirPermisoNotificaciones(){
+    if(!('Notification' in window)) return false;
+    if(Notification.permission === 'granted') return true;
+    if(Notification.permission === 'denied') return false;
+    let perm = await Notification.requestPermission();
+    return perm === 'granted';
+}
+
+function programarNotificacionCita(pacienteNombre, fecha, hora, tratamiento, citaId){
+    if(!swRegistration || !swRegistration.active) return;
+    if(Notification.permission !== 'granted') return;
+
+    let fechaHora = new Date(`${fecha}T${hora}:00`);
+    let ahora = new Date();
+
+    // Notificación 24 horas antes
+    let ms24 = fechaHora.getTime() - ahora.getTime() - (24*60*60*1000);
+    if(ms24 > 0){
+        swRegistration.active.postMessage({
+            type:'PROGRAMAR', id: citaId+'_24h',
+            titulo: '📅 Cita mañana — C&C Dental',
+            cuerpo: `${pacienteNombre} · ${tratamiento} · ${hora}`,
+            ms: ms24
+        });
+    }
+
+    // Notificación 1 hora antes
+    let ms1h = fechaHora.getTime() - ahora.getTime() - (60*60*1000);
+    if(ms1h > 0){
+        swRegistration.active.postMessage({
+            type:'PROGRAMAR', id: citaId+'_1h',
+            titulo: '⏰ Cita en 1 hora — C&C Dental',
+            cuerpo: `${pacienteNombre} · ${tratamiento}`,
+            ms: ms1h
+        });
+    }
+
+    // Notificación 30 min antes
+    let ms30 = fechaHora.getTime() - ahora.getTime() - (30*60*1000);
+    if(ms30 > 0){
+        swRegistration.active.postMessage({
+            type:'PROGRAMAR', id: citaId+'_30m',
+            titulo: '🦷 Cita en 30 minutos — C&C Dental',
+            cuerpo: `${pacienteNombre} · ${tratamiento}`,
+            ms: ms30
+        });
+    }
+}
+
+function programarTodasLasNotificaciones(){
+    if(Notification.permission !== 'granted') return;
+    Object.entries(pacientes).forEach(([k, p]) => {
+        (p.citas || []).forEach((c, i) => {
+            let fechaHora = new Date(`${c.fecha}T${c.hora}:00`);
+            if(fechaHora > new Date()){
+                programarNotificacionCita(p.data.nombre||k, c.fecha, c.hora, c.tratamiento||'Consulta', k+'_'+i);
+            }
+        });
+    });
+}
+
+async function activarNotificaciones(){
+    let ok = await pedirPermisoNotificaciones();
+    if(ok){
+        await iniciarServiceWorker();
+        programarTodasLasNotificaciones();
+        mostrarToast('🔔 Notificaciones activadas');
+        document.getElementById('btnNotif').innerHTML='<i class="fas fa-bell"></i><span>Notif. ON</span>';
+        document.getElementById('btnNotif').style.borderLeftColor='var(--secondary)';
+        localStorage.setItem('notifActivadas','1');
+    } else {
+        mostrarToast('❌ Permiso de notificaciones denegado');
+    }
+}
+
+inicializarDatos();
+let hi=window.location.hash.substring(1);if(hi)mostrarPagina(hi);
+let idG=localStorage.getItem('googleClientId');if(idG)setTimeout(()=>{if(!accessToken)conectarGoogle()},500);
+
+// Auto-iniciar SW si ya tenía permiso
+if(localStorage.getItem('notifActivadas')==='1' && Notification.permission==='granted'){
+    iniciarServiceWorker().then(()=>{ setTimeout(programarTodasLasNotificaciones, 1500); });
+    document.getElementById('btnNotif').innerHTML='<i class="fas fa-bell"></i><span>Notif. ON</span>';
+    document.getElementById('btnNotif').style.borderLeftColor='var(--secondary)';
+}
 </script>
 </body>
 </html>
