@@ -216,7 +216,7 @@
     </div></div>
 
     <!-- EXPEDIENTE -->
-    <div id="pagina-expediente" class="pagina"><div class="card"><h2>📋 Expediente Clínico</h2><div class="doctor-fijo"><i class="fas fa-user-md"></i> Dr. Alejandro Coronado | Cédula: 9562093</div><fieldset><legend>Datos del Paciente</legend><div class="row"><div><label>Nombre:</label><input type="text" id="expNombre"></div><div><label>Edad:</label><input type="number" id="expEdad"></div></div><div class="row"><div><label>Teléfono:</label><input type="text" id="expTelefono"></div><div><label>Email:</label><input type="email" id="expEmail" placeholder="correo@ejemplo.com (para invitaciones a Calendar)"></div></div><div><label>Alergias:</label><textarea id="expAlergias" rows="2"></textarea></div><div><label>Antecedentes:</label><textarea id="expAntecedentes" rows="3"></textarea></div></fieldset><button onclick="guardarExpediente()">Guardar</button></div></div>
+    <div id="pagina-expediente" class="pagina"><div class="card"><h2>📋 Expediente Clínico</h2><div class="doctor-fijo"><i class="fas fa-user-md"></i> Dr. Alejandro Coronado | Cédula: 9562093</div><input type="hidden" id="expNombre"><input type="hidden" id="expEdad"><input type="hidden" id="expTelefono"><input type="hidden" id="expEmail"><fieldset><legend>Datos Clínicos</legend><div><label>Alergias:</label><textarea id="expAlergias" rows="2"></textarea></div><div><label>Antecedentes:</label><textarea id="expAntecedentes" rows="3"></textarea></div></fieldset><button onclick="guardarExpediente()">Guardar</button></div></div>
 
     <!-- RECETA -->
     <div id="pagina-receta" class="pagina"><div class="card"><h2>📄 Receta Médica Profesional</h2>
@@ -296,7 +296,7 @@
 
     <!-- CONSENTIMIENTO -->
     <div id="pagina-consentimiento" class="pagina"><div class="card"><h2>📝 Consentimiento Informado</h2>
-        <div><label>Paciente:</label><input type="text" id="consentNombre"></div>
+        <input type="hidden" id="consentNombre">
         <div><label>Procedimiento:</label><input type="text" id="consentProcedimiento"></div>
         <div><label>Texto del Consentimiento:</label><textarea id="consentTexto" rows="6">Yo, [NOMBRE], autorizo al Dr. Alejandro Coronado a realizar [PROCEDIMIENTO]. He sido informado de los riesgos y beneficios.</textarea></div>
         <fieldset>
@@ -319,7 +319,7 @@
     </div></div>
 
     <!-- CERTIFICADO -->
-    <div id="pagina-certificado" class="pagina"><div class="card"><h2>📜 Certificado</h2><div class="doctor-fijo">Dr. Alejandro Coronado</div><div class="row"><div><label>Paciente:</label><input type="text" id="certNombre"></div><div><label>Edad:</label><input type="text" id="certEdad"></div></div><div class="row"><div><label>Lugar:</label><input type="text" id="certLugar"></div><div><label>Fecha:</label><input type="date" id="certFecha"></div></div><div><label>Diagnóstico:</label><textarea id="certDiagnostico" rows="2"></textarea></div><div class="row"><div><label>Días reposo:</label><input type="number" id="certDias"></div><div><label>Desde:</label><input type="date" id="certDesde"></div><div><label>Hasta:</label><input type="date" id="certHasta"></div></div><label><input type="checkbox" id="certOmitir"> Omitir diagnóstico</label><br><br><button onclick="guardarCertificado()">Guardar</button><button onclick="generarCertificadoPDF()">PDF</button><hr><h3>Historial</h3><div id="listaCertificados"></div></div></div>
+    <div id="pagina-certificado" class="pagina"><div class="card"><h2>📜 Certificado</h2><div class="doctor-fijo">Dr. Alejandro Coronado</div><input type="hidden" id="certNombre"><input type="hidden" id="certEdad"><div class="row"><div><label>Lugar:</label><input type="text" id="certLugar"></div><div><label>Fecha:</label><input type="date" id="certFecha"></div></div><div><label>Diagnóstico:</label><textarea id="certDiagnostico" rows="2"></textarea></div><div class="row"><div><label>Días reposo:</label><input type="number" id="certDias"></div><div><label>Desde:</label><input type="date" id="certDesde"></div><div><label>Hasta:</label><input type="date" id="certHasta"></div></div><label><input type="checkbox" id="certOmitir"> Omitir diagnóstico</label><br><br><button onclick="guardarCertificado()">Guardar</button><button onclick="generarCertificadoPDF()">PDF</button><hr><h3>Historial</h3><div id="listaCertificados"></div></div></div>
 
     <!-- MI CONSULTORIO -->
     <div id="pagina-consultorio" class="pagina"><div class="card"><h2>🏢 Mi Consultorio</h2><div class="doctor-fijo"><strong>DATOS FIJOS</strong><br>Dr. Alejandro Coronado | Cédula: 9562093<br>Tel: 6646251897 | Email: Dentist.alexxx@gmail.com</div>
