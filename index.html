@@ -265,8 +265,6 @@
                 <button type="button" onclick="agregarMedicamentoReceta()" style="width:100%; margin-top:10px;">+ Agregar medicamento</button>
                 <button type="button" onclick="cargarEjemploMedicamentos()" style="width:100%; margin-top:5px; background:#7F8C8D;">📋 Cargar ejemplos predefinidos</button>
             </fieldset>
-            <fieldset><legend>📝 Indicaciones</legend><textarea id="indicacionesGenerales" rows="3" placeholder="Reposo, dieta, cuidados..."></textarea></fieldset>
-            
             <fieldset class="firma-receta-container">
                 <legend>🖋️ Firma Digital del Médico</legend>
                 <canvas id="canvasFirmaReceta" class="firma-receta-canvas"></canvas>
@@ -274,7 +272,7 @@
                     <button type="button" class="btn-firma-receta" onclick="limpiarFirmaReceta()">Borrar trazo</button>
                 </div>
             </fieldset>
-
+            <fieldset><legend>📝 Indicaciones</legend><textarea id="indicacionesGenerales" rows="3" placeholder="Reposo, dieta, cuidados..."></textarea></fieldset>
             <fieldset>
                 <legend>ℹ️ Información Adicional</legend>
                 <div class="row"><div><label>Próxima cita:</label><input type="text" id="proximaCita" placeholder="Ej: 10 de junio de 2026"></div></div>
@@ -684,7 +682,6 @@ function configurarLienzoFirmas() {
     ctxConsentimiento.strokeStyle = '#1A2A3A';
     ctxConsentimiento.lineWidth = 2;
 
-    // Configurar Eventos Mouse e Híbridos Táctiles
     const asociarEventosFirma = (canvas, ctx, trazandoObj) => {
         let getPos = (e) => {
             let r = canvas.getBoundingClientRect();
@@ -758,7 +755,7 @@ function agendarEventoEnGoogleCalendar(cita) {
     const estructuraEvento = {
         'summary': `Cita Dental: ${cita.pacienteNombre}`,
         'location': 'Emiliano Zapata 2751, Ejido Matamoros, Tijuana',
-        'description': `Tratamiento: ${cita.tratamiento}\nNotas: ${cita.notas || 'Sin anotaciones.'}\nDr. Alejandro Coronado`,
+        'description': `Tratamiento: ${cita.tratamiento}\nNotas: ${cita.notes || 'Sin anotaciones.'}\nDr. Alejandro Coronado`,
         'start': { 'dateTime': dateInicio.toISOString(), 'timeZone': 'America/Tijuana' },
         'end': { 'dateTime': dateFin.toISOString(), 'timeZone': 'America/Tijuana' },
         'attendees': [],
@@ -825,7 +822,7 @@ function actualizarListaCitas() {
         let div = document.createElement('div');
         div.className = 'cita-item';
         div.innerHTML = `
-            <div><strong>${c.fecha} a las ${c.hora}</strong> - ${c.tratamiento}<br><small>${c.notas || ''}</small></div>
+            <div><strong>${c.fecha} a las ${c.hora}</strong> - ${c.tratamiento}<br><small>${c.notes || ''}</small></div>
             <button onclick="eliminarCita('${c.id}')" style="background:#EF4444; padding:4px 8px; font-size:0.7rem;"><i class="fas fa-trash"></i></button>
         `;
         container.appendChild(div);
@@ -839,15 +836,6 @@ function eliminarCita(id) {
     actualizarListaCitas();
     actualizarEstadisticas();
     mostrarToast("Cita removida.");
-}
-
-function sincronizarCalendario() {
-    if (!accessToken) return conectarGoogle();
-    if (!pacienteActual || !pacientes[pacienteActual].citas || pacientes[pacienteActual].citas.length === 0) {
-        return mostrarToast("No hay elementos que exportar.");
-    }
-    mostrarToast("Enviando bloque completo...");
-    pacientes[pacienteActual].citas.forEach(c => agendarEventoEnGoogleCalendar(c));
 }
 
 // ========== CATÁLOGOS Y MÓDULOS EXTRAS COMPLEMENTARIOS ==========
@@ -923,6 +911,15 @@ function calcularTotalPresupuesto() {
     document.getElementById('totalPresupuestoDisplay').textContent = `Total: $${tot.toFixed(2)}`;
 }
 
+function sincronizarCalendario() {
+    if (!accessToken) return conectarGoogle();
+    if (!pacienteActual || !pacientes[pacienteActual].citas || pacientes[pacienteActual].citas.length === 0) {
+        return mostrarToast("No hay elementos que exportar.");
+    }
+    mostrarToast("Enviando bloque completo...");
+    pacientes[pacienteActual].citas.forEach(c => agendarEventoEnGoogleCalendar(c));
+}
+
 // ========== CONTROLADORES DE INTERFAZ NATIVA DE USUARIO ==========
 function irAPagina(idPagina) {
     document.getElementById('pagina-menu').classList.remove('activa');
@@ -961,6 +958,7 @@ function actualizarEstadisticas() {
 function guardarPresupuesto() { mostrarToast("Presupuesto guardado."); }
 function guardarConsentimientoConFirma() { mostrarToast("Consentimiento e historial de trazo registrados."); }
 function guardarCertificado() { mostrarToast("Certificado médico estructurado guardado."); }
+
 function importarExpedienteJSON() {
     let input = document.createElement('input');
     input.type = 'file';
@@ -984,6 +982,7 @@ function importarExpedienteJSON() {
     }
     input.click();
 }
+
 function exportarExpedienteJSON() {
     let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(pacientes));
     let dl = document.createElement('a');
