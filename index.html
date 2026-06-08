@@ -1040,49 +1040,98 @@ async function activarNotificaciones(){
 function actualizarResumen(){
     let d=document.getElementById('resumenContenido');
     if(!d)return;
-    if(!pacienteActual){d.innerHTML='<div style="text-align:center;padding:10px;">Selecciona un paciente para ver el resumen.</div>';return;}
+    if(!pacienteActual){
+        d.innerHTML='<div class="alert-info"><i class="fas fa-info-circle"></i> Selecciona un paciente para ver el resumen.</div>';
+        return;
+    }
     let p=pacienteActual;
     let nombre=p.data.nombre||'—';
     let edad=p.data.edad||'—';
     let tel=p.data.telefono||'—';
-    let alergias=p.data.alergias||'Sin alergias registradas';
+    let email=p.data.email||'—';
+    let alergias=p.data.alergias||'Ninguna';
+    let antecedentes=p.data.antecedentes||'Sin antecedentes';
+
     // Próxima cita
-    let citas=(p.citas||[]).filter(c=>new Date(c.fecha+'T'+(c.hora||'00:00')+':00')>=new Date());
-    citas.sort((a,b)=>new Date(a.fecha+'T'+a.hora)-new Date(b.fecha+'T'+b.hora));
-    let proximaCitaStr=citas.length>0?`${citas[0].fecha} ${citas[0].hora} — ${citas[0].tratamiento||'Consulta'}`:'Sin citas futuras';
+    let todasCitas=p.citas||[];
+    let citasFuturas=todasCitas.filter(c=>new Date(c.fecha+'T'+(c.hora||'00:00')+':00')>=new Date());
+    citasFuturas.sort((a,b)=>new Date(a.fecha+'T'+a.hora)-new Date(b.fecha+'T'+b.hora));
+    let proximaCitaHTML='<span style="color:var(--text-muted)">Sin citas futuras programadas</span>';
+    if(citasFuturas.length>0){
+        let c=citasFuturas[0];
+        proximaCitaHTML=`<strong>${c.fecha}</strong> a las <strong>${c.hora}</strong> — ${escapeHtml(c.tratamiento||'Consulta')}${c.notas?`<br><small style="color:var(--text-muted)">📝 ${escapeHtml(c.notas)}</small>`:''}`;
+    }
+
     // Última receta
     let recetas=p.recetas||[];
-    let ultimaReceta=recetas.length>0?`${recetas[0].fecha} — ${recetas[0].diagnostico||'Sin diagnóstico'}`:'Sin recetas';
+    let recetaHTML='<span style="color:var(--text-muted)">Sin recetas guardadas</span>';
+    if(recetas.length>0){
+        let r=recetas[0];
+        let meds=(r.medicamentos||[]).filter(m=>m.nombre&&m.nombre.trim()).map(m=>`<li>${escapeHtml(m.nombre)}${m.dosis?' — '+escapeHtml(m.dosis):''}${m.frecuencia?', '+escapeHtml(m.frecuencia):''}</li>`).join('');
+        recetaHTML=`<div><span style="color:var(--text-muted);font-size:0.75rem">${r.fecha}</span>${r.tieneFirma?' <span style="color:var(--secondary)">✍️</span>':''}</div>
+        ${r.diagnostico?`<div><strong>Diagnóstico:</strong> ${escapeHtml(r.diagnostico)}</div>`:''}
+        ${meds?`<ul style="margin:4px 0 0 16px;padding:0;font-size:0.8rem">${meds}</ul>`:''}
+        ${r.indicaciones?`<div style="margin-top:4px;font-size:0.8rem;color:var(--text-muted)"><strong>Indicaciones:</strong> ${escapeHtml(r.indicaciones)}</div>`:''}
+        ${r.proximaCita?`<div style="font-size:0.8rem"><strong>Próxima cita receta:</strong> ${escapeHtml(r.proximaCita)}</div>`:''}`;
+    }
+
     // Último presupuesto
     let presupuestos=p.presupuestos||[];
-    let ultimoPres=presupuestos.length>0?`${presupuestos[0].fecha} — Total: $${(presupuestos[0].total||0).toFixed(2)}`:'Sin presupuestos';
-    // Consentimiento
+    let presHTML='<span style="color:var(--text-muted)">Sin presupuestos guardados</span>';
+    if(presupuestos.length>0){
+        let pr=presupuestos[0];
+        let items=(pr.items||[]).map(i=>`<li>${escapeHtml(i.nombre)} — $${i.costo}</li>`).join('');
+        presHTML=`<div><span style="color:var(--text-muted);font-size:0.75rem">${pr.fecha}</span></div>
+        ${items?`<ul style="margin:4px 0 4px 16px;padding:0;font-size:0.8rem">${items}</ul>`:''}
+        ${pr.descuento>0?`<div style="font-size:0.8rem">Descuento: ${pr.descuento}%</div>`:''}
+        <div style="font-size:1rem;color:var(--secondary);font-weight:bold;margin-top:4px">Total: $${(pr.total||0).toFixed(2)}</div>
+        ${pr.vigencia?`<div style="font-size:0.75rem;color:var(--text-muted)">${escapeHtml(pr.vigencia)}</div>`:''}`;
+    }
+
+    // Consentimientos
     let consentimientos=p.consentimientos||[];
-    let ultimoConsent=consentimientos.length>0?`${consentimientos[0].fecha} — ${consentimientos[0].procedimiento||''}${consentimientos[0].firma?' ✍️':''}`:'Sin consentimientos';
+    let consentHTML='<span style="color:var(--text-muted)">Sin consentimientos guardados</span>';
+    if(consentimientos.length>0){
+        let c=consentimientos[0];
+        consentHTML=`<div><span style="color:var(--text-muted);font-size:0.75rem">${c.fecha}</span> ${c.firma?'<span style="color:var(--secondary)">✍️ Con firma digital</span>':'<span style="color:var(--text-muted)">Sin firma</span>'}</div>
+        ${c.procedimiento?`<div><strong>Procedimiento:</strong> ${escapeHtml(c.procedimiento)}</div>`:''}`;
+    }
+
+    // Certificados
+    let certificados=p.certificados||[];
+    let certHTML='<span style="color:var(--text-muted)">Sin certificados</span>';
+    if(certificados.length>0){
+        let c=certificados[0];
+        certHTML=`<div><span style="color:var(--text-muted);font-size:0.75rem">${c.fecha}</span></div>
+        <div>${escapeHtml(c.diagnostico||'')} ${c.dias_reposo?`— <strong>${c.dias_reposo} días reposo</strong>`:''}</div>`;
+    }
+
     d.innerHTML=`
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
-            <div style="background:var(--bg);border-radius:8px;padding:10px;border:1px solid var(--border);">
-                <div style="font-weight:bold;color:var(--primary);margin-bottom:4px;"><i class="fas fa-user"></i> Paciente</div>
-                <div>${escapeHtml(nombre)}</div>
-                <div style="color:var(--text-muted);">Edad: ${escapeHtml(edad)} · Tel: ${escapeHtml(tel)}</div>
-                <div style="color:#E53E3E;font-size:0.75rem;margin-top:4px;"><i class="fas fa-allergies"></i> ${escapeHtml(alergias)}</div>
-            </div>
-            <div style="background:var(--bg);border-radius:8px;padding:10px;border:1px solid var(--border);">
-                <div style="font-weight:bold;color:var(--primary);margin-bottom:4px;"><i class="fas fa-calendar-alt"></i> Próxima Cita</div>
-                <div>${escapeHtml(proximaCitaStr)}</div>
-            </div>
-            <div style="background:var(--bg);border-radius:8px;padding:10px;border:1px solid var(--border);">
-                <div style="font-weight:bold;color:var(--primary);margin-bottom:4px;"><i class="fas fa-prescription-bottle"></i> Última Receta</div>
-                <div style="font-size:0.78rem;">${escapeHtml(ultimaReceta)}</div>
-            </div>
-            <div style="background:var(--bg);border-radius:8px;padding:10px;border:1px solid var(--border);">
-                <div style="font-weight:bold;color:var(--primary);margin-bottom:4px;"><i class="fas fa-file-invoice-dollar"></i> Último Presupuesto</div>
-                <div style="font-size:0.78rem;">${escapeHtml(ultimoPres)}</div>
-            </div>
-            <div style="background:var(--bg);border-radius:8px;padding:10px;border:1px solid var(--border);">
-                <div style="font-weight:bold;color:var(--primary);margin-bottom:4px;"><i class="fas fa-file-signature"></i> Consentimiento</div>
-                <div style="font-size:0.78rem;">${escapeHtml(ultimoConsent)}</div>
-            </div>
+        <div class="doctor-fijo" style="margin-bottom:15px;">
+            <i class="fas fa-user-circle"></i>
+            <strong>${escapeHtml(nombre)}</strong> &nbsp;|&nbsp;
+            Edad: ${escapeHtml(edad)} &nbsp;|&nbsp;
+            Tel: ${escapeHtml(tel)} &nbsp;|&nbsp;
+            ${email!=='—'?`Email: ${escapeHtml(email)} &nbsp;|&nbsp;`:''}
+            <span style="color:var(--danger)"><i class="fas fa-allergies"></i> Alergias: ${escapeHtml(alergias)}</span>
+        </div>
+        ${antecedentes&&antecedentes!=='Sin antecedentes'?`<div style="font-size:0.8rem;margin-bottom:12px;padding:8px;background:var(--bg);border-radius:6px;border-left:3px solid var(--border)"><strong><i class="fas fa-notes-medical"></i> Antecedentes:</strong> ${escapeHtml(antecedentes)}</div>`:''}
+        <fieldset style="margin-bottom:12px"><legend><i class="fas fa-calendar-alt"></i> Próxima Cita</legend>
+            <div style="padding:4px 0">${proximaCitaHTML}</div>
+        </fieldset>
+        <fieldset style="margin-bottom:12px"><legend><i class="fas fa-prescription-bottle"></i> Última Receta</legend>
+            <div style="padding:4px 0">${recetaHTML}</div>
+        </fieldset>
+        <fieldset style="margin-bottom:12px"><legend><i class="fas fa-file-invoice-dollar"></i> Último Presupuesto</legend>
+            <div style="padding:4px 0">${presHTML}</div>
+        </fieldset>
+        <div class="row">
+            <fieldset style="margin-bottom:0"><legend><i class="fas fa-file-signature"></i> Consentimiento</legend>
+                <div style="padding:4px 0">${consentHTML}</div>
+            </fieldset>
+            <fieldset style="margin-bottom:0"><legend><i class="fas fa-certificate"></i> Certificado</legend>
+                <div style="padding:4px 0">${certHTML}</div>
+            </fieldset>
         </div>`;
 }
 function cargarFirmaPacienteGuardada(){
