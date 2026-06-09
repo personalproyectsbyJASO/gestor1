@@ -118,6 +118,7 @@
         </div>
         <div style="display:flex;gap:10px;align-items:center">
             <div class="btn-google" id="googleBtn" onclick="conectarGoogle()"><i class="fab fa-google"></i><span>Conectar Drive</span></div>
+        <div id="g_id_onload" data-client_id="" data-callback="onOneTapCredential" data-auto_select="true" data-itp_support="true" style="display:none"></div>
             <div class="btn-theme" onclick="toggleModo()"><i class="fas fa-moon"></i><span>Modo</span></div>
         </div>
     </div>
@@ -1503,11 +1504,57 @@ function generarCertificadoPDF(){
 }
 
 // ========== GOOGLE DRIVE AUTH ==========
-async function conectarGoogle(){let id=localStorage.getItem('googleClientId');if(id)iniciarAuth(id);else document.getElementById('configPanel').classList.remove('hidden');}
-function guardarClientId(){let id=document.getElementById('clientIdInput').value;if(id){localStorage.setItem('googleClientId',id);document.getElementById('configPanel').classList.add('hidden');iniciarAuth(id);}}
+// ── One Tap callback: se llama automáticamente si Google puede hacer silent sign-in ──
+async function onOneTapCredential(response){
+    // One Tap nos da un id_token, lo usamos para obtener access_token con el flujo normal
+    const clientId=localStorage.getItem('googleClientId');
+    if(!clientId||!response.credential)return;
+    // Decodificar el JWT para obtener el email
+    try{
+        const payload=JSON.parse(atob(response.credential.split('.')[1]));
+        if(payload.email)localStorage.setItem('googleUserEmail',payload.email);
+    }catch(e){}
+    // Ahora pedir access_token silenciosamente con ese email como hint
+    await iniciarAuth(clientId);
+}
+
+async function conectarGoogle(){
+    let id=localStorage.getItem('googleClientId');
+    if(id) iniciarAuth(id);
+    else document.getElementById('configPanel').classList.remove('hidden');
+}
+function guardarClientId(){
+    let id=document.getElementById('clientIdInput').value.trim();
+    if(id){
+        localStorage.setItem('googleClientId',id);
+        // Configurar One Tap con este client_id para futuros refresos automáticos
+        const el=document.getElementById('g_id_onload');
+        if(el) el.setAttribute('data-client_id',id);
+        document.getElementById('configPanel').classList.add('hidden');
+        iniciarAuth(id);
+    }
+}
 function cerrarConfig(){document.getElementById('configPanel').classList.add('hidden');}
+
 async function iniciarAuth(clientId){
     const hint=localStorage.getItem('googleUserEmail')||'';
+
+    // Configurar One Tap para reconexión automática futura
+    const oneTapEl=document.getElementById('g_id_onload');
+    if(oneTapEl){
+        oneTapEl.setAttribute('data-client_id',clientId);
+        // Reinicializar One Tap con el client_id correcto
+        if(window.google&&google.accounts&&google.accounts.id){
+            google.accounts.id.initialize({
+                client_id:clientId,
+                callback:onOneTapCredential,
+                auto_select:true,
+                itp_support:true,
+                cancel_on_tap_outside:false
+            });
+        }
+    }
+
     tokenClient=google.accounts.oauth2.initTokenClient({
         client_id:clientId,
         scope:'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/calendar.events',
@@ -1516,7 +1563,6 @@ async function iniciarAuth(clientId){
             if(resp.access_token){
                 accessToken=resp.access_token;
                 localStorage.setItem('driveToken',accessToken);
-                // Guardar email del usuario para futuros logins silenciosos
                 try{
                     let ui=await fetch('https://www.googleapis.com/oauth2/v2/userinfo',{headers:{'Authorization':`Bearer ${accessToken}`}});
                     let ud=await ui.json();
@@ -1524,16 +1570,16 @@ async function iniciarAuth(clientId){
                 }catch(e){}
                 document.getElementById('googleBtn').style.borderLeftColor='#10B981';
                 document.getElementById('googleBtn').innerHTML='<i class="fab fa-google"></i><span>✅ Conectado</span>';
-                mostrarToast('Drive y Calendar conectados');
                 await crearCarpetaPrincipal();
             }
         }
     });
-    let st=localStorage.getItem('driveToken');
+
+    const st=localStorage.getItem('driveToken');
     if(st){
-        // Intentar restaurar token existente
+        // Verificar si el token sigue válido
         try{
-            let test=await fetch('https://www.googleapis.com/oauth2/v2/userinfo',{headers:{'Authorization':`Bearer ${st}`}});
+            const test=await fetch('https://www.googleapis.com/oauth2/v2/userinfo',{headers:{'Authorization':`Bearer ${st}`}});
             if(test.status===200){
                 accessToken=st;
                 document.getElementById('googleBtn').style.borderLeftColor='#10B981';
@@ -1542,24 +1588,37 @@ async function iniciarAuth(clientId){
                 return;
             }
         }catch(e){
-            // Sin internet: usar token guardado y asumir válido
+            // Sin internet: asumir válido
             accessToken=st;
             document.getElementById('googleBtn').style.borderLeftColor='#10B981';
             document.getElementById('googleBtn').innerHTML='<i class="fab fa-google"></i><span>✅ Conectado</span>';
             await crearCarpetaPrincipal();
             return;
         }
-        // Token expirado: renovar SIN mostrar selector de cuenta (silent refresh)
+        // Token expirado: renovar silenciosamente sin selector de cuenta
         localStorage.removeItem('driveToken');
-        tokenClient.requestAccessToken({prompt:'',hint:hint});
+        if(hint){
+            // Si tenemos el email guardado, renovar sin ningún prompt
+            tokenClient.requestAccessToken({prompt:'',hint:hint});
+        }else{
+            // Sin email guardado: pedir cuenta solo esta vez
+            tokenClient.requestAccessToken({prompt:'select_account'});
+        }
     }else{
-        // Primer login: mostrar selector solo la primera vez
-        tokenClient.requestAccessToken({prompt:'select_account'});
+        if(hint){
+            // Ya sabemos qué cuenta — renovar silencioso
+            tokenClient.requestAccessToken({prompt:'',hint:hint});
+        }else{
+            // Primera vez: pedir cuenta
+            tokenClient.requestAccessToken({prompt:'select_account'});
+        }
     }
 }
+
 async function refrescarToken(){
     if(accessToken)return accessToken;
-    let st=localStorage.getItem('driveToken');if(st){accessToken=st;return st;}
+    const st=localStorage.getItem('driveToken');
+    if(st){accessToken=st;return st;}
     if(!tokenClient)return null;
     const hint=localStorage.getItem('googleUserEmail')||'';
     return new Promise(r=>{
@@ -1842,11 +1901,58 @@ function cargarFirmaPacienteGuardada(){
 }
 inicializarDatos();
 let hi=window.location.hash.substring(1);if(hi)mostrarPagina(hi);
-// Auto-reconexión al cargar la app: silenciosa si ya hay sesión guardada
-let idG=localStorage.getItem('googleClientId');
-if(idG){
-    // Esperar a que la librería de Google cargue completamente
-    setTimeout(()=>{ conectarGoogle(); }, 1000);
+
+// ── Auto-reconexión al cargar/refrescar la app ──
+const _clientId=localStorage.getItem('googleClientId');
+const _email=localStorage.getItem('googleUserEmail');
+if(_clientId){
+    // Configurar One Tap SIEMPRE al cargar para que Google maneje el silent sign-in
+    window.addEventListener('load',()=>{
+        if(!window.google||!google.accounts||!google.accounts.id) return;
+        google.accounts.id.initialize({
+            client_id:_clientId,
+            callback:onOneTapCredential,
+            auto_select:true,           // reconecta sin ninguna UI si es posible
+            itp_support:true,           // soporta Safari ITP
+            cancel_on_tap_outside:false
+        });
+        // Si hay token guardado válido, reconectar directo sin ningún UI
+        const _st=localStorage.getItem('driveToken');
+        if(_st){
+            // Verificar silenciosamente
+            fetch('https://www.googleapis.com/oauth2/v2/userinfo',{headers:{'Authorization':`Bearer ${_st}`}})
+            .then(r=>{
+                if(r.status===200){
+                    // Token vigente - restaurar sin mostrar nada
+                    accessToken=_st;
+                    document.getElementById('googleBtn').style.borderLeftColor='#10B981';
+                    document.getElementById('googleBtn').innerHTML='<i class="fab fa-google"></i><span>✅ Conectado</span>';
+                    crearCarpetaPrincipal();
+                }else{
+                    // Token expirado - pedir a Google que renueve sin UI (One Tap / silent)
+                    localStorage.removeItem('driveToken');
+                    if(_email){
+                        // Intentar renovar sin ningún prompt gracias al hint
+                        iniciarAuth(_clientId);
+                    } else {
+                        // Sin email guardado, mostrar botón para que el usuario conecte
+                        document.getElementById('googleBtn').style.borderLeftColor='#EF4444';
+                        document.getElementById('googleBtn').innerHTML='<i class="fab fa-google"></i><span>Reconectar Drive</span>';
+                    }
+                }
+            })
+            .catch(()=>{
+                // Sin internet: usar el token guardado y seguir
+                accessToken=_st;
+                document.getElementById('googleBtn').style.borderLeftColor='#10B981';
+                document.getElementById('googleBtn').innerHTML='<i class="fab fa-google"></i><span>✅ Conectado</span>';
+                crearCarpetaPrincipal();
+            });
+        }else if(_email){
+            // No hay token guardado pero sí email → One Tap intentará renovar solo
+            setTimeout(()=>iniciarAuth(_clientId), 500);
+        }
+    });
 }
 if(localStorage.getItem('notifActivadas')==='1'&&Notification.permission==='granted'){
     iniciarServiceWorker().then(()=>{setTimeout(programarTodasLasNotificaciones,1500);});
