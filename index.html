@@ -907,8 +907,9 @@ async function obtenerTokenValido(){
     if(!tokenClient)return accessToken;
     return new Promise(resolve=>{
         const tid=setTimeout(()=>resolve(accessToken),5000);
+        const hint=localStorage.getItem('googleUserEmail')||'';
         tokenClient.callback=resp=>{clearTimeout(tid);if(resp.access_token){accessToken=resp.access_token;localStorage.setItem('driveToken',accessToken);resolve(accessToken);}else resolve(accessToken);};
-        tokenClient.requestAccessToken({prompt:''});
+        tokenClient.requestAccessToken({prompt:'',hint:hint});
     });
 }
 async function crearEventoCalendar(pacienteNombre,fecha,hora,tratamiento,telefono,correoPaciente,notas){
@@ -1506,17 +1507,72 @@ async function conectarGoogle(){let id=localStorage.getItem('googleClientId');if
 function guardarClientId(){let id=document.getElementById('clientIdInput').value;if(id){localStorage.setItem('googleClientId',id);document.getElementById('configPanel').classList.add('hidden');iniciarAuth(id);}}
 function cerrarConfig(){document.getElementById('configPanel').classList.add('hidden');}
 async function iniciarAuth(clientId){
-    tokenClient=google.accounts.oauth2.initTokenClient({client_id:clientId,scope:'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/calendar.events',callback:async(resp)=>{if(resp.access_token){accessToken=resp.access_token;localStorage.setItem('driveToken',accessToken);document.getElementById('googleBtn').style.borderLeftColor='#10B981';document.getElementById('googleBtn').innerHTML='<i class="fab fa-google"></i><span>✅ Conectado</span>';mostrarToast('Drive y Calendar conectados');await crearCarpetaPrincipal();}}});
+    const hint=localStorage.getItem('googleUserEmail')||'';
+    tokenClient=google.accounts.oauth2.initTokenClient({
+        client_id:clientId,
+        scope:'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/calendar.events',
+        hint:hint,
+        callback:async(resp)=>{
+            if(resp.access_token){
+                accessToken=resp.access_token;
+                localStorage.setItem('driveToken',accessToken);
+                // Guardar email del usuario para futuros logins silenciosos
+                try{
+                    let ui=await fetch('https://www.googleapis.com/oauth2/v2/userinfo',{headers:{'Authorization':`Bearer ${accessToken}`}});
+                    let ud=await ui.json();
+                    if(ud.email)localStorage.setItem('googleUserEmail',ud.email);
+                }catch(e){}
+                document.getElementById('googleBtn').style.borderLeftColor='#10B981';
+                document.getElementById('googleBtn').innerHTML='<i class="fab fa-google"></i><span>✅ Conectado</span>';
+                mostrarToast('Drive y Calendar conectados');
+                await crearCarpetaPrincipal();
+            }
+        }
+    });
     let st=localStorage.getItem('driveToken');
     if(st){
+        // Intentar restaurar token existente
         try{
-            let test=await fetch('https://www.googleapis.com/calendar/v3/calendars/primary',{headers:{'Authorization':`Bearer ${st}`}});
-            if(test.status===200){accessToken=st;document.getElementById('googleBtn').style.borderLeftColor='#10B981';document.getElementById('googleBtn').innerHTML='<i class="fab fa-google"></i><span>✅ Conectado</span>';mostrarToast('Sesión restaurada');await crearCarpetaPrincipal();}
-            else{localStorage.removeItem('driveToken');tokenClient.requestAccessToken({prompt:''});}
-        }catch(e){accessToken=st;document.getElementById('googleBtn').style.borderLeftColor='#10B981';document.getElementById('googleBtn').innerHTML='<i class="fab fa-google"></i><span>✅ Conectado</span>';await crearCarpetaPrincipal();}
-    }else{tokenClient.requestAccessToken({prompt:'consent'});}
+            let test=await fetch('https://www.googleapis.com/oauth2/v2/userinfo',{headers:{'Authorization':`Bearer ${st}`}});
+            if(test.status===200){
+                accessToken=st;
+                document.getElementById('googleBtn').style.borderLeftColor='#10B981';
+                document.getElementById('googleBtn').innerHTML='<i class="fab fa-google"></i><span>✅ Conectado</span>';
+                await crearCarpetaPrincipal();
+                return;
+            }
+        }catch(e){
+            // Sin internet: usar token guardado y asumir válido
+            accessToken=st;
+            document.getElementById('googleBtn').style.borderLeftColor='#10B981';
+            document.getElementById('googleBtn').innerHTML='<i class="fab fa-google"></i><span>✅ Conectado</span>';
+            await crearCarpetaPrincipal();
+            return;
+        }
+        // Token expirado: renovar SIN mostrar selector de cuenta (silent refresh)
+        localStorage.removeItem('driveToken');
+        tokenClient.requestAccessToken({prompt:'',hint:hint});
+    }else{
+        // Primer login: mostrar selector solo la primera vez
+        tokenClient.requestAccessToken({prompt:'select_account'});
+    }
 }
-async function refrescarToken(){let st=localStorage.getItem('driveToken');if(st)return st;if(!tokenClient)return null;return new Promise(r=>{tokenClient.callback=resp=>{if(resp.access_token){localStorage.setItem('driveToken',resp.access_token);r(resp.access_token);}else r(null);};tokenClient.requestAccessToken({prompt:''});});}
+async function refrescarToken(){
+    if(accessToken)return accessToken;
+    let st=localStorage.getItem('driveToken');if(st){accessToken=st;return st;}
+    if(!tokenClient)return null;
+    const hint=localStorage.getItem('googleUserEmail')||'';
+    return new Promise(r=>{
+        tokenClient.callback=resp=>{
+            if(resp.access_token){
+                accessToken=resp.access_token;
+                localStorage.setItem('driveToken',resp.access_token);
+                r(resp.access_token);
+            }else r(null);
+        };
+        tokenClient.requestAccessToken({prompt:'',hint:hint});
+    });
+}
 async function crearCarpetaPrincipal(){
     let t=await refrescarToken();if(!t)return;
     try{
@@ -1786,32 +1842,11 @@ function cargarFirmaPacienteGuardada(){
 }
 inicializarDatos();
 let hi=window.location.hash.substring(1);if(hi)mostrarPagina(hi);
-// Auto-reconexión silenciosa: intenta restaurar sin popup automático
+// Auto-reconexión al cargar la app: silenciosa si ya hay sesión guardada
 let idG=localStorage.getItem('googleClientId');
 if(idG){
-    setTimeout(async()=>{
-        if(!accessToken){
-            let st=localStorage.getItem('driveToken');
-            if(st){
-                try{
-                    let test=await fetch('https://www.googleapis.com/calendar/v3/calendars/primary',{headers:{'Authorization':`Bearer ${st}`}});
-                    if(test.status===200){
-                        let cId=localStorage.getItem('googleClientId');
-                        if(cId){tokenClient=google.accounts.oauth2.initTokenClient({client_id:cId,scope:'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/calendar.events',callback:async(resp)=>{if(resp.access_token){accessToken=resp.access_token;localStorage.setItem('driveToken',accessToken);document.getElementById('googleBtn').style.borderLeftColor='#10B981';document.getElementById('googleBtn').innerHTML='<i class="fab fa-google"></i><span>✅ Conectado</span>';await crearCarpetaPrincipal();}}});}
-                        accessToken=st;
-                        document.getElementById('googleBtn').style.borderLeftColor='#10B981';
-                        document.getElementById('googleBtn').innerHTML='<i class="fab fa-google"></i><span>✅ Conectado</span>';
-                        await crearCarpetaPrincipal();
-                    }else{
-                        localStorage.removeItem('driveToken');
-                        document.getElementById('googleBtn').style.borderLeftColor='#EF4444';
-                        document.getElementById('googleBtn').innerHTML='<i class="fab fa-google"></i><span>Reconectar Drive</span>';
-                        mostrarToast('⚠️ Sesión Google expirada. Toca "Reconectar Drive".');
-                    }
-                }catch(e){accessToken=st;}
-            }
-        }
-    },800);
+    // Esperar a que la librería de Google cargue completamente
+    setTimeout(()=>{ conectarGoogle(); }, 1000);
 }
 if(localStorage.getItem('notifActivadas')==='1'&&Notification.permission==='granted'){
     iniciarServiceWorker().then(()=>{setTimeout(programarTodasLasNotificaciones,1500);});
