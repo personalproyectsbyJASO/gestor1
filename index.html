@@ -118,7 +118,6 @@
         </div>
         <div style="display:flex;gap:10px;align-items:center">
             <div class="btn-google" id="googleBtn" onclick="conectarGoogle()"><i class="fab fa-google"></i><span>Conectar Drive</span></div>
-
             <div class="btn-theme" onclick="toggleModo()"><i class="fas fa-moon"></i><span>Modo</span></div>
         </div>
     </div>
@@ -126,18 +125,6 @@
     <div id="configPanel" class="card hidden">
         <h3><i class="fab fa-google"></i> ⚙️ Configuración de Google</h3>
         <div class="alert-warning" style="margin-bottom:15px;"><i class="fas fa-key"></i> Ingresa tu Client ID para conectar con Google Drive y Calendar.</div>
-        <div style="background:#EFF6FF;border:1px solid #93C5FD;border-radius:6px;padding:10px;margin-bottom:12px;font-size:0.78rem;">
-            <b>⚙️ Paso único en Google Cloud Console:</b><br>
-            En "Credenciales → ID de cliente OAuth 2.0 → URIs de redireccionamiento autorizados" agrega:<br>
-            <code id="redirectUriDisplay" style="background:#dbeafe;padding:2px 6px;border-radius:3px;font-size:0.75rem;word-break:break-all;"></code>
-            <script>document.getElementById('redirectUriDisplay').textContent=window.location.origin+window.location.pathname;</script><br>
-            <small>Solo necesitas hacerlo una vez. Después el login se recordará para siempre.</small>
-        </div>
-        <div style="background:#FEF3C7;border:1px solid #FCD34D;border-radius:6px;padding:8px;margin-bottom:12px;font-size:0.75rem;">
-            <b>⚠️ Si ya conectaste antes y no funciona permanente:</b> 
-            <a href="https://myaccount.google.com/permissions" target="_blank" style="color:#1B4F8A;">Revoca el acceso aquí</a>, 
-            luego vuelve a conectar. Esto obliga a Google a entregar un token permanente.
-        </div>
         <label style="font-weight:bold;margin-top:10px;display:block"><i class="fab fa-google"></i> Client ID:</label>
         <input type="text" id="clientIdInput" placeholder="Pega aquí tu Client ID">
         <div style="display:flex;gap:10px;margin-top:15px">
@@ -920,9 +907,8 @@ async function obtenerTokenValido(){
     if(!tokenClient)return accessToken;
     return new Promise(resolve=>{
         const tid=setTimeout(()=>resolve(accessToken),5000);
-        const hint=localStorage.getItem('googleUserEmail')||'';
         tokenClient.callback=resp=>{clearTimeout(tid);if(resp.access_token){accessToken=resp.access_token;localStorage.setItem('driveToken',accessToken);resolve(accessToken);}else resolve(accessToken);};
-        tokenClient.requestAccessToken({prompt:'',hint:hint});
+        tokenClient.requestAccessToken({prompt:''});
     });
 }
 async function crearEventoCalendar(pacienteNombre,fecha,hora,tratamiento,telefono,correoPaciente,notas){
@@ -1088,129 +1074,16 @@ function guardarConsentimientoConFirma(){
 function mostrarConsentimientos(){let d=document.getElementById('listaConsentimientos');if(!d||!pacienteActual)return;d.innerHTML=pacienteActual.consentimientos.map((c,i)=>`<div class="exp-item"><div>📝 ${c.fecha}<br>${c.procedimiento}<br>${c.firma?'✍️ Con firma digital':'📄 Sin firma'}</div><button onclick="eliminarConsentimiento(${i})">X</button></div>`).join('')||'<div>No hay consentimientos</div>';}
 function eliminarConsentimiento(i){pacienteActual.consentimientos.splice(i,1);guardarTodoLocal();if(accessToken&&pacienteActual.folderId)guardarArchivoEnDrive(pacienteActual.folderId,'consentimientos.json',pacienteActual.consentimientos);mostrarConsentimientos();}
 function generarConsentimientoPDFConFirma(){
-    const{jsPDF}=window.jspdf;
-    const doc=new jsPDF({unit:'mm',format:'letter'});
-    const W=doc.internal.pageSize.getWidth();
-    const H=doc.internal.pageSize.getHeight();
-
-    // Colores
-    const azul=[27,79,138];const verde=[26,122,94];
-    const grisClaro=[245,248,252];const grisMedio=[200,214,229];
-    const textoPrincipal=[26,37,53];const textoMuted=[90,106,126];
-
-    // Fondo suave
-    doc.setFillColor(...grisClaro);doc.rect(0,0,W,H,'F');
-
-    // ── Logo real difuminado al centro (marca de agua grande) ──
-    const logoImgEl=document.querySelector('.logo img');
-    if(logoImgEl&&logoImgEl.src){
-        try{
-            doc.setGState(new doc.GState({opacity:0.07}));
-            doc.addImage(logoImgEl.src,'JPEG',W/2-45,H/2-45,90,90);
-            doc.setGState(new doc.GState({opacity:1}));
-        }catch(e){}
-    }
-
-    // Encabezado azul
-    doc.setFillColor(...azul);doc.rect(0,0,W,28,'F');
-    doc.setFillColor(...verde);doc.rect(0,28,W,3,'F');
-
-    // Logo en encabezado (arriba izquierda, pequeño y visible)
-    if(logoImgEl&&logoImgEl.src){
-        try{doc.addImage(logoImgEl.src,'JPEG',6,3,22,22);}catch(e){}
-    }
-
-    // Nombre clínica en encabezado
-    doc.setFontSize(16);doc.setFont('helvetica','bold');doc.setTextColor(255,255,255);
-    doc.text('C&C DENTAL GROUP',32,12);
-    doc.setFontSize(8);doc.setFont('helvetica','normal');
-    doc.text('Gestión Clínica Dental Profesional',32,19);
-    const folio='CI-'+Date.now().toString().slice(-6);
-    doc.setFontSize(7);doc.setTextColor(200,230,255);
-    doc.text(`Folio: ${folio}`,W-14,10,{align:'right'});
-    doc.text(`Fecha: ${new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'})}`,W-14,16,{align:'right'});
-
-    // Título
-    doc.setFontSize(14);doc.setFont('helvetica','bold');doc.setTextColor(...azul);
-    doc.text('CONSENTIMIENTO INFORMADO',W/2,40,{align:'center'});
-    doc.setDrawColor(...verde);doc.setLineWidth(0.8);
-    doc.line(W/2-38,42,W/2+38,42);
-
-    // Datos del paciente
-    const nombre=document.getElementById('consentNombre').value||'—';
-    const procedimiento=document.getElementById('consentProcedimiento').value||'—';
-    doc.setFillColor(235,243,255);doc.setDrawColor(...grisMedio);doc.setLineWidth(0.3);
-    doc.roundedRect(12,47,W-24,22,2,2,'FD');
-    doc.setFontSize(7.5);doc.setFont('helvetica','bold');doc.setTextColor(...azul);
-    doc.text('DATOS DEL PACIENTE',16,53);
-    doc.setFont('helvetica','normal');doc.setTextColor(...textoPrincipal);doc.setFontSize(8.5);
-    doc.text(`Paciente: ${nombre}`,16,59);
-    doc.text(`Procedimiento: ${procedimiento}`,16,65);
-
-    // Datos del doctor
-    doc.setFillColor(240,252,248);doc.setDrawColor(...verde);doc.setLineWidth(0.4);
-    doc.roundedRect(12,73,W-24,16,2,2,'FD');
-    doc.setFontSize(7.5);doc.setFont('helvetica','bold');doc.setTextColor(...verde);
-    doc.text('MÉDICO RESPONSABLE',16,79);
-    doc.setFont('helvetica','normal');doc.setTextColor(...textoPrincipal);doc.setFontSize(8);
-    doc.text(`${DOCTOR.nombre}  |  Cédula: ${DOCTOR.cedula}  |  Tel: ${DOCTOR.telefono}`,16,85);
-
-    // Texto del consentimiento
-    const texto=document.getElementById('consentTexto').value||'—';
-    doc.setFontSize(7.5);doc.setFont('helvetica','bold');doc.setTextColor(...azul);
-    doc.text('DECLARACIÓN DE CONSENTIMIENTO',14,97);
-    doc.setLineWidth(0.3);doc.setDrawColor(...grisMedio);
-    doc.line(14,99,W-14,99);
-    doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(...textoPrincipal);
-    const lineas=doc.splitTextToSize(texto,W-28);
-    doc.text(lineas,14,105);
-    let yPos=105+lineas.length*5.5+6;
-
-    // Caja de aviso legal
-    yPos=Math.max(yPos,140);
-    doc.setFillColor(255,252,240);doc.setDrawColor(245,158,11);doc.setLineWidth(0.3);
-    doc.roundedRect(12,yPos,W-24,20,2,2,'FD');
-    doc.setFontSize(7);doc.setFont('helvetica','italic');doc.setTextColor(140,80,0);
-    const aviso='El paciente declara haber recibido información clara y suficiente sobre el procedimiento dental, sus riesgos, beneficios y alternativas disponibles. Otorga su consentimiento libre e informado.';
-    const aLineas=doc.splitTextToSize(aviso,W-30);
-    doc.text(aLineas,16,yPos+6);
-    yPos+=24;
-
-    // Área de firmas: dos columnas
-    const yFirmas=Math.max(yPos+10,H-68);
-    // Columna paciente
-    doc.setDrawColor(...grisMedio);doc.setLineWidth(0.4);
-    doc.line(14,yFirmas+22,W/2-8,yFirmas+22);
-    if(firmaPacienteData){
-        try{doc.addImage(firmaPacienteData,'PNG',14,yFirmas,70,22);}catch(e){}
-    }
-    doc.setFontSize(8);doc.setFont('helvetica','bold');doc.setTextColor(...textoPrincipal);
-    doc.text('Firma del Paciente',14+(W/2-22)/2,yFirmas+27,{align:'center'});
-    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(...textoMuted);
-    doc.text(nombre,14+(W/2-22)/2,yFirmas+32,{align:'center'});
-
-    // Columna doctor
-    doc.setLineWidth(0.4);
-    doc.line(W/2+8,yFirmas+22,W-14,yFirmas+22);
-    const firmaDoc=localStorage.getItem('firmaDoctor');
-    if(firmaDoc){
-        try{doc.addImage(firmaDoc,'PNG',W/2+8,yFirmas,70,22);}catch(e){}
-    }
-    doc.setFontSize(8);doc.setFont('helvetica','bold');doc.setTextColor(...textoPrincipal);
-    doc.text('Firma del Médico',W/2+8+(W/2-22)/2,yFirmas+27,{align:'center'});
-    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(...textoMuted);
-    doc.text(DOCTOR.nombre,W/2+8+(W/2-22)/2,yFirmas+32,{align:'center'});
-    doc.text(`Cédula: ${DOCTOR.cedula}`,W/2+8+(W/2-22)/2,yFirmas+37,{align:'center'});
-
-    // Pie de página
-    doc.setFillColor(...azul);doc.rect(0,H-12,W,12,'F');
-    doc.setFontSize(6.5);doc.setFont('helvetica','normal');doc.setTextColor(200,220,255);
-    doc.text('C&C Dental Group  •  Consentimiento Informado',W/2,H-7,{align:'center'});
-    doc.text(`Tel: ${DOCTOR.telefono}  |  ${DOCTOR.email}`,W/2,H-3,{align:'center'});
-    doc.setTextColor(150,185,230);doc.setFontSize(6);doc.text(folio,W-5,H-7,{align:'right'});
-
-    doc.save(`consentimiento_${nombre.replace(/ /g,'_')}_${folio}.pdf`);
-    mostrarToast('📄 Consentimiento PDF generado');
+    const{jsPDF}=window.jspdf;const doc=new jsPDF();
+    doc.setFontSize(16);doc.text("C&C Dental Group - Consentimiento Informado",20,20);
+    doc.text(`Paciente: ${document.getElementById('consentNombre').value||''}`,20,45);
+    doc.text(`Procedimiento: ${document.getElementById('consentProcedimiento').value||''}`,20,65);
+    doc.text(`Fecha: ${new Date().toLocaleString()}`,20,85);doc.text("Texto:",20,105);
+    const texto=document.getElementById('consentTexto').value||'';
+    const lineas=doc.splitTextToSize(texto,170);doc.text(lineas,20,115);
+    if(firmaPacienteData){doc.text("Firma del Paciente:",20,180);doc.addImage(firmaPacienteData,'PNG',20,190,80,30);}
+    else{doc.text("_________________________",20,200);doc.text("Firma del Paciente",20,210);}
+    doc.save('consentimiento.pdf');mostrarToast('PDF generado');
 }
 
 // ========== CERTIFICADO ==========
@@ -1260,443 +1133,25 @@ function guardarPresupuesto(){
 }
 function mostrarPresupuestos(){let d=document.getElementById('listaPresupuestos');if(!d||!pacienteActual)return;d.innerHTML=pacienteActual.presupuestos.map((p,i)=>`<div class="exp-item">💰 ${p.fecha} - Total: $${p.total.toFixed(2)}<button onclick="eliminarPresupuesto(${i})">X</button></div>`).join('')||'<div>No hay presupuestos</div>';}
 function eliminarPresupuesto(i){pacienteActual.presupuestos.splice(i,1);guardarTodoLocal();if(accessToken&&pacienteActual.folderId)guardarArchivoEnDrive(pacienteActual.folderId,'presupuestos.json',pacienteActual.presupuestos);mostrarPresupuestos();actualizarEstadisticas();}
-function generarPresupuestoPDF(){
-    const{jsPDF}=window.jspdf;
-    const doc=new jsPDF({unit:'mm',format:'letter'});
-    const W=doc.internal.pageSize.getWidth();
-    const H=doc.internal.pageSize.getHeight();
-    const azul=[27,79,138];const verde=[26,122,94];
-    const grisClaro=[245,248,252];const grisMedio=[200,214,229];
-    const textoPrincipal=[26,37,53];const textoMuted=[90,106,126];
-    const amarillo=[255,252,240];const naranja=[245,158,11];
-    doc.setFillColor(...grisClaro);doc.rect(0,0,W,H,'F');
-    const logoImgEl=document.querySelector('.logo img');
-    if(logoImgEl&&logoImgEl.src){try{doc.setGState(new doc.GState({opacity:0.07}));doc.addImage(logoImgEl.src,'JPEG',W/2-50,H/2-50,100,100);doc.setGState(new doc.GState({opacity:1}));}catch(e){}}
-    doc.setFillColor(...azul);doc.rect(0,0,W,28,'F');
-    doc.setFillColor(...verde);doc.rect(0,28,W,3,'F');
-    if(logoImgEl&&logoImgEl.src){try{doc.addImage(logoImgEl.src,'JPEG',6,3,22,22);}catch(e){}}
-    doc.setFontSize(17);doc.setFont('helvetica','bold');doc.setTextColor(255,255,255);
-    doc.text('C&C DENTAL GROUP',32,12);
-    doc.setFontSize(8);doc.setFont('helvetica','normal');doc.text('Gestión Clínica Dental Profesional',32,19);
-    const folio='PRES-'+Date.now().toString().slice(-6);
-    doc.setFontSize(7);doc.setTextColor(200,230,255);
-    doc.text(`Folio: ${folio}`,W-14,10,{align:'right'});
-    doc.text(`Fecha: ${new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'})}`,W-14,16,{align:'right'});
-    doc.setFontSize(15);doc.setFont('helvetica','bold');doc.setTextColor(...azul);
-    doc.text('PRESUPUESTO DE TRATAMIENTO',W/2,40,{align:'center'});
-    doc.setDrawColor(...verde);doc.setLineWidth(0.8);doc.line(W/2-42,42,W/2+42,42);
-    const nombrePaciente=document.getElementById('presNombre').value||'—';
-    const vigencia=document.getElementById('presVigencia').value||'—';
-    doc.setFillColor(240,252,248);doc.setDrawColor(...verde);doc.setLineWidth(0.4);
-    doc.roundedRect(12,47,W-24,22,2,2,'FD');
-    doc.setFontSize(7.5);doc.setFont('helvetica','bold');doc.setTextColor(...verde);
-    doc.text('DATOS DEL PACIENTE',16,53);
-    doc.setFont('helvetica','normal');doc.setTextColor(...textoPrincipal);doc.setFontSize(8.5);
-    doc.text(`Paciente: ${nombrePaciente}`,16,59);
-    doc.text(`Vigencia: ${vigencia}`,W/2,59);
-    doc.text(`Dr. ${DOCTOR.nombre}  |  Ced: ${DOCTOR.cedula}`,16,65);
-    const descuento=parseFloat(document.getElementById('presDescuento').value)||0;
-    const subtotal=presupuestoItems.reduce((a,b)=>a+b.costo,0);
-    const total=subtotal*(1-descuento/100);
-    let yT=75;
-    doc.setFillColor(...azul);doc.rect(12,yT,W-24,8,'F');
-    doc.setFontSize(8);doc.setFont('helvetica','bold');doc.setTextColor(255,255,255);
-    doc.text('SERVICIO / TRATAMIENTO',16,yT+5.5);
-    doc.text('MONTO',W-16,yT+5.5,{align:'right'});
-    yT+=8;
-    presupuestoItems.forEach((item,idx)=>{
-        const bg=idx%2===0?[255,255,255]:[235,243,255];
-        doc.setFillColor(...bg);doc.setDrawColor(...grisMedio);doc.setLineWidth(0.2);
-        doc.rect(12,yT,W-24,8,'FD');
-        doc.setFont('helvetica','normal');doc.setTextColor(...textoPrincipal);doc.setFontSize(8.5);
-        doc.text(item.nombre,16,yT+5.5);
-        doc.text(`$${item.costo.toFixed(2)}`,W-16,yT+5.5,{align:'right'});
-        yT+=8;
-    });
-    if(presupuestoItems.length===0){doc.setFillColor(255,255,255);doc.rect(12,yT,W-24,10,'F');doc.setTextColor(...textoMuted);doc.setFontSize(8);doc.setFont('helvetica','italic');doc.text('Sin servicios registrados',W/2,yT+7,{align:'center'});yT+=10;}
-    yT+=4;
-    doc.setFillColor(...amarillo);doc.setDrawColor(...naranja);doc.setLineWidth(0.5);
-    doc.roundedRect(W/2,yT,W/2-12,descuento>0?24:14,2,2,'FD');
-    doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(...textoPrincipal);
-    doc.text('Subtotal:',W/2+4,yT+6);doc.text(`$${subtotal.toFixed(2)}`,W-16,yT+6,{align:'right'});
-    if(descuento>0){doc.setTextColor(180,60,0);doc.text(`Descuento (${descuento}%):`,W/2+4,yT+12);doc.text(`-$${(subtotal*descuento/100).toFixed(2)}`,W-16,yT+12,{align:'right'});}
-    const yTotalLine=descuento>0?yT+20:yT+12;
-    doc.setDrawColor(...azul);doc.setLineWidth(0.3);doc.line(W/2+4,yTotalLine-3,W-16,yTotalLine-3);
-    doc.setFontSize(10);doc.setFont('helvetica','bold');doc.setTextColor(...azul);
-    doc.text('TOTAL:',W/2+4,yTotalLine);doc.text(`$${total.toFixed(2)}`,W-16,yTotalLine,{align:'right'});
-    yT+=descuento>0?30:20;
-    yT+=6;
-    doc.setFillColor(235,243,255);doc.setDrawColor(...grisMedio);doc.setLineWidth(0.3);
-    doc.roundedRect(12,yT,W-24,16,2,2,'FD');
-    doc.setFontSize(7.5);doc.setFont('helvetica','bold');doc.setTextColor(...azul);
-    doc.text('CONDICIONES DEL PRESUPUESTO',16,yT+6);
-    doc.setFont('helvetica','normal');doc.setTextColor(...textoMuted);doc.setFontSize(7);
-    doc.text('Los precios indicados tienen vigencia según la nota. El presupuesto puede variar según diagnóstico final.',16,yT+12);
-    yT+=22;
-    const yFirma=Math.max(yT+10,H-55);
-    const firmaData=localStorage.getItem('firmaDoctor');
-    doc.setDrawColor(...grisMedio);doc.setLineWidth(0.4);doc.line(W/2-35,yFirma+22,W/2+35,yFirma+22);
-    if(firmaData){try{doc.addImage(firmaData,'PNG',W/2-25,yFirma,50,20);}catch(e){}}
-    doc.setFontSize(8);doc.setFont('helvetica','bold');doc.setTextColor(...textoPrincipal);
-    doc.text(DOCTOR.nombre,W/2,yFirma+27,{align:'center'});
-    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(...textoMuted);
-    doc.text(`Ced. ${DOCTOR.cedula}`,W/2,yFirma+32,{align:'center'});
-    doc.setFillColor(...azul);doc.rect(0,H-12,W,12,'F');
-    doc.setFontSize(6.5);doc.setFont('helvetica','normal');doc.setTextColor(200,220,255);
-    doc.text('C&C Dental Group  •  Presupuesto de Tratamiento Dental',W/2,H-7,{align:'center'});
-    doc.text(`Tel: ${DOCTOR.telefono}  |  ${DOCTOR.email}`,W/2,H-3,{align:'center'});
-    doc.setTextColor(150,185,230);doc.setFontSize(6);doc.text(folio,W-5,H-7,{align:'right'});
-    doc.save(`presupuesto_${nombrePaciente.replace(/ /g,'_')}_${folio}.pdf`);
-    mostrarToast('📄 Presupuesto PDF generado');
-}
-function generarCertificadoPDF(){
-    const{jsPDF}=window.jspdf;
-    const doc=new jsPDF({unit:'mm',format:'letter'});
-    const W=doc.internal.pageSize.getWidth();
-    const H=doc.internal.pageSize.getHeight();
+function generarPresupuestoPDF(){const{jsPDF}=window.jspdf;const doc=new jsPDF();doc.setFontSize(16);doc.text("C&C Dental Group - Presupuesto",20,20);doc.text(`Dr. ${DOCTOR.nombre}`,20,30);doc.text(`Paciente: ${document.getElementById('presNombre').value||''}`,20,45);let y=65;presupuestoItems.forEach(i=>{doc.text(`${i.nombre}: $${i.costo}`,20,y);y+=10});let total=presupuestoItems.reduce((a,b)=>a+b.costo,0)*(1-(parseFloat(document.getElementById('presDescuento').value)||0)/100);doc.text(`Total: $${total.toFixed(2)}`,20,y+10);doc.save('presupuesto.pdf');mostrarToast('PDF generado');}
+function generarCertificadoPDF(){const{jsPDF}=window.jspdf;const doc=new jsPDF();doc.setFontSize(16);doc.text("C&C Dental Group - Certificado Médico",20,20);doc.text(`Dr. ${DOCTOR.nombre} - Cédula: ${DOCTOR.cedula}`,20,35);doc.text(`Paciente: ${document.getElementById('certNombre').value||''}`,20,55);let diag=document.getElementById('certOmitir').checked?"Por motivos de salud dental":document.getElementById('certDiagnostico').value;doc.text(`Diagnóstico: ${diag}`,20,75);doc.text(`Reposo: ${document.getElementById('certDias').value||0} días`,20,95);doc.save('certificado.pdf');mostrarToast('PDF generado');}
 
-    // ── Colores corporativos ──
-    const azul=[27,79,138];
-    const verde=[26,122,94];
-    const grisClaro=[245,248,252];
-    const grisMedio=[200,214,229];
-    const textoPrincipal=[26,37,53];
-    const textoMuted=[90,106,126];
-
-    // ── Fondo gris muy suave ──
-    doc.setFillColor(...grisClaro);
-    doc.rect(0,0,W,H,'F');
-
-    // ── Logos difuminados como sello de fondo ──
-    // Se dibujan ANTES del contenido para quedar debajo
-    // ── Logo real difuminado al centro (marca de agua grande) ──
-    const logoImgEl=document.querySelector('.logo img');
-    if(logoImgEl&&logoImgEl.src){
-        try{
-            doc.setGState(new doc.GState({opacity:0.07}));
-            doc.addImage(logoImgEl.src,'JPEG',W/2-50,H/2-50,100,100);
-            doc.setGState(new doc.GState({opacity:1}));
-        }catch(e){}
-    }
-
-    // ── Rectángulo de encabezado azul ──
-    doc.setFillColor(...azul);
-    doc.rect(0,0,W,28,'F');
-
-    // ── Barra verde debajo del encabezado ──
-    doc.setFillColor(...verde);
-    doc.rect(0,28,W,3,'F');
-
-    // ── Logo pequeño visible en encabezado (esquina izquierda) ──
-    if(logoImgEl&&logoImgEl.src){
-        try{doc.addImage(logoImgEl.src,'JPEG',6,3,22,22);}catch(e){}
-    }
-
-    // ── Nombre clínica en encabezado ──
-    doc.setFontSize(17);doc.setFont('helvetica','bold');doc.setTextColor(255,255,255);
-    doc.text('C&C DENTAL GROUP',32,12);
-    doc.setFontSize(8);doc.setFont('helvetica','normal');
-    doc.text('Gestión Clínica Dental Profesional',32,19);
-    // Folio en encabezado
-    const folio='CERT-'+Date.now().toString().slice(-6);
-    doc.setFontSize(7);doc.setTextColor(200,230,255);
-    doc.text(`Folio: ${folio}`,W-14,10,{align:'right'});
-    doc.text(`Fecha emisión: ${new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'})}`,W-14,16,{align:'right'});
-
-    // ── Título documento ──
-    doc.setFontSize(15);doc.setFont('helvetica','bold');doc.setTextColor(...azul);
-    doc.text('CERTIFICADO MÉDICO',W/2,42,{align:'center'});
-    // Línea bajo título
-    doc.setDrawColor(...verde);doc.setLineWidth(0.8);
-    doc.line(W/2-30,44,W/2+30,44);
-
-    // ── Caja datos del médico ──
-    doc.setFillColor(235,243,255);
-    doc.setDrawColor(...grisMedio);doc.setLineWidth(0.3);
-    doc.roundedRect(12,49,W-24,22,2,2,'FD');
-    doc.setFontSize(7.5);doc.setFont('helvetica','bold');doc.setTextColor(...azul);
-    doc.text('DATOS DEL MÉDICO EMISOR',16,55);
-    doc.setFont('helvetica','normal');doc.setTextColor(...textoPrincipal);doc.setFontSize(8);
-    doc.text(`Nombre: ${DOCTOR.nombre}`,16,61);
-    doc.text(`Cédula Profesional: ${DOCTOR.cedula}`,16,67);
-    doc.text(`Tel: ${DOCTOR.telefono}   Email: ${DOCTOR.email}`,W/2,61);
-
-    // ── Caja datos del paciente ──
-    const nombre=document.getElementById('certNombre').value||'—';
-    const edad=document.getElementById('certEdad').value||'—';
-    const lugar=document.getElementById('certLugar').value||'—';
-    const fechaCert=document.getElementById('certFecha').value;
-    const fechaFmt=fechaCert?new Date(fechaCert+'T12:00').toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'}):'—';
-    doc.setFillColor(240,252,248);
-    doc.setDrawColor(...verde);doc.setLineWidth(0.4);
-    doc.roundedRect(12,75,W-24,22,2,2,'FD');
-    doc.setFontSize(7.5);doc.setFont('helvetica','bold');doc.setTextColor(...verde);
-    doc.text('DATOS DEL PACIENTE',16,81);
-    doc.setFont('helvetica','normal');doc.setTextColor(...textoPrincipal);doc.setFontSize(8.5);
-    doc.text(`Paciente: ${nombre}`,16,87);
-    doc.text(`Edad: ${edad} años`,16,93);
-    doc.text(`Lugar de expedición: ${lugar}`,W/2,87);
-    doc.text(`Fecha: ${fechaFmt}`,W/2,93);
-
-    // ── Cuerpo del certificado ──
-    const omitir=document.getElementById('certOmitir').checked;
-    const diagnostico=omitir?'Por indicación médica relacionada con salud bucodental':document.getElementById('certDiagnostico').value||'—';
-    const dias=document.getElementById('certDias').value||'0';
-    const desde=document.getElementById('certDesde').value;
-    const hasta=document.getElementById('certHasta').value;
-    const desdeFmt=desde?new Date(desde+'T12:00').toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'}):null;
-    const hastaFmt=hasta?new Date(hasta+'T12:00').toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'}):null;
-
-    // Texto narrativo del certificado
-    doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(...textoPrincipal);
-    const texto=`El suscrito, ${DOCTOR.nombre}, con Cédula Profesional No. ${DOCTOR.cedula}, hace constar mediante el presente documento que el(la) paciente ${nombre}, de ${edad} años de edad, fue atendido(a) en esta clínica dental.`;
-    const lineas1=doc.splitTextToSize(texto,W-28);
-    doc.text(lineas1,14,104);
-
-    let yPos=104+lineas1.length*5+4;
-
-    // Caja diagnóstico
-    doc.setFillColor(255,252,240);
-    doc.setDrawColor(245,158,11);doc.setLineWidth(0.4);
-    doc.roundedRect(12,yPos,W-24,omitir?14:18,2,2,'FD');
-    doc.setFontSize(7.5);doc.setFont('helvetica','bold');doc.setTextColor(180,100,0);
-    doc.text('DIAGNÓSTICO / MOTIVO',16,yPos+6);
-    doc.setFont('helvetica','normal');doc.setTextColor(...textoPrincipal);doc.setFontSize(8.5);
-    const diagLineas=doc.splitTextToSize(diagnostico,W-30);
-    doc.text(diagLineas,16,yPos+12);
-    yPos+=omitir?18:diagLineas.length*5+16;
-
-    // Caja reposo
-    yPos+=4;
-    doc.setFillColor(235,243,255);
-    doc.setDrawColor(...azul);doc.setLineWidth(0.4);
-    doc.roundedRect(12,yPos,W-24,desdeFmt?22:16,2,2,'FD');
-    doc.setFontSize(7.5);doc.setFont('helvetica','bold');doc.setTextColor(...azul);
-    doc.text('INDICACIÓN DE REPOSO',16,yPos+6);
-    doc.setFont('helvetica','normal');doc.setTextColor(...textoPrincipal);doc.setFontSize(9);
-    doc.text(`Se indican ${dias} día(s) de reposo${desdeFmt?' a partir del '+desdeFmt:''}${hastaFmt?' hasta el '+hastaFmt:''}.`,16,yPos+13);
-    if(desdeFmt)doc.text(`Período: del ${desdeFmt} al ${hastaFmt||'—'}`,16,yPos+19);
-    yPos+=desdeFmt?26:20;
-
-    // Texto de validez
-    yPos+=4;
-    doc.setFontSize(7.5);doc.setFont('helvetica','italic');doc.setTextColor(...textoMuted);
-    const validez='El presente certificado tiene validez oficial al ser expedido por médico cirujano dentista con cédula profesional registrada ante la SEP. Expedido exclusivamente para los fines que el interesado estime convenientes.';
-    const vLineas=doc.splitTextToSize(validez,W-28);
-    doc.text(vLineas,14,yPos);
-    yPos+=vLineas.length*4+8;
-
-    // ── Área de firma ──
-    const firmaData=localStorage.getItem('firmaDoctor');
-    const yFirma=Math.max(yPos,H-55);
-    // Línea de firma
-    doc.setDrawColor(...grisMedio);doc.setLineWidth(0.4);
-    doc.line(W/2-35,yFirma+20,W/2+35,yFirma+20);
-    if(firmaData){
-        try{doc.addImage(firmaData,'PNG',W/2-25,yFirma,50,20);}catch(e){}
-    }
-    doc.setFontSize(8);doc.setFont('helvetica','bold');doc.setTextColor(...textoPrincipal);
-    doc.text(DOCTOR.nombre,W/2,yFirma+25,{align:'center'});
-    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(...textoMuted);
-    doc.text(`Cédula Prof. ${DOCTOR.cedula}`,W/2,yFirma+30,{align:'center'});
-    doc.text('Médico Cirujano Dentista',W/2,yFirma+35,{align:'center'});
-
-    // ── Pie de página ──
-    doc.setFillColor(...azul);
-    doc.rect(0,H-12,W,12,'F');
-    doc.setFontSize(6.5);doc.setFont('helvetica','normal');doc.setTextColor(200,220,255);
-    doc.text('C&C Dental Group  •  Gestión Clínica Dental Profesional',W/2,H-7,{align:'center'});
-    doc.text(`Tel: ${DOCTOR.telefono}  |  ${DOCTOR.email}`,W/2,H-3,{align:'center'});
-    // Folio esquina
-    doc.setTextColor(150,185,230);doc.setFontSize(6);
-    doc.text(folio,W-5,H-7,{align:'right'});
-
-    doc.save(`certificado_${nombre.replace(/ /g,'_')}_${folio}.pdf`);
-    mostrarToast('📄 Certificado PDF generado');
-}
-
-// ========== GOOGLE DRIVE AUTH — PKCE + REFRESH TOKEN ==========
-// Este flujo obtiene un refresh_token que dura indefinidamente.
-// El access_token se renueva automáticamente y silenciosamente sin ningún popup.
-
-const GSCOPE='https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/calendar.events';
-
-// ── Utilidades PKCE ──
-function _b64url(buf){return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');}
-async function _pkce(){
-    const verifier=_b64url(crypto.getRandomValues(new Uint8Array(32)));
-    const challenge=_b64url(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(verifier)));
-    return{verifier,challenge};
-}
-
-// ── Renovar access_token usando el refresh_token guardado (completamente silencioso) ──
-async function _silentRefresh(clientId,refreshToken){
-    try{
-        const r=await fetch('https://oauth2.googleapis.com/token',{
-            method:'POST',
-            headers:{'Content-Type':'application/x-www-form-urlencoded'},
-            body:new URLSearchParams({client_id:clientId,refresh_token:refreshToken,grant_type:'refresh_token'})
-        });
-        const d=await r.json();
-        if(d.access_token){
-            accessToken=d.access_token;
-            // Guardar con timestamp de expiración
-            localStorage.setItem('driveToken',d.access_token);
-            localStorage.setItem('driveTokenExp',Date.now()+(d.expires_in||3500)*1000);
-            return d.access_token;
-        }
-    }catch(e){}
-    return null;
-}
-
-// ── Verificar si el token guardado sigue vigente ──
-function _tokenVigente(){
-    const exp=parseInt(localStorage.getItem('driveTokenExp')||'0');
-    return exp>Date.now()+60000; // válido si expira en más de 1 min
-}
-
-// ── Marcar botón como conectado ──
-function _btnConectado(){
-    document.getElementById('googleBtn').style.borderLeftColor='#10B981';
-    document.getElementById('googleBtn').innerHTML='<i class="fab fa-google"></i><span>✅ Conectado</span>';
-}
-
-// ── Flujo principal al conectar ──
-async function conectarGoogle(){
-    const clientId=localStorage.getItem('googleClientId');
-    if(!clientId){document.getElementById('configPanel').classList.remove('hidden');return;}
-
-    // 1. Si el token sigue vigente, usarlo directo
-    const st=localStorage.getItem('driveToken');
-    if(st&&_tokenVigente()){
-        accessToken=st;_btnConectado();await crearCarpetaPrincipal();return;
-    }
-
-    // 2. Si hay refresh_token, renovar silenciosamente
-    const rt=localStorage.getItem('driveRefresh');
-    if(rt){
-        const newToken=await _silentRefresh(clientId,rt);
-        if(newToken){_btnConectado();await crearCarpetaPrincipal();return;}
-        // refresh_token inválido o revocado — borrar y pedir login
-        localStorage.removeItem('driveRefresh');
-        localStorage.removeItem('driveToken');
-        localStorage.removeItem('driveTokenExp');
-    }
-
-    // 3. Sin refresh_token: hacer login con PKCE (solo la primera vez o si fue revocado)
-    await _iniciarLoginPKCE(clientId);
-}
-
-// URL canónica de la app — debe ser EXACTAMENTE la registrada en Google Console
-function _getRedirectUri(){
-    const l=window.location;
-    // Siempre sin query string, sin hash, con trailing slash si aplica
-    return l.origin+l.pathname;
-}
-
-async function _iniciarLoginPKCE(clientId){
-    const{verifier,challenge}=await _pkce();
-    localStorage.setItem('pkce_verifier',verifier);
-    localStorage.setItem('pkce_redirect',_getRedirectUri()); // guardar la URI exacta usada
-    const params=new URLSearchParams({
-        client_id:clientId,
-        redirect_uri:_getRedirectUri(),
-        response_type:'code',
-        scope:GSCOPE+' https://www.googleapis.com/auth/userinfo.email',
-        code_challenge:challenge,
-        code_challenge_method:'S256',
-        access_type:'offline',
-        prompt:'consent'
-    });
-    window.location.href='https://accounts.google.com/o/oauth2/v2/auth?'+params;
-}
-
-// ── Manejar el código de retorno de Google (después del redirect) ──
-async function _manejarCallbackPKCE(){
-    const url=new URL(window.location.href);
-    const code=url.searchParams.get('code');
-    const error=url.searchParams.get('error');
-    if(error){mostrarToast('❌ Login cancelado');history.replaceState({},'',window.location.pathname);return;}
-    if(!code)return;
-
-    // Limpiar el código de la URL inmediatamente
-    history.replaceState({},'',window.location.pathname);
-
-    const clientId=localStorage.getItem('googleClientId');
-    const verifier=localStorage.getItem('pkce_verifier');
-    // Usar la misma redirect_uri que se usó al iniciar (crítico que sean idénticas)
-    const redirectUri=localStorage.getItem('pkce_redirect')||_getRedirectUri();
-    if(!clientId||!verifier)return;
-    localStorage.removeItem('pkce_verifier');
-    localStorage.removeItem('pkce_redirect');
-
-    mostrarToast('⏳ Conectando con Google...');
-    try{
-        const r=await fetch('https://oauth2.googleapis.com/token',{
-            method:'POST',
-            headers:{'Content-Type':'application/x-www-form-urlencoded'},
-            body:new URLSearchParams({
-                client_id:clientId,
-                code,
-                redirect_uri:redirectUri,
-                grant_type:'authorization_code',
-                code_verifier:verifier
-            })
-        });
-        const d=await r.json();
-        if(d.access_token){
-            accessToken=d.access_token;
-            localStorage.setItem('driveToken',d.access_token);
-            localStorage.setItem('driveTokenExp',Date.now()+(d.expires_in||3500)*1000);
-            if(d.refresh_token){
-                localStorage.setItem('driveRefresh',d.refresh_token);
-                mostrarToast('✅ Conectado. ¡No volverás a pedir login!');
-            }else{
-                // Google no dio refresh_token — posiblemente ya se otorgó antes
-                // Pedir con prompt:consent de nuevo para forzarlo
-                mostrarToast('⚠️ Reconecta una vez más para sesión permanente');
-            }
-            try{
-                const ui=await fetch('https://www.googleapis.com/oauth2/v2/userinfo',{headers:{'Authorization':`Bearer ${accessToken}`}});
-                const ud=await ui.json();
-                if(ud.email)localStorage.setItem('googleUserEmail',ud.email);
-            }catch(e){}
-            _btnConectado();
-            await crearCarpetaPrincipal();
-        }else{
-            mostrarToast('❌ Error: '+(d.error_description||d.error||'desconocido'));
-            console.error('PKCE token error:',d);
-        }
-    }catch(e){
-        mostrarToast('❌ Error de red');
-        console.error('PKCE fetch error:',e);
-    }
-}
-
-function guardarClientId(){
-    const id=document.getElementById('clientIdInput').value.trim();
-    if(id){
-        localStorage.setItem('googleClientId',id);
-        document.getElementById('configPanel').classList.add('hidden');
-        conectarGoogle();
-    }
-}
+// ========== GOOGLE DRIVE AUTH ==========
+async function conectarGoogle(){let id=localStorage.getItem('googleClientId');if(id)iniciarAuth(id);else document.getElementById('configPanel').classList.remove('hidden');}
+function guardarClientId(){let id=document.getElementById('clientIdInput').value;if(id){localStorage.setItem('googleClientId',id);document.getElementById('configPanel').classList.add('hidden');iniciarAuth(id);}}
 function cerrarConfig(){document.getElementById('configPanel').classList.add('hidden');}
-
-// refrescarToken: usado por todas las funciones de Drive/Calendar
-async function refrescarToken(){
-    if(accessToken&&_tokenVigente())return accessToken;
-    const clientId=localStorage.getItem('googleClientId');
-    const rt=localStorage.getItem('driveRefresh');
-    if(clientId&&rt){
-        const t=await _silentRefresh(clientId,rt);
-        if(t)return t;
-    }
-    // Sin opción silenciosa: devolver el token guardado o null
-    const st=localStorage.getItem('driveToken');
-    if(st){accessToken=st;return st;}
-    return null;
+async function iniciarAuth(clientId){
+    tokenClient=google.accounts.oauth2.initTokenClient({client_id:clientId,scope:'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/calendar.events',callback:async(resp)=>{if(resp.access_token){accessToken=resp.access_token;localStorage.setItem('driveToken',accessToken);document.getElementById('googleBtn').style.borderLeftColor='#10B981';document.getElementById('googleBtn').innerHTML='<i class="fab fa-google"></i><span>✅ Conectado</span>';mostrarToast('Drive y Calendar conectados');await crearCarpetaPrincipal();}}});
+    let st=localStorage.getItem('driveToken');
+    if(st){
+        try{
+            let test=await fetch('https://www.googleapis.com/calendar/v3/calendars/primary',{headers:{'Authorization':`Bearer ${st}`}});
+            if(test.status===200){accessToken=st;document.getElementById('googleBtn').style.borderLeftColor='#10B981';document.getElementById('googleBtn').innerHTML='<i class="fab fa-google"></i><span>✅ Conectado</span>';mostrarToast('Sesión restaurada');await crearCarpetaPrincipal();}
+            else{localStorage.removeItem('driveToken');tokenClient.requestAccessToken({prompt:''});}
+        }catch(e){accessToken=st;document.getElementById('googleBtn').style.borderLeftColor='#10B981';document.getElementById('googleBtn').innerHTML='<i class="fab fa-google"></i><span>✅ Conectado</span>';await crearCarpetaPrincipal();}
+    }else{tokenClient.requestAccessToken({prompt:'consent'});}
 }
+async function refrescarToken(){let st=localStorage.getItem('driveToken');if(st)return st;if(!tokenClient)return null;return new Promise(r=>{tokenClient.callback=resp=>{if(resp.access_token){localStorage.setItem('driveToken',resp.access_token);r(resp.access_token);}else r(null);};tokenClient.requestAccessToken({prompt:''});});}
 async function crearCarpetaPrincipal(){
     let t=await refrescarToken();if(!t)return;
     try{
@@ -1966,16 +1421,7 @@ function cargarFirmaPacienteGuardada(){
 }
 inicializarDatos();
 let hi=window.location.hash.substring(1);if(hi)mostrarPagina(hi);
-
-// ── Auto-reconexión al cargar/refrescar: completamente silenciosa con PKCE ──
-// Paso 1: si Google redirigió de vuelta con un código de autorización, procesarlo
-_manejarCallbackPKCE().then(()=>{
-    // Paso 2: reconectar silenciosamente si ya tenemos refresh_token
-    const _clientId=localStorage.getItem('googleClientId');
-    if(_clientId){
-        conectarGoogle();
-    }
-});
+let idG=localStorage.getItem('googleClientId');if(idG)setTimeout(()=>{if(!accessToken)conectarGoogle();},500);
 if(localStorage.getItem('notifActivadas')==='1'&&Notification.permission==='granted'){
     iniciarServiceWorker().then(()=>{setTimeout(programarTodasLasNotificaciones,1500);});
 
