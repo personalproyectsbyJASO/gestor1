@@ -1136,22 +1136,120 @@ function eliminarPresupuesto(i){pacienteActual.presupuestos.splice(i,1);guardarT
 function generarPresupuestoPDF(){const{jsPDF}=window.jspdf;const doc=new jsPDF();doc.setFontSize(16);doc.text("C&C Dental Group - Presupuesto",20,20);doc.text(`Dr. ${DOCTOR.nombre}`,20,30);doc.text(`Paciente: ${document.getElementById('presNombre').value||''}`,20,45);let y=65;presupuestoItems.forEach(i=>{doc.text(`${i.nombre}: $${i.costo}`,20,y);y+=10});let total=presupuestoItems.reduce((a,b)=>a+b.costo,0)*(1-(parseFloat(document.getElementById('presDescuento').value)||0)/100);doc.text(`Total: $${total.toFixed(2)}`,20,y+10);doc.save('presupuesto.pdf');mostrarToast('PDF generado');}
 function generarCertificadoPDF(){const{jsPDF}=window.jspdf;const doc=new jsPDF();doc.setFontSize(16);doc.text("C&C Dental Group - Certificado Médico",20,20);doc.text(`Dr. ${DOCTOR.nombre} - Cédula: ${DOCTOR.cedula}`,20,35);doc.text(`Paciente: ${document.getElementById('certNombre').value||''}`,20,55);let diag=document.getElementById('certOmitir').checked?"Por motivos de salud dental":document.getElementById('certDiagnostico').value;doc.text(`Diagnóstico: ${diag}`,20,75);doc.text(`Reposo: ${document.getElementById('certDias').value||0} días`,20,95);doc.save('certificado.pdf');mostrarToast('PDF generado');}
 
-// ========== GOOGLE DRIVE AUTH ==========
-async function conectarGoogle(){let id=localStorage.getItem('googleClientId');if(id)iniciarAuth(id);else document.getElementById('configPanel').classList.remove('hidden');}
-function guardarClientId(){let id=document.getElementById('clientIdInput').value;if(id){localStorage.setItem('googleClientId',id);document.getElementById('configPanel').classList.add('hidden');iniciarAuth(id);}}
-function cerrarConfig(){document.getElementById('configPanel').classList.add('hidden');}
+// ========== GOOGLE DRIVE AUTH — Sin interrupciones en refrescos ==========
+// Login SOLO se pide cuando se necesita hacer una operación (actualizar datos).
+// Al cargar la página, simplemente restaura la sesión guardada sin interrupciones.
+
+function _btnConectado(){
+    document.getElementById('googleBtn').style.borderLeftColor='#10B981';
+    document.getElementById('googleBtn').innerHTML='<i class="fab fa-google"></i><span>✅ Conectado</span>';
+}
+function _btnDesconectado(){
+    document.getElementById('googleBtn').style.borderLeftColor='#EF4444';
+    document.getElementById('googleBtn').innerHTML='<i class="fab fa-google"></i><span>Conectar Drive</span>';
+}
+
+async function conectarGoogle(){
+    let id=localStorage.getItem('googleClientId');
+    if(!id){document.getElementById('configPanel').classList.remove('hidden');return;}
+    // Cuando el usuario clickea, pedir login explícitamente
+    await iniciarAuth(id);
+}
+
+function guardarClientId(){
+    let id=document.getElementById('clientIdInput').value;
+    if(id){
+        localStorage.setItem('googleClientId',id);
+        document.getElementById('configPanel').classList.add('hidden');
+        iniciarAuth(id);
+    }
+}
+
+function cerrarConfig(){
+    document.getElementById('configPanel').classList.add('hidden');
+}
+
 async function iniciarAuth(clientId){
-    tokenClient=google.accounts.oauth2.initTokenClient({client_id:clientId,scope:'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/calendar.events',callback:async(resp)=>{if(resp.access_token){accessToken=resp.access_token;localStorage.setItem('driveToken',accessToken);document.getElementById('googleBtn').style.borderLeftColor='#10B981';document.getElementById('googleBtn').innerHTML='<i class="fab fa-google"></i><span>✅ Conectado</span>';mostrarToast('Drive y Calendar conectados');await crearCarpetaPrincipal();}}});
+    tokenClient=google.accounts.oauth2.initTokenClient({
+        client_id:clientId,
+        scope:'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/calendar.events',
+        callback:async(resp)=>{
+            if(resp.access_token){
+                accessToken=resp.access_token;
+                localStorage.setItem('driveToken',accessToken);
+                _btnConectado();
+                mostrarToast('✅ Drive y Calendar conectados');
+                await crearCarpetaPrincipal();
+            }else{
+                _btnDesconectado();
+            }
+        }
+    });
+    // Pedir token interactivamente
+    tokenClient.requestAccessToken({prompt:'consent'});
+}
+
+// Renovar token SOLO cuando se necesite hacer una operación
+async function refrescarToken(){
+    // 1. Si hay token en memoria, usarlo directo
+    if(accessToken)return accessToken;
+    
+    // 2. Si hay token guardado en localStorage, intentar usarlo sin verificar
     let st=localStorage.getItem('driveToken');
     if(st){
-        try{
-            let test=await fetch('https://www.googleapis.com/calendar/v3/calendars/primary',{headers:{'Authorization':`Bearer ${st}`}});
-            if(test.status===200){accessToken=st;document.getElementById('googleBtn').style.borderLeftColor='#10B981';document.getElementById('googleBtn').innerHTML='<i class="fab fa-google"></i><span>✅ Conectado</span>';mostrarToast('Sesión restaurada');await crearCarpetaPrincipal();}
-            else{localStorage.removeItem('driveToken');tokenClient.requestAccessToken({prompt:''});}
-        }catch(e){accessToken=st;document.getElementById('googleBtn').style.borderLeftColor='#10B981';document.getElementById('googleBtn').innerHTML='<i class="fab fa-google"></i><span>✅ Conectado</span>';await crearCarpetaPrincipal();}
-    }else{tokenClient.requestAccessToken({prompt:'consent'});}
+        accessToken=st;
+        return st;
+    }
+    
+    // 3. Si no hay token pero hay Client ID, pedir login interactivamente
+    let id=localStorage.getItem('googleClientId');
+    if(!id||!tokenClient)return null;
+    
+    // Pedir token solo cuando realmente se vaya a usar
+    return new Promise(r=>{
+        tokenClient.callback=resp=>{
+            if(resp.access_token){
+                accessToken=resp.access_token;
+                localStorage.setItem('driveToken',resp.access_token);
+                _btnConectado();
+                r(resp.access_token);
+            }else{
+                _btnDesconectado();
+                r(null);
+            }
+        };
+        tokenClient.requestAccessToken({prompt:''});
+    });
 }
-async function refrescarToken(){let st=localStorage.getItem('driveToken');if(st)return st;if(!tokenClient)return null;return new Promise(r=>{tokenClient.callback=resp=>{if(resp.access_token){localStorage.setItem('driveToken',resp.access_token);r(resp.access_token);}else r(null);};tokenClient.requestAccessToken({prompt:''});});}
+
+// ── Inicializar al cargar: solo restaurar sesión guardada sin interrupciones ──
+function _initAuthSilent(){
+    let id=localStorage.getItem('googleClientId');
+    if(!id)return;
+    
+    // Inicializar tokenClient sin llamarlo
+    tokenClient=google.accounts.oauth2.initTokenClient({
+        client_id:id,
+        scope:'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/calendar.events',
+        callback:async(resp)=>{
+            if(resp.access_token){
+                accessToken=resp.access_token;
+                localStorage.setItem('driveToken',resp.access_token);
+                _btnConectado();
+                await crearCarpetaPrincipal();
+            }
+        }
+    });
+    
+    // Si hay token guardado, restaurarlo sin ninguna verificación
+    let st=localStorage.getItem('driveToken');
+    if(st){
+        accessToken=st;
+        _btnConectado();
+        // Intentar crear carpeta en background (sin bloquear si falla)
+        crearCarpetaPrincipal().catch(()=>{});
+    }
+}
 async function crearCarpetaPrincipal(){
     let t=await refrescarToken();if(!t)return;
     try{
@@ -1421,7 +1519,8 @@ function cargarFirmaPacienteGuardada(){
 }
 inicializarDatos();
 let hi=window.location.hash.substring(1);if(hi)mostrarPagina(hi);
-let idG=localStorage.getItem('googleClientId');if(idG)setTimeout(()=>{if(!accessToken)conectarGoogle();},500);
+// Inicializar auth SILENCIOSAMENTE al cargar: restaura sesión sin interrupciones
+setTimeout(()=>_initAuthSilent(),600);
 if(localStorage.getItem('notifActivadas')==='1'&&Notification.permission==='granted'){
     iniciarServiceWorker().then(()=>{setTimeout(programarTodasLasNotificaciones,1500);});
 
