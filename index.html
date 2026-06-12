@@ -108,6 +108,333 @@
         .folio-badge{font-size:0.65rem;color:#6f8f9c;text-align:right;margin-bottom:8px;font-style:italic}
         @media(max-width:600px){body{padding:10px}.modulo{padding:10px}.modulo i{font-size:1.3rem}.modulo h3{font-size:.7rem}}
     </style>
+    <!-- ==================== REDISEÑO VISUAL HUMANIZADO ==================== -->
+    <style>
+/* IMPORTAR GOOGLE FONTS NO COMUNES */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;600;700&family=Quicksand:wght@400;600;700&family=Playfair+Display:wght@600;700&display=swap');
+
+/* ==================== PSICOLOGÍA DEL COLOR - PALETA HUMANIZADA ==================== */
+body {
+    --bg: #FBF8F3 !important;
+    --card: #FEFDFB !important;
+    --input: #FAFAF8 !important;
+    --text: #2C2A29 !important;
+    --text-muted: #7A7570 !important;
+    
+    --primary: #8B5A3C !important;
+    --primary-hover: #A66F47 !important;
+    --secondary: #556B4D !important;
+    --secondary-hover: #6B8560 !important;
+    
+    --accent-warm: #D4A373 !important;
+    --accent-emotional: #C9956D !important;
+    --hover-card: #F5F0E8 !important;
+    
+    --shadow: 0 2px 6px rgba(139, 90, 60, 0.08), inset 0 1px 2px rgba(255,255,255,0.3) !important;
+    --shadow-md: 0 6px 20px rgba(85, 107, 77, 0.12), inset 0 2px 4px rgba(255,255,255,0.2) !important;
+    
+    --border: #E5DFD8 !important;
+    --danger: #A94040 !important;
+    
+    font-family: 'Outfit', 'Work Sans', sans-serif !important;
+    font-weight: 400;
+    letter-spacing: 0.3px;
+    line-height: 1.52 !important;
+}
+
+body.modo-oscuro {
+    --bg: #1A1714 !important;
+    --card: #21201D !important;
+    --input: #17141F !important;
+    --text: #EBE6E1 !important;
+    --text-muted: #A89E99 !important;
+    --primary: #C4956D !important;
+    --primary-hover: #D4A87F !important;
+    --secondary: #8FB38F !important;
+    --secondary-hover: #A5C5A5 !important;
+    --accent-warm: #E5B895 !important;
+    --hover-card: #2A2520 !important;
+    --border: #34302A !important;
+}
+
+/* ==================== TIPOGRAFÍA HUMANIZADA ==================== */
+body {
+    font-family: 'Outfit', -apple-system, 'Segoe UI', sans-serif !important;
+    font-weight: 400;
+}
+
+h1, h2, h3 {
+    font-family: 'Quicksand', 'Playfair Display', serif !important;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+}
+
+h2 {
+    font-size: 1.35rem !important;
+    font-weight: 700;
+    margin-bottom: 1.8rem !important;
+    color: var(--primary) !important;
+    position: relative;
+    padding-bottom: 0.8rem;
+}
+
+h2::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 4.5rem;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent-emotional), var(--primary), transparent);
+    border-radius: 1px;
+}
+
+/* ==================== ESPACIADO ASIMÉTRICO ==================== */
+body {
+    padding: 1.7rem 2.1rem !important;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.card {
+    padding: 1.9rem 2.2rem !important;
+    margin-bottom: 2.3rem !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 10px 14px 10px 12px !important;
+    background: var(--card) !important;
+    box-shadow: var(--shadow) !important;
+    position: relative;
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent-emotional), transparent, transparent);
+    border-radius: 10px 14px 0 0;
+}
+
+.modulo {
+    border-radius: 8px 14px 8px 10px !important;
+    padding: 1.6rem 1.3rem !important;
+    transition: all 0.35s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+    border: 1px solid var(--border) !important;
+    box-shadow: var(--shadow) !important;
+}
+
+.modulo:hover {
+    transform: translateY(-4px) rotate(0.5deg) !important;
+    box-shadow: var(--shadow-md) !important;
+    border-color: var(--accent-emotional) !important;
+}
+
+.row {
+    display: flex;
+    gap: 1.5rem 1.2rem !important;
+    flex-wrap: wrap;
+    margin-bottom: 1.3rem !important;
+}
+
+.row > * {
+    flex: 1;
+    min-width: 140px;
+}
+
+/* ==================== BORDES Y SOMBRAS IRREGULARES ==================== */
+input, textarea, select {
+    border: 1px solid var(--border) !important;
+    border-radius: 6px 10px 6px 8px !important;
+    background: var(--input) !important;
+    padding: 0.85rem 1.1rem !important;
+    color: var(--text) !important;
+    font-family: 'Outfit', sans-serif !important;
+    transition: all 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+}
+
+input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--primary) !important;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.03), 0 0 0 3px rgba(139, 90, 60, 0.12) !important;
+    transform: translateY(-1px);
+}
+
+button {
+    background: var(--secondary) !important;
+    border-radius: 6px 12px 6px 10px !important;
+    padding: 0.9rem 1.6rem !important;
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    transition: all 0.32s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    box-shadow: var(--shadow) !important;
+    border: none;
+    color: white;
+}
+
+button:hover {
+    background: var(--secondary-hover) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: var(--shadow-md) !important;
+}
+
+button:active {
+    transform: translateY(0) !important;
+}
+
+/* ==================== MICROINTERACCIONES Y ANIMACIONES ==================== */
+@keyframes slideInBounce {
+    0% {
+        transform: translateX(100%) translateY(-20px);
+        opacity: 0;
+    }
+    60% {
+        transform: translateX(-5px);
+    }
+    80% {
+        transform: translateX(2px);
+    }
+    100% {
+        transform: translateX(0) translateY(0);
+        opacity: 1;
+    }
+}
+
+.toast {
+    animation: slideInBounce 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+}
+
+@keyframes gentleShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-1px); }
+    75% { transform: translateX(1px); }
+}
+
+.alert-warning {
+    animation: gentleShake 0.4s ease-in-out 0.3s;
+}
+
+.btn-icono {
+    transition: all 0.24s ease-out !important;
+}
+
+.modulo {
+    transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+}
+
+@keyframes subtleBreath {
+    0%, 100% {
+        background-color: var(--bg);
+    }
+    50% {
+        background-color: #FFFAF5;
+    }
+}
+
+body {
+    animation: subtleBreath 45s ease-in-out infinite !important;
+}
+
+/* ==================== DETALLES HUMANIZADORES ==================== */
+.alert-info {
+    border: 1.5px dashed var(--accent-emotional) !important;
+    border-left: 4px solid var(--accent-emotional) !important;
+    background: linear-gradient(135deg, rgba(196, 149, 109, 0.05) 0%, rgba(85, 107, 77, 0.02) 100%) !important;
+    padding: 1.2rem 1.5rem !important;
+}
+
+.alert-warning {
+    border-left: 4px solid #D4956D !important;
+    border-radius: 0 8px 8px 0;
+}
+
+.card {
+    background: linear-gradient(135deg from bottom, rgba(212, 163, 115, 0.02) 0%, transparent 100%), var(--card) !important;
+}
+
+.doctor-fijo::before {
+    content: '▪';
+    position: absolute;
+    left: -12px;
+    color: var(--accent-warm);
+    font-size: 0.6rem;
+}
+
+.doctor-fijo {
+    position: relative;
+    padding-left: 8px;
+}
+
+.header::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    width: 80px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--accent-emotional), transparent);
+    border-radius: 2px;
+    transform: translateX(-50%);
+}
+
+.header {
+    position: relative;
+    margin-bottom: 2.5rem !important;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 150px;
+    height: 150px;
+    opacity: 0.03;
+    pointer-events: none;
+    z-index: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M10,50 Q30,10 50,30 T90,50' stroke='%238B5A3C' fill='none' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M20,70 Q40,40 60,60 T100,80' stroke='%23556B4D' fill='none' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-position: bottom right;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 600px) {
+    body {
+        padding: 1.2rem 1.4rem !important;
+    }
+    
+    .card {
+        padding: 1.4rem 1.6rem !important;
+        border-radius: 8px 12px 8px 10px !important;
+    }
+    
+    .row {
+        gap: 1rem 0.8rem !important;
+    }
+    
+    h2 {
+        font-size: 1.1rem !important;
+        margin-bottom: 1.3rem !important;
+    }
+    
+    .modulo {
+        padding: 1.2rem 1.1rem !important;
+        border-radius: 8px 12px 8px 10px !important;
+    }
+}
+
+.hidden { display: none !important; }
+.activa { display: block !important; }
+.activo { visibility: visible !important; opacity: 1 !important; }
+    </style>
+
 </head>
 <body>
 <div class="container">
